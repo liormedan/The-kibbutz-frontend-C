@@ -8,10 +8,11 @@ import { Cpu, Database, FolderGit2, Globe, Leaf, Plus, Users } from "lucide-reac
 import EmptyState from "@/components/EmptyState";
 import { fetchMyProjects } from "@/services/user.service";
 import type { Project, ProjectIconType } from "@/types/project.types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const IconMap: Record<ProjectIconType, typeof Leaf> = { leaf: Leaf, cpu: Cpu, database: Database, globe: Globe };
 
-function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
+function ProjectCard({ project, onOpen, membersLabel }: { project: Project; onOpen: () => void; membersLabel: string }) {
   const Icon = IconMap[project.iconType] ?? Leaf;
   return (
     <div onClick={onOpen} className="glass-card flex cursor-pointer flex-col gap-3 rounded-2xl p-5 text-right transition-all hover:shadow-md">
@@ -32,7 +33,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       </div>
       <div className="mt-auto flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
         <Users className="h-3.5 w-3.5" />
-        חברים: {project.members?.length ?? 0}/{project.maxMembers}
+        {membersLabel}
       </div>
     </div>
   );
@@ -40,6 +41,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
 
 export default function MyProjectsView() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [owned, setOwned] = useState<Project[]>([]);
   const [joined, setJoined] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,21 +56,25 @@ export default function MyProjectsView() {
         setOwned(res.owned ?? []);
         setJoined(res.joined ?? []);
       } catch {
-        setError("שגיאה בטעינת הפרויקטים");
+        setError(t("loadError"));
       } finally {
         setLoading(false);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const membersLabel = (p: Project) =>
+    t("membersCount", { current: p.members?.length ?? 0, max: p.maxMembers });
+
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6" dir="rtl">
+    <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <FolderGit2 className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold text-foreground">הפרויקטים שלי</h1>
-            <p className="mt-1 text-sm text-muted-foreground">הפרויקטים שיצרת ואלה שהצטרפת אליהם.</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("myProjects")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("myProjectsSub")}</p>
           </div>
         </div>
         <button
@@ -76,7 +82,7 @@ export default function MyProjectsView() {
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          פרויקט חדש
+          {t("createNewProject")}
         </button>
       </div>
 
@@ -89,24 +95,24 @@ export default function MyProjectsView() {
       ) : owned.length === 0 && joined.length === 0 ? (
         <EmptyState
           icon={<FolderGit2 className="h-8 w-8 text-primary" />}
-          title="עדיין אין פרויקטים"
-          description="צור פרויקט חדש או הצטרף לאחד מדף גילוי הפרויקטים."
+          title={t("myProjectsEmpty")}
+          description={t("myProjectsEmptySub")}
         />
       ) : (
         <div className="space-y-8">
           {owned.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold text-foreground">יצרתי ({owned.length})</h2>
+              <h2 className="mb-3 text-sm font-bold text-foreground">{t("myProjectsCreated", { count: owned.length })}</h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {owned.map((p) => <ProjectCard key={p.id} project={p} onOpen={() => router.push(`/projects/${p.id}`)} />)}
+                {owned.map((p) => <ProjectCard key={p.id} project={p} membersLabel={membersLabel(p)} onOpen={() => router.push(`/projects/${p.id}`)} />)}
               </div>
             </section>
           )}
           {joined.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold text-foreground">הצטרפתי ({joined.length})</h2>
+              <h2 className="mb-3 text-sm font-bold text-foreground">{t("myProjectsJoined", { count: joined.length })}</h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {joined.map((p) => <ProjectCard key={p.id} project={p} onOpen={() => router.push(`/projects/${p.id}`)} />)}
+                {joined.map((p) => <ProjectCard key={p.id} project={p} membersLabel={membersLabel(p)} onOpen={() => router.push(`/projects/${p.id}`)} />)}
               </div>
             </section>
           )}

@@ -5,6 +5,7 @@
 
 import { Users } from "lucide-react";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface TeamPreview {
   id: string;
@@ -21,14 +22,15 @@ const TEAMS: TeamPreview[] = [
 ];
 
 export default function TeamsView() {
+  const { t, dir } = useI18n();
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6" dir="rtl">
-      <ComingSoonBanner feature="צוותים" className="mb-4" />
+    <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
+      <ComingSoonBanner feature={t("teams")} className="mb-4" />
       <div className="mb-6 flex items-center gap-3">
         <Users className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-bold text-foreground">צוותים</h1>
-          <p className="mt-1 text-sm text-muted-foreground">הצטרפו לצוותי קהילה לפי תחומי עניין.</p>
+          <h1 className="text-2xl font-bold text-foreground">{t("teams")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("teamsSub")}</p>
         </div>
       </div>
 
@@ -47,13 +49,13 @@ export default function TeamsView() {
             <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-4">
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Users className="h-3.5 w-3.5" />
-                {team.membersCount} חברים
+                {t("teamMembers", { count: team.membersCount })}
               </span>
               <button
                 disabled
                 className="cursor-not-allowed rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary opacity-60"
               >
-                בקרוב
+                {t("comingSoon")}
               </button>
             </div>
           </div>

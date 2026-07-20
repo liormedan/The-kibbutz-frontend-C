@@ -56,6 +56,11 @@ export const dictionary = {
 
     // ── Friends ──
     friendsSub: "קשרים מפרויקטים, עוקבים ובקשות חברות.",
+    friendsConnections: "קשרים מפרויקטים",
+    friendsFollowing: "עוקב אחרי",
+    friendsFollowers: "עוקבים",
+    followBtn: "עקוב",
+    followingBtn: "עוקב",
 
     // ── Settings ──
     settingsAppearance: "מראה",
@@ -136,6 +141,11 @@ export const dictionary = {
 
     // ── Friends ──
     friendsSub: "Project connections, followers and friend requests.",
+    friendsConnections: "Project Connections",
+    friendsFollowing: "Following",
+    friendsFollowers: "Followers",
+    followBtn: "Follow",
+    followingBtn: "Following",
 
     // ── Settings ──
     settingsAppearance: "Appearance",
