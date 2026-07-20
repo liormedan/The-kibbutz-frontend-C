@@ -30,15 +30,15 @@ const GUEST_PROJECTS: GuestProject[] = [
 ];
 
 const ICON_BG: Record<string, string> = {
-  leaf: "from-green-500/30 to-green-600/10 border-green-500/20",
-  cpu: "from-indigo-500/30 to-indigo-600/10 border-indigo-500/20",
-  database: "from-amber-500/30 to-amber-600/10 border-amber-500/20",
-  globe: "from-blue-500/30 to-blue-600/10 border-blue-500/20",
+  leaf: "from-secondary/25 to-secondary/5 border-secondary/20",
+  cpu: "from-primary/25 to-primary/5 border-primary/20",
+  database: "from-accent/25 to-accent/5 border-accent/20",
+  globe: "from-secondary/25 to-accent/10 border-secondary/20",
 };
 
 const ICON_COLOR: Record<string, string> = {
-  leaf: "text-green-400", cpu: "text-indigo-400",
-  database: "text-amber-400", globe: "text-blue-400",
+  leaf: "text-secondary", cpu: "text-primary",
+  database: "text-accent", globe: "text-secondary",
 };
 
 function ProjectIcon({ type }: { type: GuestProject["iconType"] }) {
@@ -65,27 +65,28 @@ function GuestPage() {
     <div className="min-h-screen bg-background text-foreground" dir="rtl">
 
       {/* ─── Header ─────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/90 backdrop-blur-md">
+      <header className="sticky top-0 z-30 glass-panel border-b border-[var(--border)]">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
 
           {/* Logo — right (RTL start) */}
           <div className="flex items-center gap-2.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo_clean.png" alt="הקיבוץ" className="w-8 h-8 rounded-lg" />
-            <span className="font-bold text-lg tracking-tight">הקיבוץ</span>
+            <span className="font-bold text-lg tracking-tight text-foreground">הקיבוץ</span>
           </div>
 
           {/* Auth buttons — left (RTL end) */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push("/login")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/8 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               כניסה
             </button>
             <button
               onClick={() => router.push("/register")}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold bg-primary text-white hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary-dark transition-colors"
             >
               <UserPlus className="w-4 h-4" />
               הרשמה חינם
@@ -95,29 +96,29 @@ function GuestPage() {
       </header>
 
       {/* ─── Hero ───────────────────────────────────────── */}
-      <section className="border-b border-white/5 bg-gradient-to-b from-slate-900 to-background">
+      <section className="border-b border-[var(--border)] bg-gradient-to-b from-background-subtle to-background">
         <div className="max-w-6xl mx-auto px-4 py-14 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             מצב תצוגה — הצטרף כדי להשתתף
           </div>
-          <h1 className="text-4xl font-bold mb-3 tracking-tight">
-            מצא את הפרויקט הבא שלך
+          <h1 className="text-4xl font-bold mb-3 tracking-tight text-foreground">
+            הקהילה שבונה ביחד
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">
-            קהילת יזמים, מפתחים ומעצבים שבונים ביחד. גלה פרויקטים, הצטרף לצוות, ובנה משהו מגניב.
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
+            קהילת יזמים, מפתחים ומעצבים. שתפו עדכונים, הציגו תיקי עבודות, והתחברו לאנשים שבונים דברים מגניבים.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <button
               onClick={() => router.push("/register")}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
             >
               הצטרף לקיבוץ בחינם
               <ArrowLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => router.push("/login")}
-              className="px-6 py-2.5 rounded-xl border border-white/15 text-slate-300 font-medium hover:bg-white/5 transition-colors"
+              className="px-6 py-2.5 rounded-xl border border-[var(--border)] text-foreground font-medium hover:bg-primary/5 transition-colors"
             >
               יש לי חשבון
             </button>
@@ -125,27 +126,27 @@ function GuestPage() {
         </div>
       </section>
 
-      {/* ─── Feed ───────────────────────────────────────── */}
+      {/* ─── Showcase ───────────────────────────────────── */}
       <main className="max-w-6xl mx-auto px-4 py-8">
 
         {/* Search */}
         <div className="relative max-w-md mb-6">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="חפש פרויקטים, תגיות, טכנולוגיות..."
-            className="w-full bg-slate-900 border border-white/10 rounded-xl pr-9 pl-4 py-2.5 text-sm placeholder:text-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
+            placeholder="חפש בקהילה — תגיות, טכנולוגיות, אנשים..."
+            className="w-full bg-card border border-[var(--border)] rounded-xl pr-9 pl-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
           />
         </div>
 
         {/* Stats strip */}
-        <div className="flex items-center gap-6 mb-6 text-sm text-slate-500">
-          <span>{filtered.length} פרויקטים פעילים</span>
+        <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground">
+          <span>{filtered.length} תיקי עבודות</span>
           <span>·</span>
           <span>48 חברים בקהילה</span>
           <span>·</span>
-          <span>12 פרויקטים הושלמו</span>
+          <span>קהילה פעילה</span>
         </div>
 
         {/* Grid */}
@@ -154,10 +155,10 @@ function GuestPage() {
             <div
               key={p.id}
               onClick={() => router.push("/register")}
-              className="group relative rounded-2xl border border-white/8 bg-slate-900/60 hover:bg-slate-900 hover:border-white/15 transition-all duration-200 cursor-pointer overflow-hidden"
+              className="group relative rounded-2xl border border-[var(--border)] bg-card hover:border-[var(--card-hover-border)] hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden"
             >
               {/* Cover gradient */}
-              <div className={`h-20 bg-gradient-to-br ${ICON_BG[p.iconType]} border-b border-white/5`} />
+              <div className={`h-20 bg-gradient-to-br ${ICON_BG[p.iconType]} border-b border-[var(--border)]`} />
 
               <div className="p-4">
                 <div className="flex items-center gap-2.5 mb-3">
@@ -165,26 +166,26 @@ function GuestPage() {
                     <ProjectIcon type={p.iconType} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold text-sm truncate text-foreground group-hover:text-primary transition-colors">
                       {p.title}
                     </h3>
-                    <p className="text-xs text-slate-500">{p.owner}</p>
+                    <p className="text-xs text-muted-foreground">{p.owner}</p>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-400 leading-relaxed mb-3 line-clamp-2">
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-2">
                   {p.description}
                 </p>
 
                 <div className="flex flex-wrap gap-1 mb-3">
                   {p.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-400">
+                    <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/5 border border-[var(--border)] text-muted-foreground">
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Users className="w-3.5 h-3.5" />
                     {p.memberCount}/{p.maxMembers} חברים
@@ -194,22 +195,19 @@ function GuestPage() {
                   </span>
                 </div>
               </div>
-
-              {/* Blur overlay hint */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           ))}
         </div>
 
         {/* Bottom CTA */}
         <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
-          <h2 className="text-xl font-bold mb-2">רוצה להצטרף לפרויקט?</h2>
-          <p className="text-slate-400 text-sm mb-5">
-            הרשמה חינמית — בחר תפקיד, הגש מועמדות, ובנה ביחד
+          <h2 className="text-xl font-bold mb-2 text-foreground">רוצה להצטרף לקהילה?</h2>
+          <p className="text-muted-foreground text-sm mb-5">
+            הרשמה חינמית — שתפו, הציגו תיקי עבודות, והתחברו לאנשים
           </p>
           <button
             onClick={() => router.push("/register")}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
           >
             <UserPlus className="w-4 h-4" />
             הצטרף לקיבוץ
