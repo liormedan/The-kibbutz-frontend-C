@@ -1,8 +1,30 @@
 "use client";
-// הקיבוץ – App shell
-// One consistent template for every authenticated page: a fixed sidebar
-// (right in RTL / left in LTR) + a scrolling content area. The sidebar is
-// driven by the current route. Wrap any app page: <AppShell>...</AppShell>.
+// ============================================================================
+// הקיבוץ – AppShell  ·  THE application template (host for every app page)
+// ============================================================================
+// This component IS the app's single, consistent template. It renders the
+// fixed sidebar (right in RTL / left in LTR) + a scrolling content area, and
+// hosts whatever page is passed as `children`. The active sidebar item is
+// derived from the current route (see activeFromPath / TAB_ROUTES below), so
+// every page highlights correctly without any page-local tab state.
+//
+// HOW IT HOSTS PAGES
+//   Each authenticated route segment has a tiny `layout.tsx` of the form:
+//       export default function Layout({ children }) {
+//         return <AppShell>{children}</AppShell>;
+//       }
+//   That layout wraps the segment, so the page file itself only renders its
+//   own content — it never draws the sidebar and never "stands alone".
+//
+// HOSTED (inside the shell, via each segment's layout.tsx):
+//   /dashboard (explore home), /feed, /portfolios, /my-projects,
+//   /my-applications, /teams, /messages, /friends, /profile, /settings,
+//   /projects/*, /nda/*, /matches
+//
+// NOT HOSTED (public / auth flows — intentionally standalone, no sidebar):
+//   /, /login, /register, /verify-email, /reset-password, /oauth/callback,
+//   /onboarding, /admin
+// ============================================================================
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

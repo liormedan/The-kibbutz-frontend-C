@@ -34,8 +34,17 @@ This is the web client for The Kibbutz - the community network where people conn
 
 ```
 src/
-├── app/                # App Router pages (feed, portfolios, messages, ...)
-├── components/         # UI components (NotificationCenter, SocialNav, ...)
+├── app/                # App Router. Every authenticated segment has a tiny
+│   │                   #   layout.tsx that wraps its pages in <AppShell>.
+│   ├── dashboard/      #   the home: "discover projects" (explore)
+│   ├── feed/ portfolios/ messages/ profile/ my-projects/
+│   ├── teams/ friends/ settings/ my-applications/ matches/ nda/ projects/
+│   └── login/ register/ ...   # public / auth flows — NO shell (standalone)
+├── components/
+│   ├── AppShell.tsx    # THE template — fixed sidebar + content, hosts every page
+│   ├── DashboardSidebar.tsx  # the sidebar itself (route-driven)
+│   └── views/          # page bodies rendered inside the shell
+│       │               #   (ExploreView, MyProjectsView, TeamsView, ...)
 ├── services/           # One module per domain - the only place that calls the API
 ├── lib/api/            # The backend contract lives here:
 │   ├── types.ts        #   DTOs + enums, 1:1 with the backend
@@ -45,6 +54,28 @@ src/
 ├── store/              # Zustand stores
 └── types/              # UI-facing view types
 ```
+
+## App Shell & Navigation
+
+The whole app lives inside **one template**: [`AppShell`](./src/components/AppShell.tsx).
+It draws the fixed sidebar (right in RTL / left in LTR) and hosts whatever page
+you give it. No page ever draws its own sidebar or stands alone.
+
+- **Every route is its own URL.** Each sidebar item navigates to a real page —
+  `/dashboard` (explore/home), `/feed`, `/portfolios`, `/my-projects`,
+  `/my-applications`, `/teams`, `/messages`, `/friends`, `/profile`, `/settings`.
+  There's no in-page tab state anywhere.
+- **How a page gets the shell:** its segment has a one-line `layout.tsx` that
+  returns `<AppShell>{children}</AppShell>`. The page file only renders its body.
+- **The active item** is derived from the current route (`activeFromPath` in
+  `AppShell.tsx`), so highlighting is automatic.
+- **Public / auth pages** (`/`, `/login`, `/register`, `/verify-email`,
+  `/reset-password`, `/oauth/callback`, `/onboarding`, `/admin`) are intentionally
+  **not** wrapped — they have no sidebar.
+
+Adding a new in-app page: create the route, drop in a `layout.tsx` that wraps
+`AppShell`, and (if it's a sidebar destination) add it to the `tabs` list in
+`DashboardSidebar.tsx` and to `TAB_ROUTES` / `activeFromPath` in `AppShell.tsx`.
 
 ## Getting Started
 
