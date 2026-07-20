@@ -1038,7 +1038,7 @@ export default function Home() {
       id: Date.now().toString(),
       title: newTitle,
       description: newDesc,
-      tags: tagsArray.length > 0 ? tagsArray : ["General"],
+      tags: tagsArray.length > 0 ? tagsArray : ["כללי"],
       maxMembers: Number(newLimit) || 5,
       members: ["user-1"],
       memberRoles: { "user-1": profileRole },
@@ -1850,7 +1850,7 @@ export default function Home() {
               <div className="space-y-2.5">
                 {selectedProject.members.map(mid => {
                   const u = mockUsers[mid] || { name: profileName, avatar: profileAvatar };
-                  const role = selectedProject.memberRoles[mid] || "Member";
+                  const role = selectedProject.memberRoles[mid] || "חבר";
                   return (
                     <div key={mid} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-white/5">
                       <div className="flex items-center gap-3">
@@ -2195,7 +2195,7 @@ export default function Home() {
               <div>
                 <label className="block text-xs font-semibold text-primary mb-1.5 text-center">{t.projectName}</label>
                 <input type="text" required
-                  placeholder="e.g. Green Tech App"
+                  placeholder="לדוגמה: אפליקציית טק ירוקה"
                   value={newTitle} onChange={e => setNewTitle(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl text-sm text-center text-[#47331f] placeholder:text-center focus:outline-none transition-all"
                   style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(210,100,45,0.2)", backdropFilter: "blur(8px)" }}
@@ -2207,7 +2207,7 @@ export default function Home() {
               <div>
                 <label className="block text-xs font-semibold text-primary mb-1.5 text-center">{t.projectDesc}</label>
                 <textarea required rows={3}
-                  placeholder="Describe your project goals..."
+                  placeholder="תארו את מטרות הפרויקט..."
                   value={newDesc} onChange={e => setNewDesc(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl text-sm text-center text-[#47331f] placeholder:text-center resize-none focus:outline-none transition-all"
                   style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(210,100,45,0.2)", backdropFilter: "blur(8px)" }}

@@ -21,10 +21,10 @@ interface RoleInput {
 }
 
 const ICON_OPTIONS: { value: ProjectIconType; label: string }[] = [
-  { value: "leaf", label: "LEAF" },
-  { value: "cpu", label: "CPU" },
-  { value: "database", label: "DATABASE" },
-  { value: "globe", label: "GLOBE" },
+  { value: "leaf", label: "עלה (אקולוגיה)" },
+  { value: "cpu", label: "מעבד (טכנולוגיה)" },
+  { value: "database", label: "נתונים" },
+  { value: "globe", label: "רשת / גלובלי" },
 ];
 
 export default function CreateProjectPage() {

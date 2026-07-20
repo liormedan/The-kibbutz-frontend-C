@@ -209,7 +209,7 @@ export default function DashboardSidebar({
           <button
             onClick={onToggleCollapsed}
             className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer"
-            title={sidebarCollapsed ? "Expand" : "Collapse"}
+            title={sidebarCollapsed ? "הרחב" : "כווץ"}
           >
             <ChevronDown
               className={`w-4 h-4 transition-transform duration-300 ${
