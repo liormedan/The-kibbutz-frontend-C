@@ -1,7 +1,11 @@
-import { redirect } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import PortfoliosView from "@/components/views/PortfoliosView";
 
-// Portfolios now live inside the dashboard shell as a tab.
-// Keep this route as a redirect so old links / bookmarks still work.
+// The portfolios page — rendered inside the shared app shell (fixed sidebar).
 export default function PortfoliosPage() {
-  redirect("/dashboard?tab=portfolios");
+  return (
+    <AppShell>
+      <PortfoliosView />
+    </AppShell>
+  );
 }

@@ -22,6 +22,7 @@ import { fetchMyProjects } from "@/services/user.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Project, ProjectIconType } from "@/types/project.types";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import AppShell from "@/components/AppShell";
 
 type ExpFilter = "all" | "1-2" | "3-5" | "5+";
 
@@ -129,7 +130,7 @@ export default function MatchesPage() {
   const visibleResults = isEntrepreneur ? visibleUsers : visibleProjects;
 
   return (
-    <main className="min-h-screen bg-[var(--background)] p-6" dir="rtl">
+    <AppShell>
       <div className="mx-auto max-w-5xl">
         <ComingSoonBanner feature="התאמות" className="mb-4" />
         <div className="mb-6 flex items-center gap-3">
@@ -269,6 +270,6 @@ export default function MatchesPage() {
         projectId={applyProject?.id ?? ""}
         projectTitle={applyProject?.title ?? ""}
       />
-    </main>
+    </AppShell>
   );
 }

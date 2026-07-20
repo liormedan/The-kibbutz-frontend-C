@@ -1,7 +1,11 @@
-import { redirect } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import FeedView from "@/components/views/FeedView";
 
-// The feed now lives inside the dashboard shell as a tab.
-// Keep this route as a redirect so old links / bookmarks still work.
+// The feed page — rendered inside the shared app shell (fixed sidebar).
 export default function FeedPage() {
-  redirect("/dashboard?tab=feed");
+  return (
+    <AppShell>
+      <FeedView />
+    </AppShell>
+  );
 }
