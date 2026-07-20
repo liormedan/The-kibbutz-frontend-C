@@ -38,6 +38,9 @@ import {
 import EmptyState from "@/components/EmptyState";
 import FriendsTab from "@/components/FriendsTab";
 import DashboardSidebar, { type DashboardTab } from "@/components/DashboardSidebar";
+import FeedView from "@/components/views/FeedView";
+import PortfoliosView from "@/components/views/PortfoliosView";
+import ComingSoonBanner from "@/components/ComingSoonBanner";
 
 // Types
 interface Comment {
@@ -767,7 +770,7 @@ export default function Home() {
   // App states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("All");
-  const [activeTab, setActiveTab] = useState<ActiveTab>("explore");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("feed");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   // item 23 – advanced filter panel
@@ -903,6 +906,12 @@ export default function Home() {
 
   // reset pagination when filters change
   useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedTags, filterTeamSize, filterDomain, activeTab]);
+
+  // open a specific tab from ?tab= (used by /feed and /portfolios redirects)
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "feed" || tab === "portfolios") setActiveTab(tab);
+  }, []);
 
   const toggleLanguage = () => {
     const nextLang = lang === "en" ? "he" : "en";
@@ -1141,8 +1150,12 @@ export default function Home() {
       {/* Main Panel */}
       <main className={`min-w-0 flex-1 h-full flex flex-col overflow-y-auto relative ${activeTab === "settings" ? "p-0" : "p-4 md:p-6 w-full"} pb-20 md:pb-0`}>
 
-        {/* Top Header — hidden on settings */}
-        <header className={`flex justify-between items-center mb-4 shrink-0 ${activeTab === "settings" ? "hidden" : ""}`}>
+        {/* Feed & Portfolios — real backend data, rendered inside the shell */}
+        {activeTab === "feed" && <FeedView />}
+        {activeTab === "portfolios" && <PortfoliosView />}
+
+        {/* Top Header — hidden on settings / feed / portfolios */}
+        <header className={`flex justify-between items-center mb-4 shrink-0 ${activeTab === "settings" || activeTab === "feed" || activeTab === "portfolios" ? "hidden" : ""}`}>
           <div>
             <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
               {activeTab === "explore" && t.exploreProjects}
@@ -1229,6 +1242,7 @@ export default function Home() {
         {/* View explore / my-projects */}
         {(activeTab === "explore" || activeTab === "my-projects") && (
           <>
+            <ComingSoonBanner feature="פרויקטים" className="mb-4" />
             {/* Search and creation button */}
             <section className="mb-2 flex gap-4 items-center shrink-0">
               <div className="relative flex-1">

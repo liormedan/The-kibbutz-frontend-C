@@ -158,6 +158,12 @@ if (AUTH_SEED) {
   await context.addInitScript((seed) => {
     try { window.sessionStorage.setItem("kibbutz-auth", seed); } catch {}
   }, AUTH_SEED);
+  // The middleware (proxy.ts) gates protected routes on this cookie — without it
+  // /dashboard, /profile, /nda redirect to "/" and would look falsely "OK".
+  await context.addCookies([
+    { name: "kibbutz-session", value: "1", url: BASE },
+    { name: "kibbutz-role", value: "participant", url: BASE },
+  ]);
 }
 
 for (const route of ROUTES) {
