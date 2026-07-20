@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Routes that require a logged-in user
-const AUTH_REQUIRED = ["/dashboard", "/profile", "/nda", "/onboarding"];
+const AUTH_REQUIRED = ["/projects", "/profile", "/nda", "/onboarding"];
 
 // Routes that require role=admin (also requires auth)
 const ADMIN_REQUIRED = ["/admin"];
@@ -38,14 +38,14 @@ export function proxy(request: NextRequest) {
   // Redirect non-admins away from admin routes
   const needsAdmin = ADMIN_REQUIRED.some(r => pathname.startsWith(r));
   if (needsAdmin && (!isAuthed || !isAdmin)) {
-    const dest = isAuthed ? "/dashboard" : "/";
+    const dest = isAuthed ? "/projects" : "/";
     return NextResponse.redirect(new URL(dest, request.url));
   }
 
   // Redirect authenticated users away from the root auth page
   const isPublicOnly = PUBLIC_ONLY.some(r => pathname === r);
   if (isPublicOnly && isAuthed) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/projects", request.url));
   }
 
   return NextResponse.next();

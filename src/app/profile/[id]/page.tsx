@@ -272,7 +272,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
             {[
               { icon: <Briefcase className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id === userId).length, label: "פרויקטים שיצר" },
               { icon: <Users className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id !== userId).length, label: "הצטרף אל" },
-              { icon: <Award className="w-4 h-4" />, value: profile.successCount, label: "Success Badges" },
+              { icon: <Award className="w-4 h-4" />, value: profile.successCount, label: "תגי הצלחה" },
             ].map((stat, i) => (
               <div key={i} className="text-center p-3 rounded-xl" style={{ background: "rgba(210,100,45,0.06)" }}>
                 <div className="flex justify-center text-primary mb-1">{stat.icon}</div>
@@ -285,7 +285,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
-          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "Badges"]].map(([id, label]) => (
+          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "תגים"]].map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}

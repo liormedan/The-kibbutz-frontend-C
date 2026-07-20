@@ -4,7 +4,6 @@
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Heart, MessageCircle, Loader2, Send } from "lucide-react";
-import SocialNav from "@/components/SocialNav";
 import {
   fetchPost,
   likePost,
@@ -129,7 +128,6 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div dir="rtl" className="min-h-screen bg-background">
-      <SocialNav />
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link

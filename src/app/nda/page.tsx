@@ -386,7 +386,7 @@ export default function NdaPage() {
             <p className="text-xs text-muted-foreground mb-8">
               החוזה נשמר בפרופיל שלך תחת "החוזים שלי".
             </p>
-            <button onClick={() => router.push("/dashboard")}
+            <button onClick={() => router.push("/projects")}
               className="px-8 py-3 rounded-xl text-white font-bold text-sm cursor-pointer transition-all"
               style={{ background: "linear-gradient(135deg, #d2642d, #e8753d)" }}>
               חזרה לפלטפורמה

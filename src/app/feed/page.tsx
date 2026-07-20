@@ -1,11 +1,10 @@
-import AppShell from "@/components/AppShell";
 import FeedView from "@/components/views/FeedView";
 
-// The feed page — rendered inside the shared app shell (fixed sidebar).
+// The feed page. The shared shell (fixed sidebar) is provided by feed/layout.tsx.
 export default function FeedPage() {
   return (
-    <AppShell>
+    <div className="p-4 md:p-6">
       <FeedView />
-    </AppShell>
+    </div>
   );
 }

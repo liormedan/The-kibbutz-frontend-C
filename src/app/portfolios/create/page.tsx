@@ -5,7 +5,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Loader2, Send } from "lucide-react";
-import SocialNav from "@/components/SocialNav";
 import { createPortfolio } from "@/services/portfolio.service";
 
 const CATEGORIES = ["עיצוב", "פיתוח", "אמנות", "צילום", "אחר"];
@@ -52,7 +51,6 @@ export default function CreatePortfolioPage() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-background">
-      <SocialNav />
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link

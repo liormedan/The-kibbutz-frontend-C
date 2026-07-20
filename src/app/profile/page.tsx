@@ -224,7 +224,7 @@ function ProfileContent({
             {[
               { icon: <Briefcase className="w-4 h-4" />, value: projects.filter(p => p.role === "owner").length, label: "פרויקטים שיצרתי" },
               { icon: <Users className="w-4 h-4" />, value: projects.filter(p => p.role === "member").length, label: "הצטרפתי אל" },
-              { icon: <Award className="w-4 h-4" />, value: badges.length, label: "Success Badges" },
+              { icon: <Award className="w-4 h-4" />, value: badges.length, label: "תגי הצלחה" },
             ].map((stat, i) => (
               <div key={i} className="text-center p-3 rounded-xl" style={{ background: "rgba(210,100,45,0.06)" }}>
                 <div className="flex justify-center text-primary mb-1">{stat.icon}</div>
@@ -237,7 +237,7 @@ function ProfileContent({
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
-          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "Badges"]] .map(([id, label]) => (
+          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "תגים"]] .map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}
@@ -335,7 +335,7 @@ function ProfileContent({
             {badges.length === 0 && (
               <div className="glass-panel rounded-xl p-8 text-center border border-[var(--border)]">
                 <Award className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">עוד אין Badges. סיים פרויקט בהצלחה כדי לקבל!</p>
+                <p className="text-sm text-muted-foreground">עוד אין תגים. סיים פרויקט בהצלחה כדי לקבל!</p>
               </div>
             )}
           </div>

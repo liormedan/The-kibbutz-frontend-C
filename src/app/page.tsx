@@ -223,7 +223,7 @@ export default function Page() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   useEffect(() => {
     if (isAuthenticated || process.env.NEXT_PUBLIC_DEV_BYPASS === "true") {
-      router.replace("/dashboard");
+      router.replace("/projects");
     }
   }, [isAuthenticated, router]);
 

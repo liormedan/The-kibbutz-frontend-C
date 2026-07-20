@@ -1,8 +1,30 @@
 "use client";
-// הקיבוץ – App shell
-// One consistent template for every authenticated page: a fixed sidebar
-// (right in RTL / left in LTR) + a scrolling content area. The sidebar is
-// driven by the current route. Wrap any app page: <AppShell>...</AppShell>.
+// ============================================================================
+// הקיבוץ – AppShell  ·  THE application template (host for every app page)
+// ============================================================================
+// This component IS the app's single, consistent template. It renders the
+// fixed sidebar (right in RTL / left in LTR) + a scrolling content area, and
+// hosts whatever page is passed as `children`. The active sidebar item is
+// derived from the current route (see activeFromPath / TAB_ROUTES below), so
+// every page highlights correctly without any page-local tab state.
+//
+// HOW IT HOSTS PAGES
+//   Each authenticated route segment has a tiny `layout.tsx` of the form:
+//       export default function Layout({ children }) {
+//         return <AppShell>{children}</AppShell>;
+//       }
+//   That layout wraps the segment, so the page file itself only renders its
+//   own content — it never draws the sidebar and never "stands alone".
+//
+// HOSTED (inside the shell, via each segment's layout.tsx):
+//   /projects (explore home) + /projects/[id] + /projects/create, /feed,
+//   /portfolios, /my-projects, /my-applications, /applications, /teams,
+//   /messages, /friends, /profile, /settings, /nda/*, /matches
+//
+// NOT HOSTED (public / auth flows — intentionally standalone, no sidebar):
+//   /, /login, /register, /verify-email, /reset-password, /oauth/callback,
+//   /onboarding, /admin
+// ============================================================================
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -22,18 +44,18 @@ const SIDEBAR_T: Record<string, string> = {
   all: "הכל",
 };
 
-// Where each sidebar item navigates. Dashboard-only tabs use ?tab=.
+// Where each sidebar item navigates — every item has its own top-level route.
 const TAB_ROUTES: Record<DashboardTab, string> = {
-  explore: "/dashboard",
+  explore: "/projects",
   feed: "/feed",
   portfolios: "/portfolios",
-  "my-projects": "/dashboard?tab=my-projects",
-  "my-applications": "/dashboard/my-applications",
-  teams: "/dashboard?tab=teams",
+  "my-projects": "/my-projects",
+  "my-applications": "/my-applications",
+  teams: "/teams",
   messages: "/messages",
-  friends: "/dashboard?tab=friends",
+  friends: "/friends",
   profile: "/profile",
-  settings: "/dashboard?tab=settings",
+  settings: "/settings",
 };
 
 function activeFromPath(pathname: string): DashboardTab {
@@ -41,7 +63,11 @@ function activeFromPath(pathname: string): DashboardTab {
   if (pathname.startsWith("/portfolios")) return "portfolios";
   if (pathname.startsWith("/messages")) return "messages";
   if (pathname.startsWith("/profile")) return "profile";
-  if (pathname.startsWith("/dashboard/my-applications")) return "my-applications";
+  if (pathname.startsWith("/my-projects")) return "my-projects";
+  if (pathname.startsWith("/my-applications")) return "my-applications";
+  if (pathname.startsWith("/teams")) return "teams";
+  if (pathname.startsWith("/friends")) return "friends";
+  if (pathname.startsWith("/settings")) return "settings";
   return "explore";
 }
 
@@ -76,9 +102,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           localStorage.setItem("new-kibbutz-sidebar-collapsed", String(next));
         }}
       />
-      <main className="min-w-0 flex-1 h-full overflow-y-auto p-4 md:p-6 pb-20 md:pb-0">
+      {/* Content region. Each page controls its own padding/width, so pages
+          that bring their own <main> stay the single semantic main. */}
+      <div className="min-w-0 flex-1 h-full overflow-y-auto pb-20 md:pb-0">
         {children}
-      </main>
+      </div>
     </div>
   );
 }

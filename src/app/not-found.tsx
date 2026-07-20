@@ -17,7 +17,7 @@ export default function NotFound() {
         <p className='text-sm text-muted-foreground mb-8'>העמוד שחיפשת לא קיים. ייתכן שהקישור שגוי או שהדף הוסר.</p>
         <div className='flex gap-3 justify-center flex-wrap'>
           <Link
-            href='/dashboard'
+            href='/projects'
             style={{ background: 'linear-gradient(135deg, #d2642d, #e8753d)' }}
             className='text-white px-5 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity'
           >
