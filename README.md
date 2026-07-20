@@ -36,9 +36,9 @@ This is the web client for The Kibbutz - the community network where people conn
 src/
 ├── app/                # App Router. Every authenticated segment has a tiny
 │   │                   #   layout.tsx that wraps its pages in <AppShell>.
-│   ├── dashboard/      #   the home: "discover projects" (explore)
+│   ├── projects/       #   the home: "discover projects" (explore) + [id]/create
 │   ├── feed/ portfolios/ messages/ profile/ my-projects/
-│   ├── teams/ friends/ settings/ my-applications/ matches/ nda/ projects/
+│   ├── teams/ friends/ settings/ my-applications/ applications/ matches/ nda/
 │   └── login/ register/ ...   # public / auth flows — NO shell (standalone)
 ├── components/
 │   ├── AppShell.tsx    # THE template — fixed sidebar + content, hosts every page
@@ -62,7 +62,7 @@ It draws the fixed sidebar (right in RTL / left in LTR) and hosts whatever page
 you give it. No page ever draws its own sidebar or stands alone.
 
 - **Every route is its own URL.** Each sidebar item navigates to a real page —
-  `/dashboard` (explore/home), `/feed`, `/portfolios`, `/my-projects`,
+  `/projects` (explore/home), `/feed`, `/portfolios`, `/my-projects`,
   `/my-applications`, `/teams`, `/messages`, `/friends`, `/profile`, `/settings`.
   There's no in-page tab state anywhere.
 - **How a page gets the shell:** its segment has a one-line `layout.tsx` that

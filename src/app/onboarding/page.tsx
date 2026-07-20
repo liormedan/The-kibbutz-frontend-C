@@ -79,7 +79,7 @@ export default function OnboardingPage() {
               : "FIVE_PLUS",
         })),
       } as unknown as Parameters<typeof completeOnboarding>[0]);
-      router.push("/dashboard");
+      router.push("/projects");
     } finally {
       setLoading(false);
     }

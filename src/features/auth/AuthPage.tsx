@@ -3,7 +3,7 @@
 /**
  * הקיבוץ – Auth Page (Root /)
  * דף ראשון — כניסה והרשמה
- * אחרי כניסה מוצלחת → /dashboard
+ * אחרי כניסה מוצלחת → /projects
  *
  * DEV BYPASS: הפעל NEXT_PUBLIC_DEV_BYPASS=true
  *   - .env.development.local  → locally
@@ -56,8 +56,8 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
     setLoading("dev");
     await new Promise(r => setTimeout(r, 400));
     devBypassLogin();                          // sets useAuthStore with mock user
-    setSessionCookies("entrepreneur");        // lets proxy.ts allow /dashboard
-    router.push("/dashboard");
+    setSessionCookies("entrepreneur");        // lets proxy.ts allow /projects
+    router.push("/projects");
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -65,7 +65,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
     try {
       const payload = await loginWithEmail({ email: loginEmail, password: loginPassword });
       setSessionCookies(payload.user.role.toLowerCase());
-      router.push("/dashboard");
+      router.push("/projects");
     } catch (err: unknown) { setError(getErrorMessage(err, "שגיאה בהתחברות")); }
     finally { setLoading(null); }
   }
@@ -112,7 +112,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
       }
       const payload = await handleOAuthCallback(provider, code, state);
       setSessionCookies(payload.user.role.toLowerCase());
-      router.push("/dashboard");
+      router.push("/projects");
     } catch (err: unknown) { setError(getErrorMessage(err, `שגיאה עם ${provider}`)); }
     finally { setLoading(null); }
   }

@@ -1,6 +1,6 @@
 'use client'
 /**
- * הקיבוץ – Applications Management /dashboard/applications
+ * הקיבוץ – Applications Management /applications
  * ניהול מועמדויות לפרויקטים שלי וצד היזם
  * TODO backend: query applications(projectId), mutation respondToApplication
  */

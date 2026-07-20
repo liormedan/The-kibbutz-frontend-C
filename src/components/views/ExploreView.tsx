@@ -1,5 +1,5 @@
 "use client";
-// הקיבוץ – Explore / Discover projects (the /dashboard home)
+// הקיבוץ – Explore / Discover projects (the /projects home)
 // Brand-styled, self-contained discovery grid. Projects are an orphan domain
 // (no backend yet) so a "coming soon" banner sits over mock data.
 

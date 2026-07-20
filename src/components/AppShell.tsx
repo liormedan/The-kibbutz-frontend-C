@@ -17,9 +17,9 @@
 //   own content — it never draws the sidebar and never "stands alone".
 //
 // HOSTED (inside the shell, via each segment's layout.tsx):
-//   /dashboard (explore home), /feed, /portfolios, /my-projects,
-//   /my-applications, /teams, /messages, /friends, /profile, /settings,
-//   /projects/*, /nda/*, /matches
+//   /projects (explore home) + /projects/[id] + /projects/create, /feed,
+//   /portfolios, /my-projects, /my-applications, /applications, /teams,
+//   /messages, /friends, /profile, /settings, /nda/*, /matches
 //
 // NOT HOSTED (public / auth flows — intentionally standalone, no sidebar):
 //   /, /login, /register, /verify-email, /reset-password, /oauth/callback,
@@ -46,7 +46,7 @@ const SIDEBAR_T: Record<string, string> = {
 
 // Where each sidebar item navigates — every item has its own top-level route.
 const TAB_ROUTES: Record<DashboardTab, string> = {
-  explore: "/dashboard",
+  explore: "/projects",
   feed: "/feed",
   portfolios: "/portfolios",
   "my-projects": "/my-projects",

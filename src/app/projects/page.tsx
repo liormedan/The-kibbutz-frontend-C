@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
+import ExploreView from "@/components/views/ExploreView";
 
-// "Discover projects" lives at /dashboard (the authenticated home). The old
-// public /projects browse was a duplicate of it, so this route now redirects.
-// The real sub-pages /projects/[id] and /projects/create stay as-is.
-export default function ProjectsIndexPage() {
-  redirect("/dashboard");
+// /projects — the home page: discover projects ("גלה פרויקטים").
+// The shared shell (fixed sidebar) is provided by projects/layout.tsx.
+export default function ProjectsHomePage() {
+  return <ExploreView />;
 }

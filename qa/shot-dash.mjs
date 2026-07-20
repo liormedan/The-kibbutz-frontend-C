@@ -14,7 +14,7 @@ await ctx.addInitScript((v)=>{try{sessionStorage.setItem("kibbutz-auth",v)}catch
 await ctx.addCookies([{name:"kibbutz-session",value:"1",url:BASE},{name:"kibbutz-role",value:"participant",url:BASE}]);
 const p=await ctx.newPage();
 const errs=[];p.on("pageerror",e=>errs.push("PE:"+e.message.slice(0,140)));p.on("console",m=>{if(m.type()==="error")errs.push(m.text().slice(0,140))});
-await p.goto(BASE+"/dashboard",{waitUntil:"load"});await p.waitForTimeout(1800);
+await p.goto(BASE+"/projects",{waitUntil:"load"});await p.waitForTimeout(1800);
 console.log("url=",p.url().replace(BASE,""),"errs=",errs.length,errs.slice(0,2));
-await p.screenshot({path:join(__dirname,"clean-dashboard.png")});
+await p.screenshot({path:join(__dirname,"clean-home.png")});
 await b.close();console.log("done");

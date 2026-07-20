@@ -63,7 +63,7 @@ export default function DashboardSidebar({
   // Every item has its own top-level route, so the sidebar always navigates
   // (consistent across the whole app — no page-local tab state).
   const tabs: { id: DashboardTab; label: string; icon: ReactNode; route: string }[] = [
-    { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/dashboard" },
+    { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/projects" },
     { id: "feed", label: "פיד", icon: <Newspaper className={iconCls} />, route: "/feed" },
     { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
     { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
@@ -77,7 +77,7 @@ export default function DashboardSidebar({
 
   const MOBILE_TABS: { id: DashboardTab; label: string; route?: string; badge?: number; icon: (active: boolean) => React.ReactNode }[] = [
     {
-      id: "explore", label: "גלה", route: "/dashboard",
+      id: "explore", label: "גלה", route: "/projects",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>

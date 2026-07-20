@@ -135,7 +135,7 @@ export default function CreateProjectPage() {
       // TODO backend: persist requireNda / isDraft once the schema supports a draft status and NDA flag.
       void requireNda;
       void isDraft;
-      router.push("/dashboard");
+      router.push("/projects");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "יצירת הפרויקט נכשלה");
     } finally {

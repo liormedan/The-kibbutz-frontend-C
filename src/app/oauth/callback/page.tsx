@@ -53,7 +53,7 @@ function OAuthCallbackHandler() {
         setSessionCookies(payload.user.role.toLowerCase());
         
         if (payload.user.isProfileComplete) {
-          router.push("/dashboard");
+          router.push("/projects");
         } else {
           router.push("/onboarding");
         }
