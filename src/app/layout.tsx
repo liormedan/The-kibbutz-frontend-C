@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { connectSignalR } from "@/services/notification.service";
+import PendingBackendToast from "@/components/PendingBackendToast";
 
 export default function RootLayout({
   children,
@@ -40,7 +41,10 @@ export default function RootLayout({
 
   return (
     <html lang="he" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <PendingBackendToast />
+      </body>
     </html>
   );
 }

@@ -21,6 +21,12 @@ export function notImplemented(feature: string): never {
   if (process.env.NODE_ENV !== "production") {
     console.warn(`[pending-backend] ${feature} — no REST endpoint yet`);
   }
+  // Surface a friendly toast (PendingBackendToast listens for this).
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("kibbutz:pending-backend", { detail: { feature } }),
+    );
+  }
   throw new PendingBackendError(feature);
 }
 
