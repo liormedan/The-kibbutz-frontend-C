@@ -48,12 +48,19 @@ export const useConversationStore = create<ConversationState>()((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
 }));
 
+// Stable empty reference — returning a fresh [] from a zustand selector makes
+// useSyncExternalStore loop under React 19 ("getSnapshot should be cached").
+const EMPTY_MESSAGES: Message[] = [];
+
 export const selectActiveConversation = (s: ConversationState) =>
   s.conversations.find(conversation => conversation.id === s.activeConversationId) ?? null;
 
 export const selectMessagesByConversation = (conversationId: string) => (s: ConversationState) =>
-  s.messagesByConversation[conversationId] ?? [];
+  s.messagesByConversation[conversationId] ?? EMPTY_MESSAGES;
 
+// NOTE: this returns a fresh array on every call. Do NOT subscribe to it
+// directly (`useConversationStore(selectUnreadConversations)`) or it will loop —
+// read a primitive off it (e.g. `.length`) or wrap with zustand's `useShallow`.
 export const selectUnreadConversations = (s: ConversationState) =>
   s.conversations.filter(conversation =>
     Boolean(conversation.lastMessage) && conversation.id !== s.activeConversationId

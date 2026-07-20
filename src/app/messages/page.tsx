@@ -8,6 +8,11 @@ import { connectChatHub, fetchMessages, sendMessage } from "@/services/conversat
 import { fetchUserById } from "@/services/user.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useConversationStore } from "@/store/useConversationStore";
+import type { Message } from "@/types/message.types";
+
+// Stable reference for the "no messages" case — returning a fresh []
+// from the zustand selector triggers an infinite re-render loop in React 19.
+const NO_MESSAGES: Message[] = [];
 
 function MessagesLoading() {
   return (
@@ -31,7 +36,7 @@ function MessagesContent() {
   const bottomRef = useRef<HTMLDivElement>(null);
   
   const messages = useConversationStore(state =>
-    otherUserId ? (state.messagesByConversation[otherUserId] ?? []) : []
+    otherUserId ? (state.messagesByConversation[otherUserId] ?? NO_MESSAGES) : NO_MESSAGES
   );
 
   useEffect(() => {

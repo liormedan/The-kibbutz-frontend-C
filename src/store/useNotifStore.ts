@@ -70,5 +70,6 @@ export const useNotifStore = create<NotifState>()((set) => ({
 
 export const selectNotifications = (s: NotifState) => s.notifications;
 export const selectUnreadCount   = (s: NotifState) => s.unreadCount;
+// Returns a fresh array — don't subscribe directly; read `.length` or use `useShallow`.
 export const selectUnread        = (s: NotifState) => s.notifications.filter(n => !n.isRead);
 export const selectHasUnread     = (s: NotifState) => s.unreadCount > 0;
