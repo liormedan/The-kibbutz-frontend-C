@@ -128,3 +128,16 @@
    עוברים כמספרים. הפרונט מסתמך על זה. אם משנים ל-strings — צריך לעדכן את הפרונט.
 5. **`/api/posts/feed`** מסומן `[AllowAnonymous]` אך קורא ל-`GetCurrentUserId()`
    ללא בדיקה — ייכשל למשתמש לא מחובר. מומלץ לתקן בבקאנד.
+
+---
+
+## 🐛 באגים שהתגלו ב-E2E (2026-07-20)
+
+בבדיקת E2E מול הבקאנד האמיתי התגלו שני באגים בצד השרת (הפרונט תקין):
+
+1. **`POST /api/posts` → 400 (NullReferenceException)** — הפוסט נשמר אך התשובה
+   נכשלת כי `post.Author` לא נטען לפני המיפוי ל-DTO.
+2. **`POST /api/portfolios` → 400** — אותו שורש (`portfolio.Owner` null).
+
+תיאור מלא + patch מדויק: ראה `docs/BACKEND_BUGS.md`. אחרי התיקון: **10/10**
+בדיקות E2E עוברות (register→login→post→like→comment→portfolio→feed).
