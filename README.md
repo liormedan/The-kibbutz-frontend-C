@@ -77,6 +77,35 @@ Adding a new in-app page: create the route, drop in a `layout.tsx` that wraps
 `AppShell`, and (if it's a sidebar destination) add it to the `tabs` list in
 `DashboardSidebar.tsx` and to `TAB_ROUTES` / `activeFromPath` in `AppShell.tsx`.
 
+### Routes
+
+There is **no `/dashboard`** — the home is `/projects` ("discover projects").
+
+**Inside the shell** (fixed sidebar):
+
+| Route | Shows | Sidebar item |
+|---|---|---|
+| `/projects` | **Discover projects (home)** | גלה פרויקטים |
+| `/feed` | Feed | פיד |
+| `/portfolios` | Portfolios | תיקי עבודות |
+| `/my-projects` | My projects (owned + joined) | הפרויקטים שלי |
+| `/my-applications` | My applications | המועמדויות שלי |
+| `/teams` | Teams *(coming soon)* | צוותים |
+| `/messages` | Direct messages | הודעות |
+| `/friends` | Friends / connections | חברים |
+| `/profile` | My profile | פרופיל אישי |
+| `/settings` | Settings | הגדרות |
+| `/matches` | Matching *(coming soon)* | — |
+| `/nda`, `/nda/inbox` | NDA *(coming soon)* | — |
+| `/applications` | Applications management (project owner) | — |
+
+**Dynamic pages** (also inside the shell): `/projects/[id]`, `/projects/[id]/manage`,
+`/projects/[id]/team`, `/projects/create`, `/feed/[id]`, `/portfolios/[id]`,
+`/portfolios/create`, `/profile/[id]`.
+
+**Standalone** (no shell — public / auth flows): `/`, `/login`, `/register`,
+`/verify-email`, `/reset-password`, `/oauth/callback`, `/onboarding`, `/admin`.
+
 ## Getting Started
 
 ### Need
