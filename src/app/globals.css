@@ -1,0 +1,333 @@
+@import "tailwindcss";
+
+/* ============================================
+   הקיבוץ – Brand Design Tokens
+   Source: thekibbutzapp.com (extracted via Claude)
+   Migrated to V2 (liormedan/innovate)
+   ============================================ */
+
+/* Tailwind v4 custom theme tokens */
+@theme {
+  --color-background:        #f4eee1;
+  --color-background-subtle: #faf7f0;
+  --color-surface:           #f7f4ed;
+  --color-card:              #f7f4ed;
+
+  --color-primary:           #d2642d;
+  --color-primary-dark:      #a34e29;
+  --color-primary-subtle:    rgb(210 100 45 / 0.1);
+
+  --color-secondary:         #799b4b;
+  --color-secondary-light:   #a0c270;
+
+  --color-accent:            #d19847;
+  --color-accent-dark:       #b8832e;
+
+  --color-foreground:        #47331f;
+  --color-foreground-muted:  #594026;
+  --color-muted:             #e4ddcd;
+  --color-muted-foreground:  #80664d;
+
+  --color-border:            #d9ccbf;
+  --color-input:             #e4ddcd;
+  --color-ring:              #d2642d;
+
+  /* Brand named colors (used in brand site) */
+  --color-cream:             #f4eee1;
+  --color-cream-light:       #faf7f0;
+  --color-terracotta:        #d2642d;
+  --color-terracotta-dark:   #a34e29;
+  --color-olive:             #799b4b;
+  --color-olive-light:       #a0c270;
+  --color-gold:              #d19847;
+  --color-brown:             #47331f;
+  --color-brown-light:       #80664d;
+
+  /* Dark mode brand colors */
+  --color-dark-bg:           #1a0f08;
+  --color-dark-card:         #2a1a0e;
+  --color-dark-border:       #3d2210;
+  --color-dark-primary:      #e8753d;
+  --color-dark-secondary:    #8cb356;
+  --color-dark-accent:       #e5a84e;
+  --color-dark-foreground:   #f5ede0;
+  --color-dark-muted:        #b8916a;
+}
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+
+:root {
+  --background:         #f4eee1;
+  --background-subtle:  #faf7f0;
+  --foreground:         #47331f;
+  --card:               #f7f4ed;
+  --card-border:        rgba(89, 64, 38, 0.12);
+  --card-hover-border:  rgba(210, 100, 45, 0.35);
+  --primary:            #d2642d;
+  --primary-hover:      #a34e29;
+  --secondary:          #799b4b;
+  --accent:             #d19847;
+  --accent-hover:       #b8832e;
+  --muted:              #e4ddcd;
+  --muted-foreground:   #80664d;
+  --border:             #d9ccbf;
+  --font-sans:          'Segoe UI', 'Arial', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================
+   BASE
+   ============================================ */
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ============================================
+   GLASS COMPONENTS (warm brand)
+   ============================================ */
+
+.glass-panel {
+  background: rgba(244, 238, 225, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(89, 64, 38, 0.08);
+  box-shadow: 0 4px 20px -4px rgba(89, 64, 38, 0.08);
+}
+
+.glass-card {
+  background: rgba(247, 244, 237, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(247, 244, 237, 0.95);
+  border-color: var(--card-hover-border);
+  box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.15), 0 4px 12px -5px rgba(210, 100, 45, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   GLOW EFFECTS
+   ============================================ */
+
+.glow-primary {
+  box-shadow: 0 0 40px -10px rgba(210, 100, 45, 0.25);
+}
+
+.glow-accent {
+  box-shadow: 0 0 40px -10px rgba(209, 152, 71, 0.3);
+}
+
+/* Legacy aliases */
+.glow-indigo { box-shadow: 0 0 40px -10px rgba(210, 100, 45, 0.25); }
+.glow-teal   { box-shadow: 0 0 40px -10px rgba(121, 155, 75, 0.25); }
+
+/* ============================================
+   SCROLLBARS
+   ============================================ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--background-subtle); }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+/* ============================================
+   DARK THEME – warm brand dark mode
+   פלטה כהה המשמרת את זהות המותג האדמתית
+   ============================================ */
+
+.dark-theme {
+  color-scheme: dark;
+
+  /* Backgrounds – warm very dark brown */
+  --background:         #1a0f08;
+  --background-subtle:  #221409;
+  --card:               #2a1a0e;
+  --card-border:        rgba(210, 100, 45, 0.15);
+  --card-hover-border:  rgba(210, 100, 45, 0.45);
+
+  /* Brand colors – brighter for dark bg */
+  --primary:            #e8753d;
+  --primary-hover:      #d2642d;
+  --secondary:          #8cb356;
+  --accent:             #e5a84e;
+  --accent-hover:       #d19847;
+
+  /* Text – warm off-white / cream tones */
+  --foreground:         #f5ede0;
+  --foreground-muted:   #e0cbb5;
+  --muted:              #4a2e1a;
+  --muted-foreground:   #b8916a;
+
+  /* Borders – warm dark */
+  --border:             #3d2210;
+  --border-subtle:      rgba(210, 100, 45, 0.1);
+  --border-medium:      rgba(210, 100, 45, 0.18);
+}
+
+.dark-theme,
+.dark-theme .min-h-screen {
+  background-color: #1a0f08 !important;
+  color: #f5ede0 !important;
+}
+
+/* Glass – warm dark */
+.dark-theme .glass-panel {
+  background: rgba(34, 20, 9, 0.75) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(210, 100, 45, 0.12) !important;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-theme .glass-card {
+  background: rgba(42, 26, 14, 0.6) !important;
+  border-color: rgba(210, 100, 45, 0.12) !important;
+}
+
+.dark-theme .glass-card:hover {
+  background: rgba(42, 26, 14, 0.85) !important;
+  border-color: rgba(210, 100, 45, 0.45) !important;
+  box-shadow: 0 12px 30px -10px rgba(0,0,0,0.5), 0 4px 12px -5px rgba(210,100,45,0.25) !important;
+}
+
+/* Text overrides for dark mode */
+.dark-theme .text-white { color: #f5ede0 !important; }
+.dark-theme .text-slate-200,
+.dark-theme .text-slate-300 { color: #e0cbb5 !important; }
+.dark-theme .text-slate-400,
+.dark-theme .text-slate-500 { color: #b8916a !important; }
+
+/* Background overrides */
+.dark-theme .bg-slate-900,
+.dark-theme .bg-slate-900\/50,
+.dark-theme .bg-slate-900\/60,
+.dark-theme .bg-slate-900\/80 { background-color: rgba(42, 26, 14, 0.85) !important; }
+
+.dark-theme .bg-slate-800 {
+  background-color: rgba(210, 100, 45, 0.08) !important;
+  color: #f5ede0 !important;
+}
+.dark-theme .bg-slate-800:hover { background-color: rgba(210, 100, 45, 0.14) !important; }
+
+.dark-theme .bg-slate-950\/10,
+.dark-theme .bg-slate-950\/20,
+.dark-theme .bg-slate-950\/30,
+.dark-theme .bg-slate-950\/40 { background-color: rgba(0, 0, 0, 0.3) !important; }
+
+/* Border overrides */
+.dark-theme .border-white\/5,
+.dark-theme .border-white\/10,
+.dark-theme .border-white\/15,
+.dark-theme .border-white\/20 { border-color: rgba(210, 100, 45, 0.12) !important; }
+
+/* Gradient text */
+.dark-theme .bg-gradient-to-r {
+  background-image: linear-gradient(to right, #e8753d, #e5a84e) !important;
+}
+
+/* Inputs */
+.dark-theme input, .dark-theme textarea {
+  background-color: rgba(210, 100, 45, 0.06) !important;
+  color: #f5ede0 !important;
+  border-color: rgba(210, 100, 45, 0.2) !important;
+}
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder { color: #b8916a !important; }
+.dark-theme input:focus,
+.dark-theme textarea:focus {
+  border-color: #e8753d !important;
+  background-color: rgba(210, 100, 45, 0.1) !important;
+}
+
+/* Scrollbars */
+.dark-theme ::-webkit-scrollbar-track { background: #1a0f08 !important; }
+.dark-theme ::-webkit-scrollbar-thumb { background: #3d2210 !important; }
+.dark-theme ::-webkit-scrollbar-thumb:hover { background: #5c3418 !important; }
+
+/* ============================================
+   BRAND THEME CLASS OVERRIDES
+   (for components using hardcoded Tailwind classes)
+   ============================================ */
+
+/* Text colors – map dark palette to warm palette */
+.text-white          { color: var(--foreground) !important; }
+.text-slate-100,
+.text-slate-200      { color: #3d2a14 !important; }
+.text-slate-300      { color: #594026 !important; }
+.text-slate-400      { color: #80664d !important; }
+.text-slate-500      { color: #a08060 !important; }
+
+/* Background overrides */
+.bg-slate-950,
+.bg-\[\#090d16\],
+.min-h-screen        { background-color: var(--background) !important; }
+
+.bg-slate-900,
+.bg-slate-900\/50,
+.bg-slate-900\/60,
+.bg-slate-900\/80    { background-color: rgba(247, 244, 237, 0.85) !important; }
+
+.bg-slate-800        { background-color: rgba(89, 64, 38, 0.06) !important; color: var(--foreground) !important; }
+.bg-slate-800:hover  { background-color: rgba(89, 64, 38, 0.1) !important; }
+
+.bg-slate-950\/10,
+.bg-slate-950\/20,
+.bg-slate-950\/30,
+.bg-slate-950\/40    { background-color: rgba(89, 64, 38, 0.04) !important; }
+
+/* Border overrides */
+.border-white\/5,
+.border-white\/10,
+.border-white\/15,
+.border-white\/20    { border-color: rgba(89, 64, 38, 0.1) !important; }
+
+/* Indigo → Terracotta */
+.bg-indigo-500,
+.bg-indigo-600,
+.bg-violet-600       { background-color: var(--primary) !important; }
+.text-indigo-400,
+.text-indigo-300     { color: var(--primary) !important; }
+.border-indigo-500\/30 { border-color: rgba(210, 100, 45, 0.3) !important; }
+
+/* Teal/Emerald → Olive */
+.bg-teal-500,
+.bg-emerald-500      { background-color: var(--secondary) !important; }
+.text-teal-400,
+.text-emerald-400    { color: var(--secondary) !important; }
+
+/* Input elements */
+input, textarea {
+  background-color: rgba(89, 64, 38, 0.04);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+input::placeholder, textarea::placeholder { color: var(--muted-foreground); }
+input:focus, textarea:focus {
+  border-color: var(--primary);
+  background-color: var(--background-subtle);
+  outline: none;
+}
+
+/* Gradient text – h1 with bg-gradient-to-r */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--primary), var(--accent)) !important;
+}
+
+@media print {
+  nav, header, footer, button, [data-no-print] {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}
