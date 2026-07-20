@@ -22,6 +22,7 @@ import { fetchMyProjects } from "@/services/user.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Project, ProjectIconType } from "@/types/project.types";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpFilter = "all" | "1-2" | "3-5" | "5+";
 
@@ -44,6 +45,7 @@ function normalizeExperience(level: string) {
 }
 
 export default function MatchesPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const user = useAuthStore(state => state.user);
   const isEntrepreneur = user?.canCreateProjects ?? false;
@@ -70,7 +72,7 @@ export default function MatchesPage() {
           setMatchedProjects(await fetchMatchingProjects());
         }
       } catch {
-        setError("שגיאה בטעינת ההתאמות");
+        setError(t("miscLoadMatchesError"));
       } finally {
         setLoading(false);
       }
@@ -86,7 +88,7 @@ export default function MatchesPage() {
     try {
       setMatchedUsers(await fetchMatchingUsers(projectId));
     } catch {
-      setError("שגיאה בטעינת משתתפים");
+      setError(t("miscLoadUsersError"));
     } finally {
       setLoading(false);
     }
@@ -120,10 +122,10 @@ export default function MatchesPage() {
   );
 
   const expFilters: { key: ExpFilter; label: string }[] = [
-    { key: "all", label: "כל הרמות" },
-    { key: "1-2", label: "1-2 שנים" },
-    { key: "3-5", label: "3-5 שנים" },
-    { key: "5+", label: "5+ שנים" },
+    { key: "all", label: t("miscExpAll") },
+    { key: "1-2", label: t("miscExp12") },
+    { key: "3-5", label: t("miscExp35") },
+    { key: "5+", label: t("miscExp5plus") },
   ];
 
   const visibleResults = isEntrepreneur ? visibleUsers : visibleProjects;
@@ -131,26 +133,26 @@ export default function MatchesPage() {
   return (
     <>
       <div className="mx-auto max-w-5xl p-4 md:p-6">
-        <ComingSoonBanner feature="התאמות" className="mb-4" />
+        <ComingSoonBanner feature={t("miscMatchesTitle")} className="mb-4" />
         <div className="mb-6 flex items-center gap-3">
           <Sparkles className="h-7 w-7 text-[var(--primary)]" />
           <div>
-            <h1 className="text-3xl font-bold text-[var(--foreground)]">התאמות</h1>
+            <h1 className="text-3xl font-bold text-[var(--foreground)]">{t("miscMatchesTitle")}</h1>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-              {isEntrepreneur ? "מצאו משתתפים מתאימים לפרויקט שלכם." : "מצאו פרויקטים שמתאימים לכישורים שלכם."}
+              {isEntrepreneur ? t("miscMatchesSubtitleEntrepreneur") : t("miscMatchesSubtitleParticipant")}
             </p>
           </div>
         </div>
 
         {isEntrepreneur && (
           <div className="glass-card mb-5 rounded-xl p-4">
-            <label className="mb-2 block text-sm font-semibold text-[var(--foreground)]">בחרו פרויקט לחיפוש משתתפים</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--foreground)]">{t("miscSelectProjectLabel")}</label>
             <select
               value={selectedProjectId}
               onChange={event => void handleSelectProject(event.target.value)}
               className="w-full rounded-xl border border-[var(--border)] bg-background px-4 py-3 text-sm outline-none focus:border-primary"
             >
-              <option value="">בחרו פרויקט</option>
+              <option value="">{t("miscSelectProjectOption")}</option>
               {ownedProjects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}
             </select>
           </div>
@@ -185,14 +187,14 @@ export default function MatchesPage() {
         ) : isEntrepreneur && !selectedProjectId ? (
           <EmptyState
             icon={<Sparkles className="h-8 w-8 text-[var(--primary)]" />}
-            title="בחרו פרויקט"
-            description="לאחר בחירת פרויקט יוצגו משתתפים שמתאימים לכישורים הנדרשים."
+            title={t("miscSelectProjectOption")}
+            description={t("miscSelectProjectEmptyDesc")}
           />
         ) : visibleResults.length === 0 ? (
           <EmptyState
             icon={<Sparkles className="h-8 w-8 text-[var(--primary)]" />}
-            title="אין התאמות כרגע"
-            description={isEntrepreneur ? "לא נמצאו משתתפים מתאימים לפרויקט שנבחר." : "לא נמצאו פרויקטים שמתאימים לפרופיל שלכם."}
+            title={t("miscNoMatchesTitle")}
+            description={isEntrepreneur ? t("miscNoMatchesEntrepreneur") : t("miscNoMatchesParticipant")}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -209,7 +211,7 @@ export default function MatchesPage() {
                         {matchedUser.successCount > 0 && (
                           <span className="mt-1 flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
                             <Award className="h-3 w-3" />
-                            {matchedUser.successCount} הצלחות
+                            {t("miscSuccesses", { count: matchedUser.successCount })}
                           </span>
                         )}
                       </div>
@@ -224,9 +226,9 @@ export default function MatchesPage() {
                     <div className="mt-auto flex flex-col gap-2 pt-1">
                       <button type="button" onClick={() => handleInvite(matchedUser.id)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white">
                         <MessageSquare className="h-4 w-4" />
-                        הזמן לשיחה
+                        {t("miscInviteToChat")}
                       </button>
-                      <button type="button" onClick={() => dismiss(matchedUser.id)} className="py-1 text-center text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">לא מעוניין</button>
+                      <button type="button" onClick={() => dismiss(matchedUser.id)} className="py-1 text-center text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">{t("miscNotInterested")}</button>
                     </div>
                   </div>
                 ))
@@ -247,14 +249,14 @@ export default function MatchesPage() {
                       <div className="flex flex-wrap gap-1">{project.tags.map(tag => <span key={tag} className="rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] text-[var(--primary)]">{tag}</span>)}</div>
                       <div className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
                         <Users className="h-3.5 w-3.5" />
-                        חברים: {project.members.length}/{project.maxMembers}
+                        {t("miscMembersLabel")} {project.members.length}/{project.maxMembers}
                       </div>
                       <div className="mt-auto flex flex-col gap-2 pt-1">
                         <button type="button" onClick={() => handleApply(project)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white">
                           <UserPlus className="h-4 w-4" />
-                          הגש מועמדות
+                          {t("miscApplyBtn")}
                         </button>
-                        <button type="button" onClick={() => dismiss(project.id)} className="py-1 text-center text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">לא מעוניין</button>
+                        <button type="button" onClick={() => dismiss(project.id)} className="py-1 text-center text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">{t("miscNotInterested")}</button>
                       </div>
                     </div>
                   );

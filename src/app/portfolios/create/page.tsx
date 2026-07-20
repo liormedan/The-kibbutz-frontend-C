@@ -6,11 +6,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Loader2, Send } from "lucide-react";
 import { createPortfolio } from "@/services/portfolio.service";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const CATEGORIES = ["עיצוב", "פיתוח", "אמנות", "צילום", "אחר"];
 
 export default function CreatePortfolioPage() {
   const router = useRouter();
+  const { t, dir } = useI18n();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -26,7 +28,7 @@ export default function CreatePortfolioPage() {
     const trimmedTitle = title.trim();
     const trimmedCategory = category.trim();
     if (!trimmedTitle || !trimmedCategory) {
-      setError("יש למלא כותרת וקטגוריה");
+      setError(t("socialPortfolioValidation"));
       return;
     }
     setPending(true);
@@ -44,13 +46,13 @@ export default function CreatePortfolioPage() {
       });
       router.push(`/portfolios/${created.portfolioId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "יצירת תיק העבודות נכשלה");
+      setError(err instanceof Error ? err.message : t("socialPortfolioCreateError"));
       setPending(false);
     }
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir={dir} className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link
@@ -58,10 +60,10 @@ export default function CreatePortfolioPage() {
           className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" />
-          חזרה לתיקי העבודות
+          {t("socialBackToPortfolios")}
         </Link>
 
-        <h1 className="mb-6 text-xl font-bold text-foreground">צור תיק עבודות</h1>
+        <h1 className="mb-6 text-xl font-bold text-foreground">{t("socialCreatePortfolio")}</h1>
 
         {error && (
           <div className="mb-4 rounded-xl border border-red-300/60 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -76,13 +78,13 @@ export default function CreatePortfolioPage() {
           {/* Title */}
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-foreground">
-              כותרת <span className="text-primary">*</span>
+              {t("socialFieldTitle")} <span className="text-primary">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="שם תיק העבודות"
+              placeholder={t("socialTitlePlaceholder")}
               required
               className="w-full rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
             />
@@ -91,7 +93,7 @@ export default function CreatePortfolioPage() {
           {/* Category */}
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-foreground">
-              קטגוריה <span className="text-primary">*</span>
+              {t("socialFieldCategory")} <span className="text-primary">*</span>
             </label>
             <select
               value={category}
@@ -110,12 +112,12 @@ export default function CreatePortfolioPage() {
           {/* Description */}
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-foreground">
-              תיאור
+              {t("socialFieldDescription")}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="ספרו על תיק העבודות..."
+              placeholder={t("socialDescriptionPlaceholder")}
               rows={4}
               className="w-full resize-none rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
             />
@@ -124,7 +126,7 @@ export default function CreatePortfolioPage() {
           {/* Image URL */}
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-foreground">
-              כתובת תמונה
+              {t("socialFieldImageUrl")}
             </label>
             <input
               type="text"
@@ -139,13 +141,13 @@ export default function CreatePortfolioPage() {
           {/* Tags */}
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-foreground">
-              תגיות
+              {t("socialFieldTags")}
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="הפרדה בפסיקים, לדוגמה: עיצוב, לוגו, מיתוג"
+              placeholder={t("socialTagsPlaceholder")}
               className="w-full rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
             />
           </div>
@@ -157,7 +159,7 @@ export default function CreatePortfolioPage() {
               className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              יצירה
+              {t("socialCreate")}
             </button>
           </div>
         </form>

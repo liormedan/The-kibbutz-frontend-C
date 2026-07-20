@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { User, Briefcase, Plus, X, ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
 import { completeOnboarding } from "@/services/user.service";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Role = "entrepreneur" | "participant" | null;
 type ExpLevel = "1-2" | "3-5" | "5+";
@@ -20,8 +21,6 @@ interface Skill {
   level: ExpLevel;
 }
 
-const STEP_LABELS = ["סוג משתמש", "פרטים אישיים", "כישורים", "סיכום"];
-
 const SKILL_SUGGESTIONS = [
   "React", "Next.js", "Node.js", "Python", "TypeScript",
   "PostgreSQL", "AWS", "Docker", "Figma", "Product Management",
@@ -30,6 +29,8 @@ const SKILL_SUGGESTIONS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { t, dir } = useI18n();
+  const STEP_LABELS = [t("onbStepUserType"), t("onbStepPersonal"), t("onbStepSkills"), t("onbStepSummary")];
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -86,18 +87,18 @@ export default function OnboardingPage() {
   }
 
   const expLabels: Record<ExpLevel, string> = {
-    "1-2": "1–2 שנים",
-    "3-5": "3–5 שנים",
-    "5+": "מעל 5 שנים"
+    "1-2": t("onbExp1to2"),
+    "3-5": t("onbExp3to5"),
+    "5+": t("onbExp5plus")
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4" dir={dir}>
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <Image src="/logo_clean.png" alt="הקיבוץ" width={44} height={44} className="rounded-xl object-cover" />
-        <span className="text-xl font-bold text-foreground">הקיבוץ</span>
+        <Image src="/logo_clean.png" alt={t("authBrand")} width={44} height={44} className="rounded-xl object-cover" />
+        <span className="text-xl font-bold text-foreground">{t("authBrand")}</span>
       </div>
 
       {/* Progress */}
@@ -133,12 +134,12 @@ export default function OnboardingPage() {
         {/* ── STEP 0: Role ── */}
         {step === 0 && (
           <div>
-            <h2 className="text-xl font-bold text-foreground text-center mb-2">ברוכים הבאים לקיבוץ 👋</h2>
-            <p className="text-sm text-muted-foreground text-center mb-8">מה מתאר אותך יותר?</p>
+            <h2 className="text-xl font-bold text-foreground text-center mb-2">{t("onbWelcome")}</h2>
+            <p className="text-sm text-muted-foreground text-center mb-8">{t("onbWhichDescribes")}</p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { id: "entrepreneur", icon: <Briefcase className="w-8 h-8" />, title: "יזם", desc: "יש לי רעיון ואני מחפש צוות לממשו" },
-                { id: "participant",  icon: <User className="w-8 h-8" />,      title: "מפתח/מעצב", desc: "אני מחפש פרויקט אמיתי להצטרף אליו" }
+                { id: "entrepreneur", icon: <Briefcase className="w-8 h-8" />, title: t("onbRoleEntrepreneur"), desc: t("onbRoleEntrepreneurDesc") },
+                { id: "participant",  icon: <User className="w-8 h-8" />,      title: t("onbRoleParticipant"), desc: t("onbRoleParticipantDesc") }
               ].map(opt => (
                 <button key={opt.id} type="button"
                   onClick={() => setRole(opt.id as Role)}
@@ -159,7 +160,7 @@ export default function OnboardingPage() {
               ))}
             </div>
             <p className="text-center text-xs text-muted-foreground mt-4">
-              ניתן לשנות בהגדרות בכל עת
+              {t("onbCanChange")}
             </p>
           </div>
         )}
@@ -167,25 +168,25 @@ export default function OnboardingPage() {
         {/* ── STEP 1: Personal ── */}
         {step === 1 && (
           <div className="space-y-5">
-            <h2 className="text-xl font-bold text-foreground text-center mb-6">ספר לנו עליך</h2>
+            <h2 className="text-xl font-bold text-foreground text-center mb-6">{t("onbTellUs")}</h2>
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">שם מלא *</label>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">{t("authFullNameLabel")}</label>
               <input type="text" value={name} onChange={e => setName(e.target.value)}
-                placeholder="ישראל ישראלי" autoFocus
+                placeholder={t("authNamePlaceholder")} autoFocus
                 className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                ביו קצר <span className="font-normal">(אופציונלי)</span>
+                {t("onbBioLabel")} <span className="font-normal">{t("onbOptional")}</span>
               </label>
               <textarea value={bio} onChange={e => setBio(e.target.value)}
-                placeholder="מה אתה עושה? מה מניע אותך?"
+                placeholder={t("onbBioPlaceholder")}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors resize-none" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1.5">
-                לינקים <span className="font-normal">(LinkedIn, GitHub — אופציונלי)</span>
+                {t("onbLinksLabel")} <span className="font-normal">{t("onbLinksHint")}</span>
               </label>
               <input type="text" value={links} onChange={e => setLinks(e.target.value)}
                 placeholder="https://linkedin.com/in/..."
@@ -197,14 +198,14 @@ export default function OnboardingPage() {
         {/* ── STEP 2: Skills ── */}
         {step === 2 && (
           <div>
-            <h2 className="text-xl font-bold text-foreground text-center mb-2">הכישורים שלך</h2>
-            <p className="text-xs text-muted-foreground text-center mb-6">הוסף לפחות כישור אחד</p>
+            <h2 className="text-xl font-bold text-foreground text-center mb-2">{t("onbSkillsTitle")}</h2>
+            <p className="text-xs text-muted-foreground text-center mb-6">{t("onbSkillsSubtitle")}</p>
 
             {/* Add skill */}
             <div className="flex gap-2 mb-3">
               <input type="text" value={skillInput} onChange={e => setSkillInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addSkill())}
-                placeholder="שם הכישור..."
+                placeholder={t("onbSkillPlaceholder")}
                 className="flex-1 px-3 py-2.5 rounded-xl border border-[var(--border)] bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors" />
               <select value={skillLevel} onChange={e => setSkillLevel(e.target.value as ExpLevel)}
                 className="px-3 py-2.5 rounded-xl border border-[var(--border)] bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors cursor-pointer">
@@ -254,21 +255,21 @@ export default function OnboardingPage() {
         {/* ── STEP 3: Summary ── */}
         {step === 3 && (
           <div>
-            <h2 className="text-xl font-bold text-foreground text-center mb-6">הכל נראה טוב! 🎉</h2>
+            <h2 className="text-xl font-bold text-foreground text-center mb-6">{t("onbAllGood")}</h2>
             <div className="space-y-3 p-4 rounded-2xl mb-6"
               style={{ background: "rgba(210,100,45,0.06)", border: "1px solid rgba(210,100,45,0.15)" }}>
               <div className="flex justify-between items-center border-b border-[var(--border)] pb-3">
                 <span className="text-sm text-foreground font-semibold">{name}</span>
-                <span className="text-xs text-muted-foreground">שם</span>
+                <span className="text-xs text-muted-foreground">{t("onbSummaryName")}</span>
               </div>
               <div className="flex justify-between items-center border-b border-[var(--border)] pb-3">
                 <span className="text-sm font-semibold text-primary">
-                  {role === "entrepreneur" ? "יזם" : "מפתח/מעצב"}
+                  {role === "entrepreneur" ? t("onbRoleEntrepreneur") : t("onbRoleParticipant")}
                 </span>
-                <span className="text-xs text-muted-foreground">תפקיד</span>
+                <span className="text-xs text-muted-foreground">{t("onbSummaryRole")}</span>
               </div>
               <div className="pt-1">
-                <span className="text-xs text-muted-foreground block mb-2 text-left">כישורים</span>
+                <span className="text-xs text-muted-foreground block mb-2 text-left">{t("onbSummarySkills")}</span>
                 <div className="flex flex-wrap gap-1.5">
                   {skills.map((sk, i) => (
                     <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
@@ -279,7 +280,7 @@ export default function OnboardingPage() {
               </div>
             </div>
             <p className="text-xs text-center text-muted-foreground">
-              תוכל לערוך את כל הפרטים בדף הפרופיל בכל עת
+              {t("onbCanEdit")}
             </p>
           </div>
         )}
@@ -291,7 +292,7 @@ export default function OnboardingPage() {
             disabled={step === 0}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all cursor-pointer disabled:opacity-0">
             <ChevronRight className="w-4 h-4" />
-            חזרה
+            {t("onbBack")}
           </button>
 
           <span className="text-xs text-muted-foreground">{step + 1} / {STEP_LABELS.length}</span>
@@ -301,14 +302,14 @@ export default function OnboardingPage() {
               onClick={() => setStep(s => s + 1)}
               disabled={!canNext}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-              המשך
+              {t("onbNext")}
               <ChevronLeft className="w-4 h-4" />
             </button>
           ) : (
             <button type="button" onClick={handleFinish} disabled={loading}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-sm font-bold transition-all cursor-pointer disabled:opacity-60">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              {loading ? "שומר..." : "כניסה לפלטפורמה"}
+              {loading ? t("onbSaving") : t("onbEnterPlatform")}
             </button>
           )}
         </div>

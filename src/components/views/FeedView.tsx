@@ -12,18 +12,19 @@ import {
   unlikePost,
 } from "@/services/post.service";
 import type { PostDto } from "@/lib/api/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function initials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return "עכשיו";
-  if (mins < 60) return `לפני ${mins} דק'`;
+  if (mins < 1) return t("socialTimeNow");
+  if (mins < 60) return t("socialTimeMinutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `לפני ${hours} שע'`;
-  return `לפני ${Math.floor(hours / 24)} ימים`;
+  if (hours < 24) return t("socialTimeHoursAgo", { count: hours });
+  return t("socialTimeDaysAgo", { count: Math.floor(hours / 24) });
 }
 
 function Avatar({ url, name }: { url?: string | null; name: string }) {
@@ -39,6 +40,7 @@ function Avatar({ url, name }: { url?: string | null; name: string }) {
 }
 
 export default function FeedView() {
+  const { t, dir } = useI18n();
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export default function FeedView() {
       const page = await fetchFeed(1, 20);
       setPosts(page?.items ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "טעינת הפיד נכשלה");
+      setError(e instanceof Error ? e.message : t("socialFeedLoadError"));
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ export default function FeedView() {
       setPosts((prev) => [post, ...prev]);
       setDraft("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "פרסום הפוסט נכשל");
+      setError(e instanceof Error ? e.message : t("socialPostCreateError"));
     } finally {
       setPosting(false);
     }
@@ -95,13 +97,13 @@ export default function FeedView() {
   };
 
   return (
-    <div dir="rtl" className="mx-auto w-full max-w-3xl">
+    <div dir={dir} className="mx-auto w-full max-w-3xl">
       {/* Composer */}
       <div className="mb-6 rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="מה חדש בקיבוץ?"
+          placeholder={t("socialComposerPlaceholder")}
           rows={3}
           maxLength={5000}
           className="w-full resize-none rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
@@ -114,7 +116,7 @@ export default function FeedView() {
             className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
             {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            פרסום
+            {t("socialPublish")}
           </button>
         </div>
       </div>
@@ -131,7 +133,7 @@ export default function FeedView() {
         </div>
       ) : posts.length === 0 ? (
         <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
-          אין עדיין פוסטים. תהיו הראשונים לפרסם!
+          {t("socialFeedEmpty")}
         </div>
       ) : (
         <ul className="space-y-4">
@@ -141,7 +143,7 @@ export default function FeedView() {
                 <Avatar url={post.author.profilePictureUrl} name={post.author.fullName} />
                 <div>
                   <p className="text-sm font-semibold text-foreground">{post.author.fullName}</p>
-                  <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt, t)}</p>
                 </div>
               </div>
 

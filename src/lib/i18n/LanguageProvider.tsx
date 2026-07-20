@@ -10,12 +10,16 @@ const LANG_KEY = "new-kibbutz-lang";
 
 type Vars = Record<string, string | number>;
 
+// Keys are typed for autocomplete but any string is accepted, so pages can be
+// migrated to t() independently while their translations are filled in.
+type TKey = TranslationKey | (string & {});
+
 interface I18nContextValue {
   lang: Lang;
   dir: "rtl" | "ltr";
   setLang: (lang: Lang) => void;
   toggleLang: () => void;
-  t: (key: TranslationKey, vars?: Vars) => string;
+  t: (key: TKey, vars?: Vars) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -53,7 +57,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<I18nContextValue>(() => {
-    const t = (key: TranslationKey, vars?: Vars) => {
+    const t = (key: TKey, vars?: Vars) => {
       const table = dictionary[lang] as Record<string, string>;
       const fallback = dictionary.he as Record<string, string>;
       return interpolate(table[key] ?? fallback[key] ?? key, vars);

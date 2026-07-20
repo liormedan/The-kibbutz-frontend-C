@@ -10,6 +10,7 @@ import {
   unlikePortfolio,
 } from "@/services/portfolio.service";
 import type { PortfolioDto } from "@/lib/api/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function initials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
@@ -17,6 +18,7 @@ function initials(name: string): string {
 
 export default function PortfolioDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { t, dir } = useI18n();
 
   const [portfolio, setPortfolio] = useState<PortfolioDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
       const p = await fetchPortfolio(id);
       setPortfolio(p);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "טעינת תיק העבודות נכשלה");
+      setError(e instanceof Error ? e.message : t("socialPortfolioLoadError"));
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir={dir} className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link
@@ -69,7 +71,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
           className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" />
-          חזרה לתיקי העבודות
+          {t("socialBackToPortfolios")}
         </Link>
 
         {error && (
@@ -84,7 +86,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
           </div>
         ) : !portfolio ? (
           <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
-            תיק העבודות לא נמצא.
+            {t("socialPortfolioNotFound")}
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl bg-card shadow-sm border border-[var(--border)]">

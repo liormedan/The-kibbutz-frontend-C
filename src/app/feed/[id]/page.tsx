@@ -14,18 +14,19 @@ import {
   unlikeComment,
 } from "@/services/post.service";
 import type { PostDto, CommentDto } from "@/lib/api/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function initials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
 }
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return "עכשיו";
-  if (mins < 60) return `לפני ${mins} דק'`;
+  if (mins < 1) return t("socialTimeNow");
+  if (mins < 60) return t("socialTimeMinutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `לפני ${hours} שע'`;
-  return `לפני ${Math.floor(hours / 24)} ימים`;
+  if (hours < 24) return t("socialTimeHoursAgo", { count: hours });
+  return t("socialTimeDaysAgo", { count: Math.floor(hours / 24) });
 }
 
 function Avatar({ url, name }: { url?: string | null; name: string }) {
@@ -42,6 +43,7 @@ function Avatar({ url, name }: { url?: string | null; name: string }) {
 
 export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { t, dir } = useI18n();
 
   const [post, setPost] = useState<PostDto | null>(null);
   const [comments, setComments] = useState<CommentDto[]>([]);
@@ -58,7 +60,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
       setPost(p);
       setComments(c?.items ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "טעינת הפוסט נכשלה");
+      setError(e instanceof Error ? e.message : t("socialPostLoadError"));
     } finally {
       setLoading(false);
     }
@@ -120,14 +122,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
       setComments((prev) => [comment, ...prev]);
       setDraft("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "פרסום התגובה נכשל");
+      setError(e instanceof Error ? e.message : t("socialCommentCreateError"));
     } finally {
       setPosting(false);
     }
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir={dir} className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link
@@ -135,7 +137,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" />
-          חזרה לפיד
+          {t("socialBackToFeed")}
         </Link>
 
         {error && (
@@ -150,7 +152,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         ) : !post ? (
           <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
-            הפוסט לא נמצא.
+            {t("socialPostNotFound")}
           </div>
         ) : (
           <>
@@ -162,7 +164,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   <p className="text-sm font-semibold text-foreground">
                     {post.author.fullName}
                   </p>
-                  <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt, t)}</p>
                 </div>
               </div>
 
@@ -195,7 +197,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               <textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="הוסיפו תגובה..."
+                placeholder={t("socialCommentPlaceholder")}
                 rows={3}
                 maxLength={5000}
                 className="w-full resize-none rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30"
@@ -208,7 +210,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
                 >
                   {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  שליחה
+                  {t("socialSend")}
                 </button>
               </div>
             </div>
@@ -216,7 +218,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             {/* Comments */}
             {comments.length === 0 ? (
               <div className="mt-6 rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
-                אין עדיין תגובות. היו הראשונים להגיב!
+                {t("socialCommentsEmpty")}
               </div>
             ) : (
               <ul className="mt-6 space-y-4">
@@ -235,7 +237,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                           {comment.author.fullName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {timeAgo(comment.createdAt)}
+                          {timeAgo(comment.createdAt, t)}
                         </p>
                       </div>
                     </div>

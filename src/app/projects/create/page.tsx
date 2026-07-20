@@ -13,6 +13,7 @@ interface MediaPreview {
 import { createProject } from "@/services/project.service";
 import type { ProjectIconType } from "@/types/project.types";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface RoleInput {
   title: string;
@@ -20,15 +21,16 @@ interface RoleInput {
   slots: number;
 }
 
-const ICON_OPTIONS: { value: ProjectIconType; label: string }[] = [
-  { value: "leaf", label: "עלה (אקולוגיה)" },
-  { value: "cpu", label: "מעבד (טכנולוגיה)" },
-  { value: "database", label: "נתונים" },
-  { value: "globe", label: "רשת / גלובלי" },
+const ICON_OPTIONS: { value: ProjectIconType; labelKey: string }[] = [
+  { value: "leaf", labelKey: "projIconLeaf" },
+  { value: "cpu", labelKey: "projIconCpu" },
+  { value: "database", labelKey: "projIconDatabase" },
+  { value: "globe", labelKey: "projIconGlobe" },
 ];
 
 export default function CreateProjectPage() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [step, setStep] = useState(0);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -77,7 +79,7 @@ export default function CreateProjectPage() {
 
   function addRole() {
     if (!roleTitle.trim()) {
-      setError("יש להזין שם לתפקיד");
+      setError(t("projRoleNameRequired"));
       return;
     }
     setRoles(current => [...current, {
@@ -93,11 +95,11 @@ export default function CreateProjectPage() {
 
   function goToRoles() {
     if (!title.trim() || !description.trim()) {
-      setError("יש למלא שם ותיאור לפרויקט");
+      setError(t("projTitleDescRequired"));
       return;
     }
     if (maxMembers < 2 || maxMembers > 20) {
-      setError("מספר חברי הצוות חייב להיות בין 2 ל-20");
+      setError(t("projMembersRange"));
       return;
     }
     setError("");
@@ -115,7 +117,7 @@ export default function CreateProjectPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (requireNda && !ndaPaid) {
-      setError("יש להשלים את התשלום על הפעלת NDA לפני יצירת הפרויקט");
+      setError(t("projNdaPaymentRequired"));
       return;
     }
     setSubmitting(true);
@@ -137,7 +139,7 @@ export default function CreateProjectPage() {
       void isDraft;
       router.push("/projects");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "יצירת הפרויקט נכשלה");
+      setError(err instanceof Error ? err.message : t("projCreateFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -146,30 +148,30 @@ export default function CreateProjectPage() {
   const fieldClass = "w-full rounded-xl border border-[var(--border)] bg-background px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary";
 
   return (
-    <main className="min-h-screen bg-background p-4 md:p-8" dir="rtl">
+    <main className="min-h-screen bg-background p-4 md:p-8" dir={dir}>
       <div className="mx-auto max-w-2xl">
-        <ComingSoonBanner feature="יצירת פרויקט" className="mb-4" />
+        <ComingSoonBanner feature={t("projCreateFeature")} className="mb-4" />
         <button type="button" onClick={() => router.back()} className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ChevronRight className="h-4 w-4" />
-          חזרה
+          {t("projBack")}
         </button>
 
         <form onSubmit={handleSubmit} className="glass-panel space-y-6 rounded-2xl border border-[var(--border)] p-6 md:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">יצירת פרויקט חדש</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("projCreateTitle")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {step === 0
-                  ? "הגדירו את פרטי הפרויקט."
+                  ? t("projCreateStep0Desc")
                   : step === 1
-                    ? "הגדירו את התפקידים הנדרשים לצורך Matching."
+                    ? t("projCreateStep1Desc")
                     : step === 2
-                      ? "הוסיפו קישורים לאתר, לדמו או לויזואל של הפרויקט."
-                      : "הגדירו דרישת NDA ובחרו אם לפרסם כעת או לשמור כטיוטה."}
+                      ? t("projCreateStep2Desc")
+                      : t("projCreateStep3Desc")}
               </p>
             </div>
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              שלב {step + 1} מתוך 4
+              {t("projStepOf", { step: step + 1 })}
             </span>
           </div>
 
@@ -178,19 +180,19 @@ export default function CreateProjectPage() {
           {step === 0 ? (
             <>
               <label className="block space-y-2">
-                <span className="text-sm font-semibold text-foreground">שם הפרויקט *</span>
+                <span className="text-sm font-semibold text-foreground">{t("projFieldTitle")}</span>
                 <input required value={title} onChange={event => setTitle(event.target.value)} className={fieldClass} />
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-semibold text-foreground">תיאור *</span>
+                <span className="text-sm font-semibold text-foreground">{t("projFieldDescription")}</span>
                 <textarea required rows={5} value={description} onChange={event => setDescription(event.target.value)} className={`${fieldClass} resize-none`} />
               </label>
 
               <div className="space-y-2">
-                <span className="text-sm font-semibold text-foreground">תגיות</span>
+                <span className="text-sm font-semibold text-foreground">{t("projFieldTags")}</span>
                 <div className="flex gap-2">
-                  <input value={tagInput} onChange={event => setTagInput(event.target.value)} onKeyDown={event => handleEnter(event, addTag)} className={fieldClass} placeholder="הקלידו תגית ולחצו Enter" />
+                  <input value={tagInput} onChange={event => setTagInput(event.target.value)} onKeyDown={event => handleEnter(event, addTag)} className={fieldClass} placeholder={t("projTagPlaceholder")} />
                   <button type="button" onClick={addTag} className="rounded-xl bg-primary px-4 text-white"><Plus className="h-4 w-4" /></button>
                 </div>
                 <ChipList values={tags} onRemove={tag => setTags(current => current.filter(item => item !== tag))} />
@@ -198,19 +200,19 @@ export default function CreateProjectPage() {
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="block space-y-2">
-                  <span className="text-sm font-semibold text-foreground">מספר חברים מקסימלי</span>
+                  <span className="text-sm font-semibold text-foreground">{t("projMaxMembers")}</span>
                   <input required type="number" min={2} max={20} value={maxMembers} onChange={event => setMaxMembers(Number(event.target.value))} className={fieldClass} />
                 </label>
                 <label className="block space-y-2">
-                  <span className="text-sm font-semibold text-foreground">סוג אייקון</span>
+                  <span className="text-sm font-semibold text-foreground">{t("projIconType")}</span>
                   <select value={iconType} onChange={event => setIconType(event.target.value as ProjectIconType)} className={fieldClass}>
-                    {ICON_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                    {ICON_OPTIONS.map(option => <option key={option.value} value={option.value}>{t(option.labelKey)}</option>)}
                   </select>
                 </label>
               </div>
 
               <button type="button" onClick={goToRoles} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white">
-                המשך להגדרת תפקידים
+                {t("projContinueToRoles")}
                 <ChevronLeft className="h-4 w-4" />
               </button>
             </>
@@ -218,17 +220,17 @@ export default function CreateProjectPage() {
             <>
               <div className="rounded-2xl border border-[var(--border)] bg-background/60 p-4">
                 <div className="grid gap-3 sm:grid-cols-[1fr_110px]">
-                  <input value={roleTitle} onChange={event => setRoleTitle(event.target.value)} className={fieldClass} placeholder="שם התפקיד, למשל מפתח Backend" />
-                  <input type="number" min={1} max={5} value={roleSlots} onChange={event => setRoleSlots(Number(event.target.value))} className={fieldClass} aria-label="מספר מקומות" />
+                  <input value={roleTitle} onChange={event => setRoleTitle(event.target.value)} className={fieldClass} placeholder={t("projRoleTitlePlaceholder")} />
+                  <input type="number" min={1} max={5} value={roleSlots} onChange={event => setRoleSlots(Number(event.target.value))} className={fieldClass} aria-label={t("projSlotsAria")} />
                 </div>
                 <div className="mt-3 flex gap-2">
-                  <input value={roleSkillInput} onChange={event => setRoleSkillInput(event.target.value)} onKeyDown={event => handleEnter(event, addRoleSkill)} className={fieldClass} placeholder="Skill נדרש ולחצו Enter" />
+                  <input value={roleSkillInput} onChange={event => setRoleSkillInput(event.target.value)} onKeyDown={event => handleEnter(event, addRoleSkill)} className={fieldClass} placeholder={t("projSkillPlaceholder")} />
                   <button type="button" onClick={addRoleSkill} className="rounded-xl border border-primary px-4 text-primary"><Plus className="h-4 w-4" /></button>
                 </div>
                 <ChipList values={roleSkills} onRemove={skill => setRoleSkills(current => current.filter(item => item !== skill))} />
                 <button type="button" onClick={addRole} className="mt-4 flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white">
                   <Plus className="h-4 w-4" />
-                  הוספת תפקיד
+                  {t("projAddRole")}
                 </button>
               </div>
 
@@ -237,7 +239,7 @@ export default function CreateProjectPage() {
                   <div key={`${role.title}-${index}`} className="glass-card flex items-start justify-between gap-4 rounded-xl p-4">
                     <div>
                       <p className="font-semibold text-foreground">{role.title}</p>
-                      <p className="text-xs text-muted-foreground">{role.slots} מקומות</p>
+                      <p className="text-xs text-muted-foreground">{t("projSlots", { count: role.slots })}</p>
                       <div className="mt-2 flex flex-wrap gap-1">
                         {role.requiredSkills.map(skill => <span key={skill} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{skill}</span>)}
                       </div>
@@ -247,13 +249,13 @@ export default function CreateProjectPage() {
                     </button>
                   </div>
                 ))}
-                {roles.length === 0 && <p className="text-center text-sm text-muted-foreground">לא נוספו תפקידים עדיין. ניתן ליצור את הפרויקט ולהוסיף אותם כאשר הבקאנד יתמוך בכך.</p>}
+                {roles.length === 0 && <p className="text-center text-sm text-muted-foreground">{t("projNoRolesAdded")}</p>}
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(0)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">חזרה</button>
+                <button type="button" onClick={() => setStep(0)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">{t("projBack")}</button>
                 <button type="button" onClick={() => setStep(2)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white">
-                  המשך לנוכחות דיגיטלית
+                  {t("projContinueToDigital")}
                   <ChevronLeft className="h-4 w-4" />
                 </button>
               </div>
@@ -262,24 +264,24 @@ export default function CreateProjectPage() {
             <>
               <div className="rounded-2xl border border-[var(--border)] bg-background/60 p-5">
                 <div className="mb-5">
-                  <h2 className="text-lg font-bold text-foreground">נוכחות דיגיטלית</h2>
+                  <h2 className="text-lg font-bold text-foreground">{t("projDigitalPresence")}</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    השדות אופציונליים ויוצגו בעמוד „ראה פרויקט+”.
+                    {t("projDigitalNote")}
                   </p>
                 </div>
                 <div className="space-y-5">
                   <label className="block space-y-2">
-                    <span className="text-sm font-semibold text-foreground">אתר הפרויקט</span>
+                    <span className="text-sm font-semibold text-foreground">{t("projWebsite")}</span>
                     <input type="url" value={websiteUrl} onChange={event => setWebsiteUrl(event.target.value)} className={fieldClass} placeholder="https://yourproject.com" dir="ltr" />
                   </label>
                   <label className="block space-y-2">
-                    <span className="text-sm font-semibold text-foreground">דמו או ויזואל</span>
-                    <input type="url" value={visualUrl} onChange={event => setVisualUrl(event.target.value)} className={fieldClass} placeholder="https://figma.com/... או YouTube" dir="ltr" />
+                    <span className="text-sm font-semibold text-foreground">{t("projDemoVisual")}</span>
+                    <input type="url" value={visualUrl} onChange={event => setVisualUrl(event.target.value)} className={fieldClass} placeholder={t("projDemoVisualPlaceholder")} dir="ltr" />
                   </label>
                   {/* item 54 – media gallery upload */}
                   <div className="space-y-2">
-                    <span className="text-sm font-semibold text-foreground">גלריית תמונות (אופציונלי)</span>
-                    <p className="text-xs text-muted-foreground">עד 6 תמונות. יוצגו בגלריה בדף הפרויקט.</p>
+                    <span className="text-sm font-semibold text-foreground">{t("projGalleryOptional")}</span>
+                    <p className="text-xs text-muted-foreground">{t("projGalleryNote")}</p>
 
                     {/* Upload zone */}
                     <button
@@ -289,7 +291,7 @@ export default function CreateProjectPage() {
                       className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-primary/5 py-5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Upload className="h-4 w-4" />
-                      {mediaFiles.length >= 6 ? "הגעת למגבלת 6 תמונות" : "לחץ להוספת תמונה"}
+                      {mediaFiles.length >= 6 ? t("projGalleryLimit") : t("projClickAddImage")}
                     </button>
                     <input
                       ref={mediaInputRef}
@@ -340,7 +342,7 @@ export default function CreateProjectPage() {
                             className="aspect-square rounded-xl border border-dashed border-[var(--border)] flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                           >
                             <Camera className="h-5 w-5" />
-                            <span className="text-[10px]">הוסף</span>
+                            <span className="text-[10px]">{t("projAdd")}</span>
                           </button>
                         )}
                       </div>
@@ -350,9 +352,9 @@ export default function CreateProjectPage() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(1)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">חזרה</button>
+                <button type="button" onClick={() => setStep(1)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">{t("projBack")}</button>
                 <button type="button" onClick={() => setStep(3)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white">
-                  המשך ל-NDA ופרסום
+                  {t("projContinueToNda")}
                   <ChevronLeft className="h-4 w-4" />
                 </button>
               </div>
@@ -360,7 +362,7 @@ export default function CreateProjectPage() {
           ) : (
             <>
               <div className="rounded-2xl border border-[var(--border)] bg-background/60 p-5 space-y-4">
-                <h2 className="text-lg font-bold text-foreground">דרישת NDA</h2>
+                <h2 className="text-lg font-bold text-foreground">{t("projNdaRequirement")}</h2>
                 <label className="flex items-start gap-3 rounded-xl border border-[var(--border)] p-4 cursor-pointer hover:border-primary transition-colors">
                   <input
                     type="checkbox"
@@ -372,24 +374,24 @@ export default function CreateProjectPage() {
                     className="mt-0.5 h-4 w-4 accent-[var(--primary)]"
                   />
                   <span>
-                    <span className="block text-sm font-semibold text-foreground">להוסיף NDA דרך המערכת (בתוספת תשלום)</span>
-                    <span className="block text-xs text-muted-foreground mt-1">מצטרפים לפרויקט יידרשו לחתום דיגיטלית על הסכם סודיות לפני ההצטרפות.</span>
+                    <span className="block text-sm font-semibold text-foreground">{t("projAddNda")}</span>
+                    <span className="block text-xs text-muted-foreground mt-1">{t("projNdaDesc")}</span>
                   </span>
                 </label>
 
                 {requireNda && (
                   <div className="rounded-xl border border-dashed border-[var(--border)] bg-primary/5 p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-foreground">תשלום הפעלת NDA</span>
+                      <span className="text-sm font-semibold text-foreground">{t("projNdaActivationPayment")}</span>
                       <span className="text-sm font-bold text-primary">₪49</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      התשלום הוא Mock לצורך תצוגה — חיבור לספק תשלומים אמיתי (Stripe) יתבצע כאשר הבקאנד יהיה מוכן.
+                      {t("projNdaMockNote")}
                     </p>
                     {ndaPaid ? (
                       <div className="flex items-center gap-2 rounded-lg bg-secondary/10 px-3 py-2 text-sm font-medium text-secondary">
                         <Check className="h-4 w-4" />
-                        התשלום בוצע בהצלחה
+                        {t("projPaymentDone")}
                       </div>
                     ) : (
                       <button
@@ -399,7 +401,7 @@ export default function CreateProjectPage() {
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                       >
                         {ndaPaying ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                        {ndaPaying ? "מעבד תשלום..." : "שלם והפעל NDA"}
+                        {ndaPaying ? t("projProcessingPayment") : t("projPayActivateNda")}
                       </button>
                     )}
                   </div>
@@ -407,35 +409,35 @@ export default function CreateProjectPage() {
               </div>
 
               <div className="rounded-2xl border border-[var(--border)] bg-background/60 p-5 space-y-3">
-                <h2 className="text-lg font-bold text-foreground">פרסום הפרויקט</h2>
+                <h2 className="text-lg font-bold text-foreground">{t("projPublishProject")}</h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setIsDraft(false)}
                     className={`rounded-xl border p-4 text-right transition-colors ${!isDraft ? "border-primary bg-primary/5" : "border-[var(--border)]"}`}
                   >
-                    <span className="block text-sm font-semibold text-foreground">פרסום מיידי</span>
-                    <span className="block text-xs text-muted-foreground mt-1">הפרויקט יהיה חשוף לכל המשתמשים מרגע היצירה.</span>
+                    <span className="block text-sm font-semibold text-foreground">{t("projPublishNow")}</span>
+                    <span className="block text-xs text-muted-foreground mt-1">{t("projPublishNowDesc")}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsDraft(true)}
                     className={`rounded-xl border p-4 text-right transition-colors ${isDraft ? "border-primary bg-primary/5" : "border-[var(--border)]"}`}
                   >
-                    <span className="block text-sm font-semibold text-foreground">שמירה כטיוטה</span>
-                    <span className="block text-xs text-muted-foreground mt-1">הפרויקט יישמר פרטי עד שתבחרו לפרסם אותו.</span>
+                    <span className="block text-sm font-semibold text-foreground">{t("projSaveDraft")}</span>
+                    <span className="block text-xs text-muted-foreground mt-1">{t("projSaveDraftDesc")}</span>
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  TODO backend: סטטוס Draft אינו נתמך עדיין בסכמת ה-GraphQL — הבחירה כאן מוכנה ל-UI בלבד.
+                  {t("projDraftTodoNote")}
                 </p>
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(2)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">חזרה</button>
+                <button type="button" onClick={() => setStep(2)} className="rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-muted-foreground">{t("projBack")}</button>
                 <button type="submit" disabled={submitting || (requireNda && !ndaPaid)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white disabled:opacity-60">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                  {submitting ? "יוצר פרויקט..." : isDraft ? "שמירה כטיוטה" : "יצירת פרויקט ופרסום"}
+                  {submitting ? t("projCreating") : isDraft ? t("projSaveDraft") : t("projCreatePublish")}
                 </button>
               </div>
             </>

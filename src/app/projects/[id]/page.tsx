@@ -12,13 +12,14 @@ import { addComment, closeProject, fetchProject, leaveProject, uploadProjectMedi
 import { useAuthStore } from "@/store/useAuthStore";
 import { useProjectStore } from "@/store/useProjectStore";
 import type { Project } from "@/types/project.types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ActiveTab = "about" | "roles" | "members" | "discussion";
 
-const COMMITMENT_LABEL: Record<string, string> = {
-  low: "נמוכה (עד 5 שעות/שבוע)",
-  medium: "בינונית (5-10 שעות/שבוע)",
-  high: "גבוהה (10+ שעות/שבוע)",
+const COMMITMENT_LABEL_KEY: Record<string, string> = {
+  low: "projCommitmentLow",
+  medium: "projCommitmentMedium",
+  high: "projCommitmentHigh",
 };
 const COMMITMENT_COLOR: Record<string, string> = {
   low: "bg-green-50 text-green-600 border-green-200",
@@ -90,6 +91,7 @@ const MOCK_PROJECT: Project = {
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { t, dir } = useI18n();
   const currentUser = useAuthStore(state => state.user);
   const token = useAuthStore(state => state.token);
   const storeProject = useProjectStore(state => state.selectedProject);
@@ -145,12 +147,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   if (!project) {
     return (
-      <main className="min-h-screen bg-background p-6" dir="rtl">
+      <main className="min-h-screen bg-background p-6" dir={dir}>
         <EmptyState
           icon={<FileText className="h-8 w-8 text-primary" />}
-          title="הפרויקט לא נמצא"
-          description="לא ניתן לטעון את פרטי הפרויקט."
-          action={<button type="button" onClick={() => router.back()} className="rounded-xl bg-primary px-5 py-2.5 text-sm text-white">חזרה</button>}
+          title={t("projNotFound")}
+          description={t("projNotFoundDesc")}
+          action={<button type="button" onClick={() => router.back()} className="rounded-xl bg-primary px-5 py-2.5 text-sm text-white">{t("projBack")}</button>}
         />
       </main>
     );
@@ -169,7 +171,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     try {
       await addComment(project.id, comment.trim(), {
         id: currentUserId,
-        name: currentUser?.name ?? "אני",
+        name: currentUser?.name ?? t("projMe"),
         avatar: currentUser?.avatar ?? "",
       });
       setComment("");
@@ -179,18 +181,18 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <main className="min-h-screen bg-background p-4 pb-10 md:p-6" dir="rtl">
+    <main className="min-h-screen bg-background p-4 pb-10 md:p-6" dir={dir}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-4 flex items-center justify-between">
           <button type="button" onClick={() => router.back()} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <ChevronRight className="h-4 w-4" />
-            חזרה
+            {t("projBack")}
           </button>
           {/* item 34 – Save/Follow button */}
           <button
             type="button"
             onClick={toggleSave}
-            title={isSaved ? "הסר מהשמורים" : "שמור פרויקט"}
+            title={isSaved ? t("projUnsave") : t("projSaveProject")}
             className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
               isSaved
                 ? "border-primary bg-primary/10 text-primary"
@@ -198,8 +200,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             }`}
           >
             {isSaved
-              ? <><BookmarkCheck className="h-4 w-4" />שמור</>
-              : <><Bookmark className="h-4 w-4" />שמור פרויקט</>
+              ? <><BookmarkCheck className="h-4 w-4" />{t("projSaved")}</>
+              : <><Bookmark className="h-4 w-4" />{t("projSaveProject")}</>
             }
           </button>
         </div>
@@ -214,7 +216,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 <h1 className="text-2xl font-bold text-foreground">{project.title}</h1>
                 <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">{project.statusText}</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">נוצר על ידי {project.owner.name}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("projCreatedBy", { name: project.owner.name })}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {project.tags.map(tag => <span key={tag} className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">{tag}</span>)}
               </div>
@@ -224,7 +226,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         <div className="flex flex-col gap-5 lg:flex-row-reverse lg:items-start">
           <aside className="glass-card order-first rounded-2xl border border-border p-4 lg:sticky lg:top-5 lg:w-80 lg:shrink-0">
-            <h2 className="mb-3 font-bold text-foreground">הפרויקט בפעולה</h2>
+            <h2 className="mb-3 font-bold text-foreground">{t("projInAction")}</h2>
             {heroUrl ? (
               <button type="button" onClick={() => setLightboxUrl(heroUrl)} className="block w-full overflow-hidden rounded-xl">
                 <img src={heroUrl} alt={project.title} className="aspect-video w-full object-cover transition-transform hover:scale-[1.02]" />
@@ -236,14 +238,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             )}
 
             <div className="mt-3 space-y-2">
-              {project.websiteUrl && <ExternalAction href={project.websiteUrl} icon={<Globe className="h-4 w-4" />} label="פתח אתר" />}
-              {project.visualUrl && <ExternalAction href={project.visualUrl} icon={<Eye className="h-4 w-4" />} label="צפה בדמו" />}
+              {project.websiteUrl && <ExternalAction href={project.websiteUrl} icon={<Globe className="h-4 w-4" />} label={t("projOpenSite")} />}
+              {project.visualUrl && <ExternalAction href={project.visualUrl} icon={<Eye className="h-4 w-4" />} label={t("projViewDemo")} />}
             </div>
 
             {/* Gallery Section */}
             {(project.media && project.media.length > 0) && (
               <div className="mt-4">
-                <h3 className="text-xs font-bold text-muted-foreground mb-2">גלריית תמונות</h3>
+                <h3 className="text-xs font-bold text-muted-foreground mb-2">{t("projGallery")}</h3>
                 <div className="grid grid-cols-3 gap-1.5">
                   {project.media.map(media => (
                     <div key={media.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border">
@@ -255,7 +257,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                           type="button"
                           onClick={async (e) => {
                             e.stopPropagation();
-                            if (confirm("האם למחוק תמונה זו?")) {
+                            if (confirm(t("projConfirmDeleteImage"))) {
                               try {
                                 await removeProjectMedia(project.id, media.id);
                               } catch (err) {
@@ -264,7 +266,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             }
                           }}
                           className="absolute top-1 left-1 p-1 bg-red-600 text-white rounded hover:bg-red-700 transition-all opacity-0 group-hover:opacity-100 z-10"
-                          title="מחק תמונה"
+                          title={t("projDeleteImage")}
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -284,7 +286,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   ) : (
                     <Plus className="h-3.5 w-3.5 text-primary" />
                   )}
-                  <span>{mediaUploading ? "מעלה תמונה..." : "הוסף תמונה לגלריה"}</span>
+                  <span>{mediaUploading ? t("projUploading") : t("projAddImageToGallery")}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -310,8 +312,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="mt-5 border-t border-border pt-4">
               {isOwner ? (
                 <div className="space-y-2">
-                  <button type="button" onClick={() => router.push(`/projects/${project.id}/manage`)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white"><Settings className="h-4 w-4" />ניהול פרויקט ומועמדויות</button>
-                  <button type="button" onClick={() => setShowEditModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-all"><Edit2 className="h-4 w-4" />ערוך פרויקט</button>
+                  <button type="button" onClick={() => router.push(`/projects/${project.id}/manage`)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white"><Settings className="h-4 w-4" />{t("projManageBtn")}</button>
+                  <button type="button" onClick={() => setShowEditModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-all"><Edit2 className="h-4 w-4" />{t("projEditProject")}</button>
                   {/* item 63 – recruiting vs active toggle */}
                   <button
                     type="button"
@@ -322,28 +324,28 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         : "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
                     }`}
                   >
-                    {isRecruiting ? "✓ גיוס פעיל — עבור לפרויקט פעיל" : "⟳ פרויקט פעיל — פתח גיוס מחדש"}
+                    {isRecruiting ? t("projRecruitingActive") : t("projProjectActive")}
                   </button>
                   {/* item 64 – close project with confirmation */}
                   {confirmClose ? (
                     <div className="rounded-xl border border-red-200 bg-red-50 p-3 space-y-2">
-                      <p className="text-xs text-red-600 font-medium text-center">האם לסגור את הפרויקט לצמיתות?</p>
+                      <p className="text-xs text-red-600 font-medium text-center">{t("projConfirmClose")}</p>
                       <div className="flex gap-2">
-                        <button type="button" onClick={() => { void closeProject(project.id); setConfirmClose(false); }} className="flex-1 rounded-lg bg-red-500 text-white text-xs py-2 font-semibold">כן, סגור</button>
-                        <button type="button" onClick={() => setConfirmClose(false)} className="flex-1 rounded-lg border border-red-200 text-red-500 text-xs py-2">ביטול</button>
+                        <button type="button" onClick={() => { void closeProject(project.id); setConfirmClose(false); }} className="flex-1 rounded-lg bg-red-500 text-white text-xs py-2 font-semibold">{t("projConfirmCloseYes")}</button>
+                        <button type="button" onClick={() => setConfirmClose(false)} className="flex-1 rounded-lg border border-red-200 text-red-500 text-xs py-2">{t("projCancel")}</button>
                       </div>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => setConfirmClose(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"><Lock className="h-4 w-4" />סגור פרויקט</button>
+                    <button type="button" onClick={() => setConfirmClose(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"><Lock className="h-4 w-4" />{t("projCloseProject")}</button>
                   )}
-                  <button type="button" onClick={() => setShowSuccessModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm text-white"><Award className="h-4 w-4" />אשר הצלחה</button>
+                  <button type="button" onClick={() => setShowSuccessModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-2.5 text-sm text-white"><Award className="h-4 w-4" />{t("projConfirmSuccess")}</button>
                 </div>
               ) : isMember ? (
-                <button type="button" onClick={() => void leaveProject(project.id, currentUserId)} className="w-full rounded-xl border border-red-200 px-4 py-2.5 text-sm text-red-500">עזוב פרויקט</button>
+                <button type="button" onClick={() => void leaveProject(project.id, currentUserId)} className="w-full rounded-xl border border-red-200 px-4 py-2.5 text-sm text-red-500">{t("projLeaveProject")}</button>
               ) : isOpen ? (
-                <button type="button" data-testid="apply-btn" onClick={() => setShowApplyModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm text-white"><UserPlus className="h-4 w-4" />הגש מועמדות</button>
+                <button type="button" data-testid="apply-btn" onClick={() => setShowApplyModal(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm text-white"><UserPlus className="h-4 w-4" />{t("projApply")}</button>
               ) : (
-                <p className="rounded-xl bg-muted px-4 py-2.5 text-center text-sm text-muted-foreground">פרויקט סגור</p>
+                <p className="rounded-xl bg-muted px-4 py-2.5 text-center text-sm text-muted-foreground">{t("projClosed")}</p>
               )}
               {!isOwner && (
                 <button
@@ -352,7 +354,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   className="mt-3 flex w-full items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors py-1"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                  דווח על פרויקט זה
+                  {t("projReport")}
                 </button>
               )}
             </div>
@@ -361,10 +363,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <section className="min-w-0 flex-1">
             <div className="mb-4 flex gap-1 border-b border-border">
               {([
-                ["about", "תיאור"],
-                ["roles", `דרושים${project.openRoles?.filter(r => r.status === "open").length ? ` (${project.openRoles.filter(r => r.status === "open").length})` : ""}`],
-                ["members", "חברים"],
-                ["discussion", "עדכונים ודיון"],
+                ["about", t("projTabAbout")],
+                ["roles", `${t("projTabRoles")}${project.openRoles?.filter(r => r.status === "open").length ? ` (${project.openRoles.filter(r => r.status === "open").length})` : ""}`],
+                ["members", t("projTabMembers")],
+                ["discussion", t("projTabDiscussion")],
               ] as const).map(([key, label]) => (
                 <button type="button" key={key} onClick={() => setActiveTab(key)} className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-medium ${activeTab === key ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>{label}</button>
               ))}
@@ -376,13 +378,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 {project.commitmentLevel && (
                   <div className="mt-4 flex items-center gap-2">
                     <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">מחויבות נדרשת:</span>
+                    <span className="text-xs text-muted-foreground">{t("projCommitmentRequired")}</span>
                     <span className={`rounded-lg border px-2.5 py-0.5 text-xs font-medium ${COMMITMENT_COLOR[project.commitmentLevel]}`}>
-                      {COMMITMENT_LABEL[project.commitmentLevel]}
+                      {t(COMMITMENT_LABEL_KEY[project.commitmentLevel])}
                     </span>
                   </div>
                 )}
-                <div className="mt-4 flex items-center gap-1.5 border-t border-border pt-4 text-xs text-muted-foreground"><Info className="h-3.5 w-3.5" />נוצר: {project.createdAt}</div>
+                <div className="mt-4 flex items-center gap-1.5 border-t border-border pt-4 text-xs text-muted-foreground"><Info className="h-3.5 w-3.5" />{t("projCreatedAt", { date: project.createdAt })}</div>
               </div>
             )}
 
@@ -391,7 +393,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="space-y-4">
                 {(!project.openRoles || project.openRoles.length === 0) ? (
                   <div className="glass-card rounded-2xl p-6 text-center text-sm text-muted-foreground">
-                    לא הוגדרו תפקידים פתוחים עדיין.
+                    {t("projNoRoles")}
                   </div>
                 ) : (
                   project.openRoles.map(role => {
@@ -409,7 +411,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                                 ? "bg-muted text-muted-foreground border-border"
                                 : "bg-primary/10 text-primary border-primary/20"
                             }`}>
-                              {isFilled ? "מלא" : `${role.slots - role.filledSlots} מקומות`}
+                              {isFilled ? t("projFilled") : t("projSlots", { count: role.slots - role.filledSlots })}
                             </span>
                           </div>
                         </div>
@@ -431,7 +433,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm text-white font-medium hover:opacity-90 transition-opacity"
                           >
                             <UserPlus className="h-3.5 w-3.5" />
-                            הגש מועמדות לתפקיד זה
+                            {t("projApplyRole")}
                           </button>
                         )}
                       </div>
@@ -446,7 +448,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 {project.members.map(memberId => (
                   <div key={memberId} className="glass-card flex items-center gap-3 rounded-2xl p-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary">{memberId[0]?.toUpperCase()}</div>
-                    <div className="flex-1"><p className="text-sm font-semibold">{memberId === project.owner.id ? project.owner.name : memberId}</p><p className="text-xs text-muted-foreground">{project.memberRoles[memberId] ?? "חבר צוות"}</p></div>
+                    <div className="flex-1"><p className="text-sm font-semibold">{memberId === project.owner.id ? project.owner.name : memberId}</p><p className="text-xs text-muted-foreground">{project.memberRoles[memberId] ?? t("projTeamMember")}</p></div>
                     {memberId === project.owner.id && <Award className="h-4 w-4 text-accent" />}
                   </div>
                 ))}
@@ -456,12 +458,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             {activeTab === "discussion" && (
               <div>
                 <div className="glass-card mb-4 rounded-2xl p-4">
-                  <textarea value={comment} onChange={event => setComment(event.target.value)} rows={3} placeholder="הוסיפו תגובה..." className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
+                  <textarea value={comment} onChange={event => setComment(event.target.value)} rows={3} placeholder={t("projCommentPlaceholder")} className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
                   <button type="button" onClick={() => void handleAddComment()} disabled={!comment.trim() || commentLoading} className="mt-2 flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-white disabled:opacity-50">
-                    {commentLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}שלח
+                    {commentLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}{t("projSend")}
                   </button>
                 </div>
-                {project.comments.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">אין תגובות עדיין.</p> : project.comments.map(item => (
+                {project.comments.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">{t("projNoComments")}</p> : project.comments.map(item => (
                   <div key={item.id} className="glass-card mb-3 rounded-xl p-4">
                     <div className="mb-2 flex items-center justify-between"><p className="text-sm font-semibold">{item.userName}</p><span className="text-xs text-muted-foreground">{item.createdAt}</span></div>
                     <p className="text-sm leading-6 text-foreground">{item.text}</p>
@@ -497,7 +499,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           .map(memberId => ({
             id: memberId,
             name: memberId,
-            role: project.memberRoles[memberId] ?? "חבר צוות",
+            role: project.memberRoles[memberId] ?? t("projTeamMember"),
           }))}
       />
       <ReportModal
@@ -525,8 +527,9 @@ function ExternalAction({ href, icon, label }: { href: string; icon: React.React
 }
 
 function ProjectSkeleton() {
+  const { dir } = useI18n();
   return (
-    <main className="min-h-screen animate-pulse bg-background p-6" dir="rtl">
+    <main className="min-h-screen animate-pulse bg-background p-6" dir={dir}>
       <div className="mx-auto max-w-7xl space-y-5">
         <div className="h-32 rounded-2xl bg-primary/10" />
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">

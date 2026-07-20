@@ -8,10 +8,12 @@ import { useRouter } from 'next/navigation'
 import { Send, ChevronRight, Loader2, AlertCircle } from 'lucide-react'
 import { resendVerificationEmail } from "@/services/auth.service"
 import { useAuthStore } from "@/store/useAuthStore"
+import { useI18n } from "@/lib/i18n/LanguageProvider"
 import ComingSoonBanner from "@/components/ComingSoonBanner"
 
 export default function VerifyEmailPage() {
   const router = useRouter()
+  const { t, dir } = useI18n()
   const currentUser = useAuthStore((s) => s.user)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [resent, setResent] = useState(false)
@@ -41,28 +43,28 @@ export default function VerifyEmailPage() {
         setResendCooldown(60)
         setResent(true)
       } else {
-        setError("שליחת הדוא\"ל נכשלה. נסה שוב מאוחר יותר.")
+        setError(t("verifyErrSendFailed"))
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "שגיאה בשליחת דוא\"ל אימות")
+      setError(err instanceof Error ? err.message : t("verifyErrSend"))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className='min-h-screen bg-background flex items-center justify-center p-4' dir='rtl'>
+    <div className='min-h-screen bg-background flex items-center justify-center p-4' dir={dir}>
       <div className='glass-panel max-w-md w-full rounded-2xl p-8 text-center shadow-2xl'>
-        <ComingSoonBanner feature="אימות אימייל" className="mb-4" />
+        <ComingSoonBanner feature={t("verifyFeatureName")} className="mb-4" />
         {/* Icon */}
         <div className='w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6'>
           <Send className='w-16 h-16 text-primary' />
         </div>
 
         {/* Heading */}
-        <h1 className='text-2xl font-bold text-foreground'>בדוק את תיבת הדואר שלך</h1>
+        <h1 className='text-2xl font-bold text-foreground'>{t("verifyHeading")}</h1>
         <p className='text-sm text-muted-foreground mt-2 mb-6'>
-          שלחנו לך אימייל עם קישור לאימות. לחץ על הקישור כדי להפעיל את החשבון שלך.
+          {t("verifyDescription")}
         </p>
 
         {/* Email display */}
@@ -86,15 +88,15 @@ export default function VerifyEmailPage() {
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
             {resendCooldown > 0 ? (
-              <span>שלח שוב ({resendCooldown})</span>
+              <span>{t("verifyResendCountdown", { seconds: resendCooldown })}</span>
             ) : (
-              <span>שלח שוב</span>
+              <span>{t("verifyResend")}</span>
             )}
           </button>
 
           {resent && !error && (
             <p className='text-secondary text-sm mt-2 font-medium'>
-              שלחנו שוב! בדוק את תיבת הדואר שלך
+              {t("verifyResentMsg")}
             </p>
           )}
         </div>
@@ -105,7 +107,7 @@ export default function VerifyEmailPage() {
           className='mt-6 flex items-center gap-1.5 text-muted-foreground text-sm mx-auto hover:text-foreground transition-colors'
         >
           <ChevronRight className='w-4 h-4' />
-          חזרה לכניסה
+          {t("authBackToLogin")}
         </button>
       </div>
     </div>

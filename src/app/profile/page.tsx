@@ -17,6 +17,7 @@ import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 import { fetchBadges, fetchCurrentUser, fetchMyProjects, updateProfile as updateProfileService } from "@/services/user.service";
 import { useUserStore } from "@/store/useUserStore";
 import type { SuccessBadge, UserProfile, UserProject } from "@/store/useUserStore";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpLevel = "1-2" | "3-5" | "5+";
 type ProfileTab = "skills" | "projects" | "badges";
@@ -91,6 +92,7 @@ function ProfileContent({
   projects: UserProject[];
 }) {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -125,20 +127,20 @@ function ProfileContent({
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err: unknown) {
-      setSaveError(err instanceof Error ? err.message : "שמירת הפרופיל נכשלה. נסה שנית.");
+      setSaveError(err instanceof Error ? err.message : t("profileSaveError"));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={dir}>
       <div className="max-w-2xl mx-auto">
 
         {/* Back */}
         <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer transition-colors">
           <ChevronRight className="w-4 h-4" />
-          חזרה
+          {t("profileBack")}
         </button>
 
         {/* Profile Card */}
@@ -160,7 +162,7 @@ function ProfileContent({
                 )}
                 {editing ? (
                   <input value={role} onChange={e => setRole(e.target.value)}
-                    className="text-sm bg-transparent border-b border-border focus:outline-none text-muted-foreground w-48" placeholder="תפקיד" />
+                    className="text-sm bg-transparent border-b border-border focus:outline-none text-muted-foreground w-48" placeholder={t("profileRolePlaceholder")} />
                 ) : (
                   <p className="text-sm text-muted-foreground">{role}</p>
                 )}
@@ -174,19 +176,19 @@ function ProfileContent({
                 <button onClick={handleSave} disabled={saving}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold cursor-pointer transition-all disabled:opacity-60">
                   {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                  שמור
+                  {t("profileSaveBtn")}
                 </button>
               </div>
             ) : saveSuccess ? (
               <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary/10 text-secondary text-sm font-medium">
                 <Check className="w-3.5 h-3.5" />
-                הפרופיל נשמר בהצלחה!
+                {t("profileSavedSuccess")}
               </span>
             ) : (
               <button onClick={() => setEditing(true)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--border)] text-sm text-muted-foreground hover:text-primary hover:border-primary cursor-pointer transition-all">
                 <Edit2 className="w-3.5 h-3.5" />
-                עריכה
+                {t("profileEditBtn")}
               </button>
             )}
             {/* item 16 – save error feedback */}
@@ -222,9 +224,9 @@ function ProfileContent({
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-[var(--border)]">
             {[
-              { icon: <Briefcase className="w-4 h-4" />, value: projects.filter(p => p.role === "owner").length, label: "פרויקטים שיצרתי" },
-              { icon: <Users className="w-4 h-4" />, value: projects.filter(p => p.role === "member").length, label: "הצטרפתי אל" },
-              { icon: <Award className="w-4 h-4" />, value: badges.length, label: "תגי הצלחה" },
+              { icon: <Briefcase className="w-4 h-4" />, value: projects.filter(p => p.role === "owner").length, label: t("profileStatCreated") },
+              { icon: <Users className="w-4 h-4" />, value: projects.filter(p => p.role === "member").length, label: t("profileStatJoined") },
+              { icon: <Award className="w-4 h-4" />, value: badges.length, label: t("profileStatBadges") },
             ].map((stat, i) => (
               <div key={i} className="text-center p-3 rounded-xl" style={{ background: "rgba(210,100,45,0.06)" }}>
                 <div className="flex justify-center text-primary mb-1">{stat.icon}</div>
@@ -237,7 +239,7 @@ function ProfileContent({
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
-          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "תגים"]] .map(([id, label]) => (
+          {[["skills", t("profileSkillsTab")], ["projects", t("profileProjectsTab")], ["badges", t("profileBadgesTab")]] .map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}
@@ -252,7 +254,7 @@ function ProfileContent({
               <div className="flex gap-2 mb-4">
                 <input value={skillInput} onChange={e => setSkillInput(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addSkill())}
-                  placeholder="הוסף כישור..."
+                  placeholder={t("profileAddSkillPlaceholder")}
                   className="flex-1 px-3 py-2 rounded-xl border border-[var(--border)] bg-background text-sm text-foreground focus:outline-none focus:border-primary transition-colors" />
                 <select value={skillLevel} onChange={e => setSkillLevel(e.target.value as ExpLevel)}
                   className="px-3 py-2 rounded-xl border border-[var(--border)] bg-background text-sm cursor-pointer">
@@ -281,7 +283,7 @@ function ProfileContent({
                   </div>
                 </div>
               ))}
-              {skills.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">לא נוספו כישורים עדיין</p>}
+              {skills.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">{t("profileNoSkills")}</p>}
             </div>
           </div>
         )}
@@ -295,7 +297,7 @@ function ProfileContent({
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold text-foreground">{proj.title}</span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${proj.status === "open" ? "bg-secondary/10 text-secondary" : "bg-muted text-muted-foreground"}`}>
-                      {proj.status === "open" ? "פתוח" : "סגור"}
+                      {proj.status === "open" ? t("profileStatusOpen") : t("profileStatusClosed")}
                     </span>
                   </div>
                   <div className="flex gap-1 flex-wrap">
@@ -305,7 +307,7 @@ function ProfileContent({
                   </div>
                 </div>
                 <span className={`text-xs font-medium px-3 py-1 rounded-full ${proj.role === "owner" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                  {proj.role === "owner" ? "יזם" : "משתתף"}
+                  {proj.role === "owner" ? t("profileRoleOwner") : t("profileRoleMember")}
                 </span>
               </div>
             ))}
@@ -323,19 +325,19 @@ function ProfileContent({
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">{badge.projectName}</p>
-                  <p className="text-xs text-muted-foreground">אושר על ידי {badge.entrepreneurName}</p>
+                  <p className="text-xs text-muted-foreground">{t("profileApprovedBy", { name: badge.entrepreneurName })}</p>
                   <p className="text-xs text-muted-foreground">{new Date(badge.approvedAt).toLocaleDateString("he-IL")}</p>
                 </div>
                 <span className="mr-auto text-xs px-3 py-1 rounded-full font-semibold"
                   style={{ background: "rgba(210,100,45,0.1)", color: "#a34e29" }}>
-                  ✓ הושלם בהצלחה
+                  {t("profileCompletedSuccess")}
                 </span>
               </div>
             ))}
             {badges.length === 0 && (
               <div className="glass-panel rounded-xl p-8 text-center border border-[var(--border)]">
                 <Award className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">עוד אין תגים. סיים פרויקט בהצלחה כדי לקבל!</p>
+                <p className="text-sm text-muted-foreground">{t("profileNoBadges")}</p>
               </div>
             )}
           </div>

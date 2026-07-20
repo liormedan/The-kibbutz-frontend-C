@@ -19,6 +19,7 @@ import { Mail, Lock, User, Briefcase, Eye, EyeOff, Loader2 } from "lucide-react"
 
 import { devBypassLogin } from "@/lib/auth";
 import { handleOAuthCallback, loginWithEmail, registerWithEmail, forgotPassword } from "@/services/auth.service";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import AuthCarousel from "./AuthCarousel";
 
 type Tab = "login" | "register" | "forgot";
@@ -40,6 +41,7 @@ interface AuthPageProps {
 
 export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [tab, setTab] = useState<Tab>(initialTab);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
       const payload = await loginWithEmail({ email: loginEmail, password: loginPassword });
       setSessionCookies(payload.user.role.toLowerCase());
       router.push("/projects");
-    } catch (err: unknown) { setError(getErrorMessage(err, "שגיאה בהתחברות")); }
+    } catch (err: unknown) { setError(getErrorMessage(err, t("authErrLogin"))); }
     finally { setLoading(null); }
   }
 
@@ -77,16 +79,16 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
       if (success) {
         setForgotSent(true);
       } else {
-        setError("שגיאה בשליחת איפוס סיסמה");
+        setError(t("authErrResetSend"));
       }
-    } catch (err: unknown) { setError(getErrorMessage(err, "שגיאה בשליחת איפוס סיסמה")); }
+    } catch (err: unknown) { setError(getErrorMessage(err, t("authErrResetSend"))); }
     finally { setLoading(null); }
   }
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault(); setError("");
-    if (form.password !== form.confirmPassword) return setError("הסיסמאות אינן תואמות");
-    if (form.password.length < 6) return setError("סיסמה חייבת להכיל לפחות 6 תווים");
+    if (form.password !== form.confirmPassword) return setError(t("authErrPasswordMismatch"));
+    if (form.password.length < 6) return setError(t("authErrPasswordTooShort"));
     setLoading("email");
     try {
       const payload = await registerWithEmail({
@@ -97,7 +99,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
       } as unknown as Parameters<typeof registerWithEmail>[0]);
       setSessionCookies(payload.user.role.toLowerCase());
       router.push("/onboarding");
-    } catch (err: unknown) { setError(getErrorMessage(err, "שגיאה בהרשמה")); }
+    } catch (err: unknown) { setError(getErrorMessage(err, t("authErrRegister"))); }
     finally { setLoading(null); }
   }
 
@@ -108,12 +110,12 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
       const code = params.get("code");
       const state = params.get("state");
       if (!code || !state) {
-        throw new Error("חסרים פרטי OAuth callback");
+        throw new Error(t("authErrOAuthMissing"));
       }
       const payload = await handleOAuthCallback(provider, code, state);
       setSessionCookies(payload.user.role.toLowerCase());
       router.push("/projects");
-    } catch (err: unknown) { setError(getErrorMessage(err, `שגיאה עם ${provider}`)); }
+    } catch (err: unknown) { setError(getErrorMessage(err, t("authErrOAuthProvider", { provider }))); }
     finally { setLoading(null); }
   }
 
@@ -124,7 +126,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
   const socialLabel = "text-[10px] font-medium text-muted-foreground";
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden grid grid-cols-1 lg:grid-cols-2 bg-[#f4eadc]" dir="rtl">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden grid grid-cols-1 lg:grid-cols-2 bg-[#f4eadc]" dir={dir}>
       {/* Right Panel — Interactive Carousel */}
       <AuthCarousel />
 
@@ -143,10 +145,10 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
             onClick={handleDevLogin}
             disabled={!!loading}
             className="absolute left-6 top-6 z-20 h-16 w-16 overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-2xl shadow-2xl transition-all hover:-translate-y-0.5 hover:bg-white/20 disabled:opacity-50 cursor-pointer"
-            aria-label="כניסת מפתחים"
-            title="כניסת מפתחים"
+            aria-label={t("authDevLogin")}
+            title={t("authDevLogin")}
           >
-            <Image src="/logo_clean.png" alt="כניסת מפתחים" fill className="object-cover" priority />
+            <Image src="/logo_clean.png" alt={t("authDevLogin")} fill className="object-cover" priority />
           </button>
         )}
 
@@ -160,7 +162,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
                 <div className="w-full text-center">
                   <p className="text-[11px] font-semibold text-primary/80">The Kibbutz</p>
                   <h1 className="text-xl font-bold leading-tight text-[#47331f]">
-                    {tab === "login" ? "כניסה לחשבון" : tab === "register" ? "יצירת חשבון" : "איפוס סיסמה"}
+                    {tab === "login" ? t("authLoginTitle") : tab === "register" ? t("authRegisterTitle") : t("authForgotTitle")}
                   </h1>
                 </div>
               </div>
@@ -186,10 +188,10 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
 
             {/* ── TABS ── */}
             <div className="flex gap-1 p-1 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl mb-3 shadow-sm">
-              {(["login","register"] as Tab[]).map(t => (
-                <button key={t} onClick={() => { setTab(t); setError(""); }}
-                  className={`flex-1 py-1.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${tab === t ? "bg-gradient-to-l from-orange-600 to-amber-500 text-white shadow-[0_14px_30px_-18px_rgba(210,100,45,0.95)]" : "text-[#6f5b49] hover:bg-white/20 hover:text-[#332416]"}`}>
-                  {t === "login" ? "כניסה" : "הרשמה"}
+              {(["login","register"] as Tab[]).map(tabKey => (
+                <button key={tabKey} onClick={() => { setTab(tabKey); setError(""); }}
+                  className={`flex-1 py-1.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${tab === tabKey ? "bg-gradient-to-l from-orange-600 to-amber-500 text-white shadow-[0_14px_30px_-18px_rgba(210,100,45,0.95)]" : "text-[#6f5b49] hover:bg-white/20 hover:text-[#332416]"}`}>
+                  {tabKey === "login" ? t("authLoginTab") : t("authRegisterTab")}
                 </button>
               ))}
             </div>
@@ -201,7 +203,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
             {tab === "login" && (
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">אימייל</label>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authEmailLabel")}</label>
                   <div className="relative">
                     <Mail className={icon} />
                     <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="your@email.com" required dir="ltr" className={input + " text-left pl-4 pr-10"} />
@@ -209,8 +211,8 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
                 </div>
                 <div>
                   <div className="relative mb-1.5 text-center">
-                    <button type="button" onClick={() => { setTab("forgot"); setError(""); setForgotSent(false); }} className="absolute left-0 top-0 text-xs text-primary hover:underline cursor-pointer">שכחתי סיסמה</button>
-                    <label className="text-xs font-medium text-muted-foreground">סיסמה</label>
+                    <button type="button" onClick={() => { setTab("forgot"); setError(""); setForgotSent(false); }} className="absolute left-0 top-0 text-xs text-primary hover:underline cursor-pointer">{t("authForgotLink")}</button>
+                    <label className="text-xs font-medium text-muted-foreground">{t("authPasswordLabel")}</label>
                   </div>
                   <div className="relative">
                     <Lock className={icon} />
@@ -222,7 +224,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
                 </div>
                 <button type="submit" disabled={!!loading} className={primaryButton}>
                   {loading === "email" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {loading === "email" ? "מתחבר..." : "כניסה"}
+                  {loading === "email" ? t("authLoggingIn") : t("authLoginTab")}
                 </button>
               </form>
             )}
@@ -231,37 +233,37 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
             {tab === "register" && (
               <form onSubmit={handleRegister} className="space-y-2">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">שם מלא *</label>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authFullNameLabel")}</label>
                   <div className="relative"><User className={icon} />
-                    <input type="text" value={form.name} onChange={e => update("name",e.target.value)} placeholder="ישראל ישראלי" required className={input} /></div>
+                    <input type="text" value={form.name} onChange={e => update("name",e.target.value)} placeholder={t("authNamePlaceholder")} required className={input} /></div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">אימייל *</label>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authEmailLabelRequired")}</label>
                   <div className="relative"><Mail className={icon} />
                     <input type="email" value={form.email} onChange={e => update("email",e.target.value)} placeholder="your@email.com" required dir="ltr" className={input + " text-left pl-4 pr-10"} /></div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">תפקיד</label>
+                  <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authRoleLabel")}</label>
                   <div className="relative"><Briefcase className={icon} />
-                    <input type="text" value={form.role} onChange={e => update("role",e.target.value)} placeholder="מפתח / מעצב..." className={input} /></div>
+                    <input type="text" value={form.role} onChange={e => update("role",e.target.value)} placeholder={t("authRolePlaceholder")} className={input} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">סיסמה *</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authPasswordLabelRequired")}</label>
                     <div className="relative"><Lock className={icon} />
                       <input type={showPassword ? "text" : "password"} value={form.password} onChange={e => update("password",e.target.value)} placeholder="min 6" required dir="ltr" className={input + " pl-10"} />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7b6b5e]/70 hover:text-[#332416] cursor-pointer">
                         {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button></div>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">אימות *</label>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authConfirmLabel")}</label>
                     <div className="relative"><Lock className={icon} />
                       <input type={showPassword ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword",e.target.value)} placeholder="••••••••" required dir="ltr" className={input} /></div>
                   </div>
                 </div>
                 <button type="submit" disabled={!!loading} className={`${primaryButton} mt-1`}>
                   {loading === "email" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {loading === "email" ? "יוצר חשבון..." : "הרשמה"}
+                  {loading === "email" ? t("authCreatingAccount") : t("authRegisterTab")}
                 </button>
               </form>
             )}
@@ -270,14 +272,14 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 {forgotSent ? (
                   <div className="text-center py-4 space-y-3">
-                    <p className="text-sm text-secondary font-medium">שלחנו לך קישור לאיפוס הסיסמה לתיבת המייל!</p>
-                    <button type="button" onClick={() => { setTab("login"); setError(""); }} className="text-xs text-primary hover:underline font-semibold cursor-pointer">חזרה לכניסה</button>
+                    <p className="text-sm text-secondary font-medium">{t("authForgotSentMsg")}</p>
+                    <button type="button" onClick={() => { setTab("login"); setError(""); }} className="text-xs text-primary hover:underline font-semibold cursor-pointer">{t("authBackToLogin")}</button>
                   </div>
                 ) : (
                   <>
-                    <p className="text-xs text-muted-foreground text-center">הכנס את המייל שלך ונשלח לך קישור לאיפוס הסיסמה</p>
+                    <p className="text-xs text-muted-foreground text-center">{t("authForgotInstructions")}</p>
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">אימייל</label>
+                      <label className="text-xs font-medium text-muted-foreground block mb-1.5 text-center">{t("authEmailLabel")}</label>
                       <div className="relative">
                         <Mail className={icon} />
                         <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="your@email.com" required dir="ltr" className={input + " text-left pl-4 pr-10"} />
@@ -285,9 +287,9 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
                     </div>
                     <button type="submit" disabled={!!loading} className={primaryButton}>
                       {loading === "forgot" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                      {loading === "forgot" ? "שולח..." : "שלח קישור לאיפוס"}
+                      {loading === "forgot" ? t("authSending") : t("authSendResetLink")}
                     </button>
-                    <button type="button" onClick={() => { setTab("login"); setError(""); }} className="w-full text-center text-xs text-[#6f5b49] hover:underline mt-2 cursor-pointer">ביטול וחזרה לכניסה</button>
+                    <button type="button" onClick={() => { setTab("login"); setError(""); }} className="w-full text-center text-xs text-[#6f5b49] hover:underline mt-2 cursor-pointer">{t("authCancelBackToLogin")}</button>
                   </>
                 )}
               </form>
@@ -296,7 +298,7 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
             {/* ── OAUTH ── */}
             </div>
             <div className="flex items-center gap-3 my-3">
-              <div className="flex-1 h-px bg-[var(--border)]" /><span className="text-xs text-muted-foreground">או המשך עם</span><div className="flex-1 h-px bg-[var(--border)]" />
+              <div className="flex-1 h-px bg-[var(--border)]" /><span className="text-xs text-muted-foreground">{t("authContinueWith")}</span><div className="flex-1 h-px bg-[var(--border)]" />
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button onClick={() => handleOAuth("google")} disabled={!!loading} className={socialButton}>

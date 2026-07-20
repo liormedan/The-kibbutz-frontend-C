@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import {
   Search, Leaf, Cpu, Database, Globe, Users, LogIn, UserPlus, ArrowLeft,
 } from "lucide-react";
@@ -53,6 +54,7 @@ function ProjectIcon({ type }: { type: GuestProject["iconType"] }) {
 
 function GuestPage() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [search, setSearch] = useState("");
 
   const filtered = GUEST_PROJECTS.filter(p =>
@@ -62,7 +64,7 @@ function GuestPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir="rtl">
+    <div className="min-h-screen bg-background text-foreground" dir={dir}>
 
       {/* ─── Header ─────────────────────────────────────── */}
       <header className="sticky top-0 z-30 glass-panel border-b border-[var(--border)]">
@@ -71,8 +73,8 @@ function GuestPage() {
           {/* Logo — right (RTL start) */}
           <div className="flex items-center gap-2.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo_clean.png" alt="הקיבוץ" className="w-8 h-8 rounded-lg" />
-            <span className="font-bold text-lg tracking-tight text-foreground">הקיבוץ</span>
+            <img src="/logo_clean.png" alt={t("authBrand")} className="w-8 h-8 rounded-lg" />
+            <span className="font-bold text-lg tracking-tight text-foreground">{t("authBrand")}</span>
           </div>
 
           {/* Auth buttons — left (RTL end) */}
@@ -82,14 +84,14 @@ function GuestPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/8 transition-colors"
             >
               <LogIn className="w-4 h-4" />
-              כניסה
+              {t("authLoginTab")}
             </button>
             <button
               onClick={() => router.push("/register")}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary-dark transition-colors"
             >
               <UserPlus className="w-4 h-4" />
-              הרשמה חינם
+              {t("landingRegisterFree")}
             </button>
           </div>
         </div>
@@ -100,27 +102,27 @@ function GuestPage() {
         <div className="max-w-6xl mx-auto px-4 py-14 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            מצב תצוגה — הצטרף כדי להשתתף
+            {t("landingPreviewBadge")}
           </div>
           <h1 className="text-4xl font-bold mb-3 tracking-tight text-foreground">
-            הקהילה שבונה ביחד
+            {t("landingHeroTitle")}
           </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
-            קהילת יזמים, מפתחים ומעצבים. שתפו עדכונים, הציגו תיקי עבודות, והתחברו לאנשים שבונים דברים מגניבים.
+            {t("landingHeroSubtitle")}
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <button
               onClick={() => router.push("/register")}
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
             >
-              הצטרף לקיבוץ בחינם
+              {t("landingJoinFree")}
               <ArrowLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => router.push("/login")}
               className="px-6 py-2.5 rounded-xl border border-[var(--border)] text-foreground font-medium hover:bg-primary/5 transition-colors"
             >
-              יש לי חשבון
+              {t("landingHaveAccount")}
             </button>
           </div>
         </div>
@@ -135,18 +137,18 @@ function GuestPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="חפש בקהילה — תגיות, טכנולוגיות, אנשים..."
+            placeholder={t("landingSearchPlaceholder")}
             className="w-full bg-card border border-[var(--border)] rounded-xl pr-9 pl-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
           />
         </div>
 
         {/* Stats strip */}
         <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground">
-          <span>{filtered.length} תיקי עבודות</span>
+          <span>{t("landingPortfolios", { count: filtered.length })}</span>
           <span>·</span>
-          <span>48 חברים בקהילה</span>
+          <span>{t("landingMembersCount")}</span>
           <span>·</span>
-          <span>קהילה פעילה</span>
+          <span>{t("landingActiveCommunity")}</span>
         </div>
 
         {/* Grid */}
@@ -188,10 +190,10 @@ function GuestPage() {
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Users className="w-3.5 h-3.5" />
-                    {p.memberCount}/{p.maxMembers} חברים
+                    {p.memberCount}/{p.maxMembers} {t("landingMembersWord")}
                   </span>
                   <span className="text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity text-[11px]">
-                    הצטרף ←
+                    {t("landingJoinArrow")}
                   </span>
                 </div>
               </div>
@@ -201,16 +203,16 @@ function GuestPage() {
 
         {/* Bottom CTA */}
         <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
-          <h2 className="text-xl font-bold mb-2 text-foreground">רוצה להצטרף לקהילה?</h2>
+          <h2 className="text-xl font-bold mb-2 text-foreground">{t("landingCtaTitle")}</h2>
           <p className="text-muted-foreground text-sm mb-5">
-            הרשמה חינמית — שתפו, הציגו תיקי עבודות, והתחברו לאנשים
+            {t("landingCtaSubtitle")}
           </p>
           <button
             onClick={() => router.push("/register")}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
           >
             <UserPlus className="w-4 h-4" />
-            הצטרף לקיבוץ
+            {t("landingJoinKibbutz")}
           </button>
         </div>
       </main>

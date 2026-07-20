@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
 import ComingSoonBanner from '@/components/ComingSoonBanner'
+import { useI18n } from '@/lib/i18n/LanguageProvider'
 
 interface Application {
   id: string
@@ -93,31 +94,32 @@ const MOCK_APPLICATIONS: Application[] = [
 type StatusFilter = 'all' | 'pending' | 'accepted' | 'rejected'
 
 const STATUS_LABELS: Record<StatusFilter, string> = {
-  all: 'הכל',
-  pending: 'ממתין',
-  accepted: 'אושרו',
-  rejected: 'נדחו',
+  all: 'miscFilterAll',
+  pending: 'miscStatusPending',
+  accepted: 'miscFilterAccepted',
+  rejected: 'miscFilterRejected',
 }
 
 const STATUS_BADGE: Record<
   Application['status'],
-  { label: string; className: string }
+  { labelKey: string; className: string }
 > = {
   pending: {
-    label: 'ממתין',
+    labelKey: 'miscStatusPending',
     className: 'bg-amber-50 text-amber-600 border border-amber-200',
   },
   accepted: {
-    label: 'אושר',
+    labelKey: 'miscStatusAccepted',
     className: 'bg-green-50 text-green-600 border border-green-200',
   },
   rejected: {
-    label: 'נדחה',
+    labelKey: 'miscStatusRejected',
     className: 'bg-red-50 text-red-500 border border-red-200',
   },
 }
 
 export default function ApplicationsPage() {
+  const { t, dir } = useI18n()
   const router = useRouter()
   const [applications, setApplications] =
     useState<Application[]>(MOCK_APPLICATIONS)
@@ -175,7 +177,7 @@ export default function ApplicationsPage() {
   }, [applications, selectedProjectId, statusFilter, searchTerm])
 
   return (
-    <div className="min-h-screen bg-[var(--background)]" dir="rtl">
+    <div className="min-h-screen bg-[var(--background)]" dir={dir}>
       {/* Header */}
       <header className="glass-panel px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <button
@@ -183,18 +185,18 @@ export default function ApplicationsPage() {
           className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
-          חזרה
+          {t('miscBack')}
         </button>
 
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-[var(--primary)]" />
           <h1 className="text-lg font-bold text-[var(--foreground)]">
-            ניהול מועמדויות
+            {t('miscManageAppsTitle')}
           </h1>
         </div>
 
         <span className="bg-[var(--primary)] text-white rounded-full px-3 py-1 text-sm font-medium">
-          {pendingCount} ממתינות
+          {t('miscPendingCount', { count: pendingCount })}
         </span>
       </header>
 
@@ -204,7 +206,7 @@ export default function ApplicationsPage() {
         <aside className="w-56 border-l border-[var(--border)] bg-[var(--background)] flex-shrink-0 overflow-y-auto">
           <div className="p-3">
             <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider px-2 mb-2">
-              פרויקטים
+              {t('miscProjectsLabel')}
             </p>
 
             {/* All projects option */}
@@ -216,7 +218,7 @@ export default function ApplicationsPage() {
                   : 'text-[var(--foreground)] hover:bg-[var(--primary)]/5'
               }`}
             >
-              <span>כל הפרויקטים</span>
+              <span>{t('miscAllProjects')}</span>
               {pendingCount > 0 && (
                 <span className="text-[10px] bg-[var(--primary)] text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
                   {pendingCount}
@@ -251,7 +253,7 @@ export default function ApplicationsPage() {
 
         {/* Main content */}
         <main className="flex-1 p-6 overflow-y-auto">
-          <ComingSoonBanner feature="מועמדויות" className="mb-4" />
+          <ComingSoonBanner feature={t('miscAppsFeature')} className="mb-4" />
           {/* Search bar */}
           <div className="relative mb-4">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" />
@@ -259,7 +261,7 @@ export default function ApplicationsPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="חפש לפי שם או תפקיד..."
+              placeholder={t('miscSearchNamePlaceholder')}
               className="w-full pr-10 pl-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors"
             />
           </div>
@@ -276,7 +278,7 @@ export default function ApplicationsPage() {
                     : 'bg-white/60 text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]'
                 }`}
               >
-                {STATUS_LABELS[s]}
+                {t(STATUS_LABELS[s])}
               </button>
             ))}
           </div>
@@ -285,8 +287,8 @@ export default function ApplicationsPage() {
           {filtered.length === 0 ? (
             <EmptyState
               icon={<Users className="w-8 h-8 text-[var(--primary)]" />}
-              title="אין מועמדויות כרגע"
-              description="לא נמצאו מועמדויות לפרויקטים שלך התואמות את מסנני החיפוש והסטטוס שנבחרו."
+              title={t('miscNoAppsTitle')}
+              description={t('miscNoAppsDesc')}
             />
           ) : (
             filtered.map((app) => {
@@ -317,7 +319,7 @@ export default function ApplicationsPage() {
                   {/* Row 2: Requested role */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs text-[var(--muted-foreground)]">
-                      תפקיד מבוקש:
+                      {t('miscRequestedRoleColon')}
                     </span>
                     <span className="bg-[var(--accent)]/10 text-[var(--foreground)] text-xs rounded-lg px-2 py-0.5 font-medium">
                       {app.requestedRole}
@@ -338,7 +340,7 @@ export default function ApplicationsPage() {
                     <span
                       className={`text-xs rounded-lg px-2 py-0.5 font-medium ${badge.className}`}
                     >
-                      {badge.label}
+                      {t(badge.labelKey)}
                     </span>
 
                     {app.status === 'pending' && (
@@ -348,14 +350,14 @@ export default function ApplicationsPage() {
                           className="flex items-center gap-1 bg-[var(--secondary)] text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:opacity-90 transition-opacity"
                         >
                           <Check className="w-3 h-3" />
-                          אשר
+                          {t('miscApprove')}
                         </button>
                         <button
                           onClick={() => handleReject(app.id)}
                           className="flex items-center gap-1 bg-red-50 text-red-500 rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-red-100 transition-colors"
                         >
                           <X className="w-3 h-3" />
-                          דחה
+                          {t('miscReject')}
                         </button>
                       </div>
                     )}
@@ -364,7 +366,7 @@ export default function ApplicationsPage() {
                       className="mr-auto flex items-center gap-1 border border-[var(--border)] text-[var(--foreground)] rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-[var(--primary)]/5 transition-colors"
                     >
                       <MessageSquare className="w-3 h-3" />
-                      פתח שיחה
+                      {t('miscOpenChat')}
                     </button>
                   </div>
                 </div>

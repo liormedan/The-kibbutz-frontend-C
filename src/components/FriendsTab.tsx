@@ -25,6 +25,7 @@ import {
 import { searchUsers } from '@/services/user.service';
 import type { UserSummary, ConnectionRequest } from '@/types/user.types';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useI18n } from '@/lib/i18n/LanguageProvider';
 
 type FriendsSubTab = 'connections' | 'following' | 'followers';
 
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export default function FriendsTab({ t, onStartChat }: Props) {
+  const { t: tr, dir } = useI18n();
   const router = useRouter();
   const currentUser = useAuthStore(s => s.user);
 
@@ -172,13 +174,13 @@ export default function FriendsTab({ t, onStartChat }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <p className="text-sm text-muted-foreground">טוען קשרים וחברים...</p>
+        <p className="text-sm text-muted-foreground">{tr('miscLoadingFriends')}</p>
       </div>
     );
   }
 
   return (
-    <section className="space-y-4" dir="rtl">
+    <section className="space-y-4" dir={dir}>
 
       {/* ── Top bar: sub-tabs + search + request button ── */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
@@ -214,7 +216,7 @@ export default function FriendsTab({ t, onStartChat }: Props) {
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:opacity-90 transition-all cursor-pointer whitespace-nowrap"
         >
           <UserPlus className="w-4 h-4" />
-          בקש חברות
+          {tr('miscFriendsRequest')}
         </button>
       </div>
 
@@ -223,7 +225,7 @@ export default function FriendsTab({ t, onStartChat }: Props) {
         <div className="glass-panel border border-[var(--border)] rounded-2xl p-5 mb-6">
           <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
             <UserPlus className="w-4 h-4 text-primary" />
-            בקשות חברות ממתינות ({pendingRequests.length})
+            {tr('miscPendingRequestsCount', { count: pendingRequests.length })}
           </h3>
           <div className="space-y-3">
             {pendingRequests.map(req => {
@@ -245,13 +247,13 @@ export default function FriendsTab({ t, onStartChat }: Props) {
                       onClick={() => handleAcceptRequest(req.id)}
                       className="px-4 py-1.5 rounded-lg bg-secondary text-white text-xs font-semibold hover:opacity-90 cursor-pointer"
                     >
-                      אשר
+                      {tr('miscApprove')}
                     </button>
                     <button
                       onClick={() => handleDeclineRequest(req.id)}
                       className="px-4 py-1.5 rounded-lg border border-[var(--border)] text-muted-foreground hover:bg-red-50 hover:text-red-500 cursor-pointer"
                     >
-                      דחה
+                      {tr('miscReject')}
                     </button>
                   </div>
                 </div>
@@ -268,9 +270,9 @@ export default function FriendsTab({ t, onStartChat }: Props) {
           type="text"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          placeholder="חפש לפי שם או תפקיד..."
+          placeholder={tr('miscSearchNamePlaceholder')}
           className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
-          dir="rtl"
+          dir={dir}
         />
         {searchQuery && (
           <button
@@ -286,8 +288,8 @@ export default function FriendsTab({ t, onStartChat }: Props) {
       {filteredList.length === 0 ? (
         <EmptyState
           icon={<Users className="w-8 h-8 text-[var(--primary)]" />}
-          title={searchQuery ? 'לא נמצאו תוצאות' : subTab === 'connections' ? 'עדיין אין קשרים מפרויקטים' : subTab === 'following' ? 'אינך עוקב אחרי אף אחד' : 'אין עוקבים עדיין'}
-          description={searchQuery ? 'נסה מילת חיפוש אחרת.' : subTab === 'connections' ? 'הצטרף לפרויקטים כדי ליצור קשרים עם שותפים לדרך.' : 'גלה משתמשים מעניינים בדף ה-Matching.'}
+          title={searchQuery ? tr('miscNoResults') : subTab === 'connections' ? tr('miscNoConnectionsTitle') : subTab === 'following' ? tr('miscNotFollowingAnyone') : tr('miscNoFollowersYet')}
+          description={searchQuery ? tr('miscTryOtherSearch') : subTab === 'connections' ? tr('miscJoinProjectsHint') : tr('miscDiscoverMatchingHint')}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -314,10 +316,10 @@ export default function FriendsTab({ t, onStartChat }: Props) {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowRequestModal(false); }}
         >
-          <div className="glass-panel rounded-2xl border border-[var(--border)] w-full max-w-md p-6 shadow-2xl" dir="rtl">
+          <div className="glass-panel rounded-2xl border border-[var(--border)] w-full max-w-md p-6 shadow-2xl" dir={dir}>
             {/* Modal header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-foreground">בקש חברות</h3>
+              <h3 className="text-base font-bold text-foreground">{tr('miscFriendsRequest')}</h3>
               <button onClick={() => setShowRequestModal(false)} className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -330,10 +332,10 @@ export default function FriendsTab({ t, onStartChat }: Props) {
                 type="text"
                 value={requestSearch}
                 onChange={e => setRequestSearch(e.target.value)}
-                placeholder="חפש משתמשים בפלטפורמה..."
+                placeholder={tr('miscSearchPlatformPlaceholder')}
                 autoFocus
                 className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-[var(--border)] bg-background text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                dir="rtl"
+                dir={dir}
               />
             </div>
 
@@ -344,7 +346,7 @@ export default function FriendsTab({ t, onStartChat }: Props) {
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : platformUsers.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">לא נמצאו משתמשים</p>
+                <p className="text-sm text-muted-foreground text-center py-6">{tr('miscNoUsersFound')}</p>
               ) : (
                 platformUsers.map(user => {
                   const sent = requestedIds.has(user.id);
@@ -368,8 +370,8 @@ export default function FriendsTab({ t, onStartChat }: Props) {
                         }`}
                       >
                         {sent
-                          ? <><Check className="w-3 h-3" />נשלחה</>
-                          : <><Send className="w-3 h-3" />שלח בקשה</>
+                          ? <><Check className="w-3 h-3" />{tr('miscRequestSent')}</>
+                          : <><Send className="w-3 h-3" />{tr('miscSendRequest')}</>
                         }
                       </button>
                     </div>
@@ -395,6 +397,7 @@ function UserCard({
   onChat: () => void;
   onClickProfile: () => void;
 }) {
+  const { t: tr } = useI18n();
   const initials = user.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2);
 
   return (
@@ -405,11 +408,11 @@ function UserCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-[var(--foreground)] truncate cursor-pointer hover:underline" onClick={onClickProfile}>{user.name}</p>
-          <p className="text-xs text-[var(--muted-foreground)] truncate">{user.role || 'משתמש פלטפורמה'}</p>
+          <p className="text-xs text-[var(--muted-foreground)] truncate">{user.role || tr('miscPlatformUser')}</p>
           {user.successCount > 0 && (
             <div className="flex items-center gap-1 mt-0.5">
               <Award className="w-3 h-3 text-[var(--accent)]" />
-              <span className="text-xs text-[var(--accent)] font-medium">{user.successCount} הצלחות</span>
+              <span className="text-xs text-[var(--accent)] font-medium">{tr('miscSuccesses', { count: user.successCount })}</span>
             </div>
           )}
         </div>
@@ -434,7 +437,7 @@ function UserCard({
           className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-primary/40 transition-all cursor-pointer"
         >
           <MessageSquare className="w-3.5 h-3.5" />
-          צ׳אט
+          {tr('miscChat')}
         </button>
       </div>
     </div>

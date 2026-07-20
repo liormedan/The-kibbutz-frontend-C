@@ -7,8 +7,10 @@ import Link from "next/link";
 import { Heart, Eye, Plus, Loader2 } from "lucide-react";
 import { fetchPortfolios } from "@/services/portfolio.service";
 import type { PortfolioDto } from "@/lib/api/types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function PortfoliosView() {
+  const { t, dir } = useI18n();
   const [portfolios, setPortfolios] = useState<PortfolioDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function PortfoliosView() {
       const page = await fetchPortfolios(1, 12);
       setPortfolios(page?.items ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "טעינת תיקי העבודות נכשלה");
+      setError(e instanceof Error ? e.message : t("socialPortfoliosLoadError"));
     } finally {
       setLoading(false);
     }
@@ -31,15 +33,15 @@ export default function PortfoliosView() {
   }, [load]);
 
   return (
-    <div dir="rtl" className="mx-auto w-full max-w-3xl">
+    <div dir={dir} className="mx-auto w-full max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-foreground">תיקי עבודות</h1>
+        <h1 className="text-xl font-bold text-foreground">{t("socialPortfoliosTitle")}</h1>
         <Link
           href="/portfolios/create"
           className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus className="h-4 w-4" />
-          צור תיק עבודות
+          {t("socialCreatePortfolio")}
         </Link>
       </div>
 
@@ -55,7 +57,7 @@ export default function PortfoliosView() {
         </div>
       ) : portfolios.length === 0 ? (
         <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
-          אין עדיין תיקי עבודות. צרו את הראשון!
+          {t("socialPortfoliosEmpty")}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

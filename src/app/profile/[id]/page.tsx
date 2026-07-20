@@ -22,6 +22,7 @@ import {
 } from "@/services/connection.service";
 import type { UserProfile } from "@/types/user.types";
 import type { Project } from "@/types/project.types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ProfileTab = "skills" | "projects" | "badges";
 
@@ -44,6 +45,7 @@ const EXP_TEXT: Record<string, string> = {
 
 export default function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const { id: userId } = use(params);
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -167,13 +169,13 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
   const initials = profile.name.split(' ').map(w => w[0]).join('').slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={dir}>
       <div className="max-w-2xl mx-auto">
-        
+
         {/* Back */}
         <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer transition-colors">
           <ChevronRight className="w-4 h-4" />
-          חזרה
+          {t("profileBack")}
         </button>
 
         {/* Profile Card */}
@@ -188,7 +190,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
-                <p className="text-sm text-muted-foreground">{profile.role || 'משתמש פלטפורמה'}</p>
+                <p className="text-sm text-muted-foreground">{profile.role || t("profilePlatformUser")}</p>
               </div>
             </div>
 
@@ -203,17 +205,17 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                     : "bg-primary text-white border-primary hover:opacity-90"
                 }`}
               >
-                {isFollowing ? <><Check className="w-3.5 h-3.5" />עוקב</> : <><UserPlus className="w-3.5 h-3.5" />עקוב</>}
+                {isFollowing ? <><Check className="w-3.5 h-3.5" />{t("profileFollowing")}</> : <><UserPlus className="w-3.5 h-3.5" />{t("profileFollow")}</>}
               </button>
 
               {isConnected ? (
                 <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-50 border border-green-200 text-green-600 text-sm font-semibold">
                   <Check className="w-3.5 h-3.5" />
-                  חבר
+                  {t("profileConnected")}
                 </span>
               ) : pendingSentRequest ? (
                 <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 text-sm font-semibold">
-                  בקשת חברות נשלחה
+                  {t("profileRequestSent")}
                 </span>
               ) : pendingReceivedRequest ? (
                 <div className="flex gap-1.5">
@@ -222,14 +224,14 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                     disabled={actionLoading}
                     className="px-3 py-2 rounded-xl bg-secondary text-white text-sm font-semibold hover:opacity-90 cursor-pointer"
                   >
-                    אשר חברות
+                    {t("profileAcceptRequest")}
                   </button>
                   <button
                     onClick={handleDeclineRequest}
                     disabled={actionLoading}
                     className="px-3 py-2 rounded-xl border border-[var(--border)] text-muted-foreground hover:bg-red-50 hover:text-red-500 cursor-pointer"
                   >
-                    דחה
+                    {t("profileDecline")}
                   </button>
                 </div>
               ) : (
@@ -239,14 +241,14 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[var(--border)] text-sm text-muted-foreground hover:text-primary hover:border-primary cursor-pointer transition-all"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  בקש חברות
+                  {t("profileSendRequest")}
                 </button>
               )}
 
               <button
                 onClick={handleStartChat}
                 className="flex items-center justify-center p-2 rounded-xl border border-[var(--border)] text-muted-foreground hover:text-primary hover:border-primary cursor-pointer transition-colors"
-                title="פתח שיחה בצ'אט"
+                title={t("profileOpenChat")}
               >
                 <MessageSquare className="w-4 h-4" />
               </button>
@@ -255,7 +257,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Bio */}
           <div className="mb-4">
-            <p className="text-sm text-foreground leading-relaxed">{profile.bio || "אין ביוגרפיה להצגה."}</p>
+            <p className="text-sm text-foreground leading-relaxed">{profile.bio || t("profileNoBio")}</p>
           </div>
 
           {/* Links */}
@@ -270,9 +272,9 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-[var(--border)]">
             {[
-              { icon: <Briefcase className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id === userId).length, label: "פרויקטים שיצר" },
-              { icon: <Users className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id !== userId).length, label: "הצטרף אל" },
-              { icon: <Award className="w-4 h-4" />, value: profile.successCount, label: "תגי הצלחה" },
+              { icon: <Briefcase className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id === userId).length, label: t("profileStatCreatedOther") },
+              { icon: <Users className="w-4 h-4" />, value: userProjects.filter(p => p.owner.id !== userId).length, label: t("profileStatJoinedOther") },
+              { icon: <Award className="w-4 h-4" />, value: profile.successCount, label: t("profileStatBadges") },
             ].map((stat, i) => (
               <div key={i} className="text-center p-3 rounded-xl" style={{ background: "rgba(210,100,45,0.06)" }}>
                 <div className="flex justify-center text-primary mb-1">{stat.icon}</div>
@@ -285,7 +287,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
-          {[["skills", "כישורים"], ["projects", "פרויקטים"], ["badges", "תגים"]].map(([id, label]) => (
+          {[["skills", t("profileSkillsTab")], ["projects", t("profileProjectsTab")], ["badges", t("profileBadgesTab")]].map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}
@@ -307,7 +309,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                   </span>
                 </div>
               ))}
-              {profile.skills.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">לא נוספו כישורים עדיין</p>}
+              {profile.skills.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">{t("profileNoSkills")}</p>}
             </div>
           </div>
         )}
@@ -320,7 +322,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : userProjects.length === 0 ? (
-              <p className="text-sm text-center text-muted-foreground py-6">לא נמצאו פרויקטים</p>
+              <p className="text-sm text-center text-muted-foreground py-6">{t("profileNoProjects")}</p>
             ) : (
               userProjects.map(proj => {
                 const role = proj.owner.id === userId ? "owner" : "member";
@@ -330,7 +332,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-semibold text-foreground">{proj.title}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${proj.status.toLowerCase() === "open" ? "bg-secondary/10 text-secondary" : "bg-muted text-muted-foreground"}`}>
-                          {proj.status.toLowerCase() === "open" ? "פתוח" : "סגור"}
+                          {proj.status.toLowerCase() === "open" ? t("profileStatusOpen") : t("profileStatusClosed")}
                         </span>
                       </div>
                       <div className="flex gap-1 flex-wrap">
@@ -340,7 +342,7 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
                       </div>
                     </div>
                     <span className={`text-xs font-medium px-3 py-1 rounded-full ${role === "owner" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                      {role === "owner" ? "יזם" : "משתתף"}
+                      {role === "owner" ? t("profileRoleOwner") : t("profileRoleMember")}
                     </span>
                   </div>
                 );
@@ -353,9 +355,9 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
         {activeTab === "badges" && (
           <div className="glass-panel rounded-xl p-8 text-center border border-[var(--border)]">
             <Award className="w-8 h-8 text-primary mx-auto mb-2" />
-            <p className="text-sm text-foreground font-semibold">הישגי משתמש</p>
+            <p className="text-sm text-foreground font-semibold">{t("profileUserAchievements")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              משתמש זה צבר <span className="font-bold text-primary">{profile.successCount}</span> תגי הצלחה בפלטפורמת הקיבוץ.
+              {t("profileAchievedPrefix")} <span className="font-bold text-primary">{profile.successCount}</span> {t("profileAchievedSuffix")}
             </p>
           </div>
         )}

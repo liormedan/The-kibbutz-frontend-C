@@ -1,10 +1,18 @@
 // הקיבוץ – i18n dictionary (he / en)
 // Hebrew is the default. Seeded from the original bilingual app (v2) and
 // extended for the new route structure. Add a key to BOTH maps.
+// Per-area keys live in ./keys/*.ts fragments and are merged in below.
+
+import { social } from "./keys/social";
+import { profile } from "./keys/profile";
+import { messages } from "./keys/messages";
+import { projectsNda } from "./keys/projectsNda";
+import { misc } from "./keys/misc";
+import { auth } from "./keys/auth";
 
 export type Lang = "he" | "en";
 
-export const dictionary = {
+const core = {
   he: {
     // ── Sidebar / navigation ──
     sidebarTitle: "הקיבוץ",
@@ -177,4 +185,10 @@ export const dictionary = {
   },
 } as const;
 
-export type TranslationKey = keyof (typeof dictionary)["he"];
+// Merge the core strings with every per-area fragment.
+export const dictionary = {
+  he: { ...core.he, ...social.he, ...profile.he, ...messages.he, ...projectsNda.he, ...misc.he, ...auth.he },
+  en: { ...core.en, ...social.en, ...profile.en, ...messages.en, ...projectsNda.en, ...misc.en, ...auth.en },
+};
+
+export type TranslationKey = keyof typeof core.he;

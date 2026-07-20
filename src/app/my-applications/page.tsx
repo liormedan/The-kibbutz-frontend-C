@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
 import ComingSoonBanner from '@/components/ComingSoonBanner'
+import { useI18n } from '@/lib/i18n/LanguageProvider'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -130,12 +131,12 @@ const MOCK_SENT_APPLICATIONS: SentApplication[] = [
 
 const STATUS_DISPLAY: Record<
   ApplicationStatus,
-  { label: string; className: string }
+  { labelKey: string; className: string }
 > = {
-  pending: { label: 'ממתין לתשובה', className: 'bg-amber-50 text-amber-600 border border-amber-200' },
-  accepted: { label: 'התקבלת!', className: 'bg-green-50 text-green-600 border border-green-200' },
-  rejected: { label: 'לא התקבלת', className: 'bg-red-50 text-red-500 border border-red-200' },
-  nda_required: { label: 'דרוש חתימת NDA', className: 'bg-purple-50 text-purple-600 border border-purple-200' },
+  pending: { labelKey: 'miscAppStatusPendingReply', className: 'bg-amber-50 text-amber-600 border border-amber-200' },
+  accepted: { labelKey: 'miscAppAccepted', className: 'bg-green-50 text-green-600 border border-green-200' },
+  rejected: { labelKey: 'miscAppRejected', className: 'bg-red-50 text-red-500 border border-red-200' },
+  nda_required: { labelKey: 'miscAppNdaRequired', className: 'bg-purple-50 text-purple-600 border border-purple-200' },
 }
 
 function ProjectIcon({ type }: { type: ActiveProject['iconType'] }) {
@@ -151,6 +152,7 @@ function ProjectIcon({ type }: { type: ActiveProject['iconType'] }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function MyApplicationsPage() {
+  const { t, dir } = useI18n()
   const router = useRouter()
   const [expandedApp, setExpandedApp] = useState<string | null>(null)
 
@@ -162,7 +164,7 @@ export default function MyApplicationsPage() {
     setExpandedApp((prev) => (prev === id ? null : id))
 
   return (
-    <div className="min-h-screen bg-[var(--background)]" dir="rtl">
+    <div className="min-h-screen bg-[var(--background)]" dir={dir}>
       {/* Header */}
       <header className="glass-panel px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <button
@@ -170,18 +172,18 @@ export default function MyApplicationsPage() {
           className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
         >
           <ChevronRight className="w-4 h-4" />
-          חזרה
+          {t('miscBack')}
         </button>
 
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-[var(--primary)]" />
-          <h1 className="text-lg font-bold text-[var(--foreground)]">הפרויקטים שלי</h1>
+          <h1 className="text-lg font-bold text-[var(--foreground)]">{t('miscMyProjectsTitle')}</h1>
         </div>
 
         {pendingActionCount > 0 ? (
           <span className="flex items-center gap-1.5 bg-purple-600 text-white rounded-full px-3 py-1 text-sm font-medium">
             <AlertCircle className="w-3.5 h-3.5" />
-            {pendingActionCount} דורש פעולה
+            {t('miscNeedsActionCount', { count: pendingActionCount })}
           </span>
         ) : (
           <div className="w-24" />
@@ -190,13 +192,13 @@ export default function MyApplicationsPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
 
-        <ComingSoonBanner feature="המועמדויות שלי" className="mb-4" />
+        <ComingSoonBanner feature={t('miscMyAppsFeature')} className="mb-4" />
 
         {/* ── Section 1: Active Projects (item 48 – success badge) ── */}
         <section>
           <div className="flex items-center gap-2 mb-3">
             <FolderGit2 className="w-5 h-5 text-[var(--primary)]" />
-            <h2 className="text-base font-bold text-[var(--foreground)]">פרויקטים פעילים</h2>
+            <h2 className="text-base font-bold text-[var(--foreground)]">{t('miscActiveProjectsTitle')}</h2>
             <span className="text-xs text-[var(--muted-foreground)] mr-1">
               ({MOCK_ACTIVE_PROJECTS.length})
             </span>
@@ -205,8 +207,8 @@ export default function MyApplicationsPage() {
           {MOCK_ACTIVE_PROJECTS.length === 0 ? (
             <EmptyState
               icon={<FolderGit2 className="w-8 h-8 text-[var(--primary)]" />}
-              title="אין פרויקטים פעילים"
-              description="עדיין לא הצטרפת לאף פרויקט. גלה פרויקטים והגש מועמדות."
+              title={t('miscNoActiveProjectsTitle')}
+              description={t('miscNoActiveProjectsDesc')}
             />
           ) : (
             <div className="space-y-3">
@@ -231,12 +233,12 @@ export default function MyApplicationsPage() {
                       {proj.viaApplication && (
                         <span className="flex items-center gap-1 bg-green-50 text-green-600 border border-green-200 text-[10px] rounded-lg px-2 py-0.5 font-semibold">
                           <Award className="w-3 h-3" />
-                          התקבלת!
+                          {t('miscAppAccepted')}
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
-                      תפקיד: <span className="font-medium text-[var(--foreground)]">{proj.role}</span>
+                      {t('miscRoleLabel')} <span className="font-medium text-[var(--foreground)]">{proj.role}</span>
                     </p>
                   </div>
 
@@ -246,7 +248,7 @@ export default function MyApplicationsPage() {
                       <Users className="w-3.5 h-3.5" />
                       {proj.memberCount}/{proj.maxMembers}
                     </div>
-                    <p className="text-[10px] text-[var(--muted-foreground)] mt-1">הצטרפת {proj.joinedAt}</p>
+                    <p className="text-[10px] text-[var(--muted-foreground)] mt-1">{t('miscJoinedAt', { date: proj.joinedAt })}</p>
                   </div>
 
                   <ChevronRight className="w-4 h-4 text-[var(--muted-foreground)] flex-shrink-0" />
@@ -260,7 +262,7 @@ export default function MyApplicationsPage() {
         <section>
           <div className="flex items-center gap-2 mb-3">
             <FileText className="w-5 h-5 text-[var(--primary)]" />
-            <h2 className="text-base font-bold text-[var(--foreground)]">מועמדויות שהגשתי</h2>
+            <h2 className="text-base font-bold text-[var(--foreground)]">{t('miscSentApplicationsTitle')}</h2>
             <span className="text-xs text-[var(--muted-foreground)] mr-1">
               ({MOCK_SENT_APPLICATIONS.length})
             </span>
@@ -269,8 +271,8 @@ export default function MyApplicationsPage() {
           {MOCK_SENT_APPLICATIONS.length === 0 ? (
             <EmptyState
               icon={<FileText className="w-8 h-8 text-[var(--primary)]" />}
-              title="עדיין לא הגשת מועמדות"
-              description="גלה פרויקטים בקהילה והגש מועמדות לתפקיד שמתאים לך."
+              title={t('miscNoSentAppsTitle')}
+              description={t('miscNoSentAppsDesc')}
             />
           ) : (
             <div className="space-y-3">
@@ -316,7 +318,7 @@ export default function MyApplicationsPage() {
 
                       {/* Status badge */}
                       <span className={`text-[10px] font-semibold rounded-lg px-2 py-1 flex-shrink-0 ${badge.className}`}>
-                        {badge.label}
+                        {t(badge.labelKey)}
                       </span>
 
                       {/* Expand toggle */}
@@ -332,26 +334,26 @@ export default function MyApplicationsPage() {
                         {/* Detail rows */}
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div>
-                            <span className="text-[var(--muted-foreground)]">פרויקט</span>
+                            <span className="text-[var(--muted-foreground)]">{t('miscProjectLabel')}</span>
                             <p className="font-medium text-[var(--foreground)]">{app.projectName}</p>
                           </div>
                           <div>
-                            <span className="text-[var(--muted-foreground)]">בעל הפרויקט</span>
+                            <span className="text-[var(--muted-foreground)]">{t('miscProjectOwnerLabel')}</span>
                             <p className="font-medium text-[var(--foreground)]">{app.projectOwner}</p>
                           </div>
                           <div>
-                            <span className="text-[var(--muted-foreground)]">תפקיד מבוקש</span>
+                            <span className="text-[var(--muted-foreground)]">{t('miscRequestedRole')}</span>
                             <p className="font-medium text-[var(--foreground)]">{app.requestedRole}</p>
                           </div>
                           <div>
-                            <span className="text-[var(--muted-foreground)]">תאריך הגשה</span>
+                            <span className="text-[var(--muted-foreground)]">{t('miscSubmittedDateLabel')}</span>
                             <p className="font-medium text-[var(--foreground)]">{app.submittedAt}</p>
                           </div>
                         </div>
 
                         {/* Message I sent */}
                         <div>
-                          <p className="text-xs text-[var(--muted-foreground)] mb-1">המסר שלי</p>
+                          <p className="text-xs text-[var(--muted-foreground)] mb-1">{t('miscMyMessageLabel')}</p>
                           <div className="bg-[var(--primary)]/5 rounded-xl px-3 py-2.5 text-sm text-[var(--foreground)] leading-relaxed italic">
                             &quot;{app.message}&quot;
                           </div>
@@ -363,16 +365,16 @@ export default function MyApplicationsPage() {
                             <AlertCircle className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-purple-700">
-                                נדרשת חתימה על הסכם סודיות (NDA)
+                                {t('miscNdaCtaTitle')}
                               </p>
                               <p className="text-xs text-purple-600 mt-0.5">
-                                בעל הפרויקט אישר את מועמדותך. לסיום התהליך נדרשת חתימה על NDA עד {app.ndaDeadline}.
+                                {t('miscNdaCtaDesc', { deadline: app.ndaDeadline ?? '' })}
                               </p>
                               <button
                                 onClick={() => router.push(`/nda?applicationId=${app.id}&projectId=${app.projectId}`)}
                                 className="mt-2.5 inline-flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-4 py-1.5 text-xs font-semibold transition-colors"
                               >
-                                עבור לחתימה על NDA
+                                {t('miscNdaCtaButton')}
                               </button>
                             </div>
                           </div>
@@ -383,7 +385,7 @@ export default function MyApplicationsPage() {
                           onClick={() => router.push(`/projects/${app.projectId}`)}
                           className="text-xs text-[var(--primary)] hover:underline font-medium"
                         >
-                          צפייה בדף הפרויקט ←
+                          {t('miscViewProjectPage')}
                         </button>
                       </div>
                     )}

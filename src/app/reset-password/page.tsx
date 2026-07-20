@@ -8,10 +8,12 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff, Loader2, Check, AlertCircle } from "lucide-react";
 import { resetPassword } from "@/services/auth.service";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -24,7 +26,7 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     if (!token) {
-      queueMicrotask(() => setError("קישור איפוס סיסמה אינו תקין או חסר תג אימות (token)."));
+      queueMicrotask(() => setError(t("resetErrInvalidLink")));
     }
   }, [token]);
 
@@ -33,15 +35,15 @@ function ResetPasswordForm() {
     setError("");
     
     if (!token) {
-      setError("לא ניתן לאפס סיסמה ללא קישור תקין.");
+      setError(t("resetErrNoToken"));
       return;
     }
     if (password !== confirmPassword) {
-      setError("הסיסמאות אינן תואמות");
+      setError(t("authErrPasswordMismatch"));
       return;
     }
     if (password.length < 6) {
-      setError("סיסמה חייבת להכיל לפחות 6 תווים");
+      setError(t("authErrPasswordTooShort"));
       return;
     }
 
@@ -54,10 +56,10 @@ function ResetPasswordForm() {
           router.push("/login");
         }, 3000);
       } else {
-        setError("איפוס הסיסמה נכשל. ייתכן שהקישור פג תוקף.");
+        setError(t("resetErrFailed"));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "שגיאה בתהליך איפוס הסיסמה");
+      setError(err instanceof Error ? err.message : t("resetErrGeneric"));
     } finally {
       setLoading(false);
     }
@@ -67,15 +69,15 @@ function ResetPasswordForm() {
   const iconStyle = "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground";
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir={dir}>
       <div className="glass-panel max-w-md w-full rounded-2xl p-8 shadow-2xl">
-        <ComingSoonBanner feature="איפוס סיסמה" className="mb-4" />
+        <ComingSoonBanner feature={t("resetTitle")} className="mb-4" />
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <Lock className="w-8 h-8 text-primary" />
         </div>
 
-        <h1 className="text-2xl font-bold text-center text-foreground mb-2">איפוס סיסמה</h1>
-        <p className="text-sm text-muted-foreground text-center mb-6">הכנס סיסמה חדשה לחשבונך</p>
+        <h1 className="text-2xl font-bold text-center text-foreground mb-2">{t("resetTitle")}</h1>
+        <p className="text-sm text-muted-foreground text-center mb-6">{t("resetSubtitle")}</p>
 
         {error && (
           <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs flex items-center gap-2">
@@ -89,12 +91,12 @@ function ResetPasswordForm() {
             <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mx-auto text-secondary">
               <Check className="w-6 h-6" />
             </div>
-            <p className="text-sm text-secondary font-medium">הסיסמה שונתה בהצלחה! מועבר לדף הכניסה...</p>
+            <p className="text-sm text-secondary font-medium">{t("resetSuccessMsg")}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground block mb-1.5">סיסמה חדשה *</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">{t("resetNewPasswordLabel")}</label>
               <div className="relative">
                 <Lock className={iconStyle} />
                 <input
@@ -117,7 +119,7 @@ function ResetPasswordForm() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-muted-foreground block mb-1.5">אימות סיסמה חדשה *</label>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">{t("resetConfirmPasswordLabel")}</label>
               <div className="relative">
                 <Lock className={iconStyle} />
                 <input
@@ -139,7 +141,7 @@ function ResetPasswordForm() {
               className="w-full py-2.5 rounded-xl text-white font-semibold text-sm transition-opacity hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-md mt-6"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? "מאפס סיסמה..." : "עדכן סיסמה"}
+              {loading ? t("resetSubmitting") : t("resetSubmit")}
             </button>
           </form>
         )}
