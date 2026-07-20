@@ -60,22 +60,24 @@ export default function DashboardSidebar({
   const router = useRouter();
   const unreadCount = useConversationStore(state => selectUnreadConversations(state).length);
   const iconCls = sidebarCollapsed ? "w-7 h-7" : "w-5 h-5";
-  const tabs: { id: DashboardTab; label: string; icon: ReactNode; route?: string }[] = [
-    { id: "explore", label: t.explore, icon: <Compass className={iconCls} /> },
-    { id: "feed", label: "פיד", icon: <Newspaper className={iconCls} /> },
-    { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={iconCls} /> },
-    { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} /> },
-    { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/dashboard/my-applications" },
-    { id: "teams", label: t.teams, icon: <Users className={iconCls} /> },
+  // Every item has its own top-level route, so the sidebar always navigates
+  // (consistent across the whole app — no page-local tab state).
+  const tabs: { id: DashboardTab; label: string; icon: ReactNode; route: string }[] = [
+    { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/dashboard" },
+    { id: "feed", label: "פיד", icon: <Newspaper className={iconCls} />, route: "/feed" },
+    { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
+    { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
+    { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/my-applications" },
+    { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
     { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
-    { id: "friends", label: t.friends, icon: <Users className={iconCls} /> },
-    { id: "profile", label: t.profile, icon: <User className={iconCls} /> },
-    { id: "settings", label: t.settings, icon: <SlidersHorizontal className={iconCls} /> },
+    { id: "friends", label: t.friends, icon: <Users className={iconCls} />, route: "/friends" },
+    { id: "profile", label: t.profile, icon: <User className={iconCls} />, route: "/profile" },
+    { id: "settings", label: t.settings, icon: <SlidersHorizontal className={iconCls} />, route: "/settings" },
   ];
 
   const MOBILE_TABS: { id: DashboardTab; label: string; route?: string; badge?: number; icon: (active: boolean) => React.ReactNode }[] = [
     {
-      id: "explore", label: "גלה",
+      id: "explore", label: "גלה", route: "/dashboard",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -84,7 +86,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "my-projects", label: "פרויקטים",
+      id: "my-projects", label: "פרויקטים", route: "/my-projects",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5" fill={active ? "currentColor" : "none"}/>
@@ -104,7 +106,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "teams", label: "חברים",
+      id: "teams", label: "צוותים", route: "/teams",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -115,7 +117,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "profile", label: "פרופיל",
+      id: "profile", label: "פרופיל", route: "/profile",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

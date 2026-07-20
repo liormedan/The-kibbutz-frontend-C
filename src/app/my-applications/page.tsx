@@ -1,6 +1,6 @@
 'use client'
 /**
- * הקיבוץ – My Applications /dashboard/my-applications
+ * הקיבוץ – My Applications /my-applications
  * צד המועמד: הפרויקטים שאני חבר בהם + מועמדויות שהגשתי
  * Items 44 (separate sections), 47 (view sent application detail),
  *        48 (success badge), 49 (CTA when action needed)

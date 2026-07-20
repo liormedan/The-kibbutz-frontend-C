@@ -22,18 +22,18 @@ const SIDEBAR_T: Record<string, string> = {
   all: "הכל",
 };
 
-// Where each sidebar item navigates. Dashboard-only tabs use ?tab=.
+// Where each sidebar item navigates — every item has its own top-level route.
 const TAB_ROUTES: Record<DashboardTab, string> = {
   explore: "/dashboard",
   feed: "/feed",
   portfolios: "/portfolios",
-  "my-projects": "/dashboard?tab=my-projects",
-  "my-applications": "/dashboard/my-applications",
-  teams: "/dashboard?tab=teams",
+  "my-projects": "/my-projects",
+  "my-applications": "/my-applications",
+  teams: "/teams",
   messages: "/messages",
-  friends: "/dashboard?tab=friends",
+  friends: "/friends",
   profile: "/profile",
-  settings: "/dashboard?tab=settings",
+  settings: "/settings",
 };
 
 function activeFromPath(pathname: string): DashboardTab {
@@ -41,7 +41,11 @@ function activeFromPath(pathname: string): DashboardTab {
   if (pathname.startsWith("/portfolios")) return "portfolios";
   if (pathname.startsWith("/messages")) return "messages";
   if (pathname.startsWith("/profile")) return "profile";
-  if (pathname.startsWith("/dashboard/my-applications")) return "my-applications";
+  if (pathname.startsWith("/my-projects")) return "my-projects";
+  if (pathname.startsWith("/my-applications")) return "my-applications";
+  if (pathname.startsWith("/teams")) return "teams";
+  if (pathname.startsWith("/friends")) return "friends";
+  if (pathname.startsWith("/settings")) return "settings";
   return "explore";
 }
 
