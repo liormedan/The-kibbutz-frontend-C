@@ -1,11 +1,10 @@
-import AppShell from "@/components/AppShell";
 import PortfoliosView from "@/components/views/PortfoliosView";
 
-// The portfolios page — rendered inside the shared app shell (fixed sidebar).
+// The portfolios page. The shared shell (fixed sidebar) is provided by portfolios/layout.tsx.
 export default function PortfoliosPage() {
   return (
-    <AppShell>
+    <div className="p-4 md:p-6">
       <PortfoliosView />
-    </AppShell>
+    </div>
   );
 }

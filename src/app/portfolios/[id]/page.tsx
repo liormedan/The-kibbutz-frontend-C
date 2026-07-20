@@ -4,7 +4,6 @@
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Heart, Eye, Loader2 } from "lucide-react";
-import SocialNav from "@/components/SocialNav";
 import {
   fetchPortfolio,
   likePortfolio,
@@ -63,7 +62,6 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <div dir="rtl" className="min-h-screen bg-background">
-      <SocialNav />
       <main className="mx-auto max-w-3xl px-4 py-6">
         {/* Back */}
         <Link

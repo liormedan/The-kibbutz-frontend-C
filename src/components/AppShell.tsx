@@ -76,9 +76,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           localStorage.setItem("new-kibbutz-sidebar-collapsed", String(next));
         }}
       />
-      <main className="min-w-0 flex-1 h-full overflow-y-auto p-4 md:p-6 pb-20 md:pb-0">
+      {/* Content region. Each page controls its own padding/width, so pages
+          that bring their own <main> stay the single semantic main. */}
+      <div className="min-w-0 flex-1 h-full overflow-y-auto pb-20 md:pb-0">
         {children}
-      </main>
+      </div>
     </div>
   );
 }
