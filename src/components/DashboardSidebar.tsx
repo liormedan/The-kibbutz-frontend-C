@@ -8,8 +8,10 @@ import {
   Compass,
   FileText,
   FolderGit2,
+  LayoutGrid,
   LogOut,
   MessageSquare,
+  Newspaper,
   Plus,
   SlidersHorizontal,
   User,
@@ -20,6 +22,8 @@ import { logoutUser } from "@/services/auth.service";
 
 export type DashboardTab =
   | "explore"
+  | "feed"
+  | "portfolios"
   | "my-projects"
   | "my-applications"
   | "teams"
@@ -57,6 +61,8 @@ export default function DashboardSidebar({
   const unreadCount = useConversationStore(state => selectUnreadConversations(state).length);
   const tabs: { id: DashboardTab; label: string; icon: ReactNode; route?: string }[] = [
     { id: "explore", label: t.explore, icon: <Compass className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} /> },
+    { id: "feed", label: "פיד", icon: <Newspaper className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} />, route: "/feed" },
+    { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} />, route: "/portfolios" },
     { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} /> },
     { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} />, route: "/dashboard/my-applications" },
     { id: "teams", label: t.teams, icon: <Users className={sidebarCollapsed ? "w-7 h-7" : "w-5 h-5"} /> },

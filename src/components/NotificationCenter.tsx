@@ -1,120 +1,60 @@
 'use client';
 /**
  * הקיבוץ – Notification Center
- * פעמון התראות עם dropdown
- * TODO backend: query notifications, mutation markNotificationRead
- * TODO SignalR: connectSignalR from notification.service
+ * פעמון התראות עם dropdown — מחובר ל-useNotifStore + notification.service (REST).
  */
 
-import { Bell, Check, X, Award, FileText, Users, MessageSquare, UserPlus, AlertTriangle } from 'lucide-react';
+import { Bell, Check, FileText, MessageSquare, UserPlus, AlertTriangle, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react';
+import { useNotifStore } from '@/store/useNotifStore';
+import {
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from '@/services/notification.service';
+import type { Notification } from '@/types/api.types';
 
-type NotifType =
-  | 'application_received'
-  | 'application_accepted'
-  | 'application_rejected'
-  | 'nda_received'
-  | 'nda_signed'
-  | 'nda_rejected'
-  | 'badge_received'
-  | 'project_closed'
-  | 'new_message'
-  | 'member_joined'
-  | 'member_left'
-  | 'report_created'
-  | 'connection_request_received'
-  | 'connection_request_accepted';
-
-interface Notif {
-  id: string;
-  type: NotifType;
-  title: string;
-  body: string;
-  isRead: boolean;
-  createdAt: string;
-  link?: string;
-}
-
-const MOCK_NOTIFS: Notif[] = [
-  {
-    id: '1',
-    type: 'application_received',
-    title: 'מועמדות חדשה',
-    body: 'מישהו הגיש מועמדות לפרויקט EcoTech Platform',
-    isRead: false,
-    createdAt: new Date().toISOString(),
-    link: '/dashboard/applications',
-  },
-  {
-    id: '2',
-    type: 'nda_received',
-    title: 'NDA חדש התקבל',
-    body: 'קיבלת חוזה סודיות לחתימה מ-גיא לוי',
-    isRead: false,
-    createdAt: new Date().toISOString(),
-    link: '/nda/inbox',
-  },
-  {
-    id: '3',
-    type: 'badge_received',
-    title: '🏆 תג הצלחה!',
-    body: 'קיבלת תג הצלחה על פרויקט Green Tech App',
-    isRead: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
-
-function getNotifIcon(type: NotifType): React.ReactNode {
+function getNotifIcon(type: string): React.ReactNode {
   switch (type) {
-    case 'application_received':
+    case 'friend_request':
+    case 'new_follower':
       return <UserPlus className="w-4 h-4" />;
-    case 'application_accepted':
+    case 'friend_request_accepted':
       return <Check className="w-4 h-4" />;
-    case 'application_rejected':
-      return <X className="w-4 h-4" />;
-    case 'nda_received':
-    case 'nda_signed':
-    case 'nda_rejected':
-      return <FileText className="w-4 h-4" />;
-    case 'badge_received':
-      return <Award className="w-4 h-4" />;
+    case 'post_like':
+    case 'portfolio_like':
+      return <Heart className="w-4 h-4" />;
+    case 'post_comment':
+    case 'comment_reply':
+    case 'mention':
     case 'new_message':
       return <MessageSquare className="w-4 h-4" />;
-    case 'member_joined':
-    case 'member_left':
-      return <Users className="w-4 h-4" />;
-    case 'report_created':
+    case 'system_announcement':
       return <AlertTriangle className="w-4 h-4" />;
-    case 'connection_request_received':
-      return <UserPlus className="w-4 h-4" />;
-    case 'connection_request_accepted':
-      return <Check className="w-4 h-4" />;
+    case 'event_reminder':
+      return <FileText className="w-4 h-4" />;
     default:
       return <Bell className="w-4 h-4" />;
   }
 }
 
-function getNotifColor(type: NotifType): string {
+function getNotifColor(type: string): string {
   switch (type) {
-    case 'application_received':
-    case 'application_accepted':
-    case 'member_joined':
+    case 'friend_request':
+    case 'friend_request_accepted':
+    case 'new_follower':
       return 'bg-secondary/10 text-secondary';
-    case 'application_rejected':
-    case 'member_left':
-      return 'bg-red-50 text-red-500';
-    case 'nda_received':
-    case 'nda_signed':
-    case 'nda_rejected':
-      return 'bg-primary/10 text-primary';
-    case 'badge_received':
+    case 'post_like':
+    case 'portfolio_like':
       return 'bg-accent/10 text-accent';
-    case 'report_created':
+    case 'post_comment':
+    case 'comment_reply':
+    case 'mention':
+    case 'new_message':
+      return 'bg-primary/10 text-primary';
+    case 'system_announcement':
       return 'bg-red-50 text-red-500';
-    case 'connection_request_received':
-    case 'connection_request_accepted':
-      return 'bg-secondary/10 text-secondary';
     default:
       return 'bg-muted text-muted-foreground';
   }
@@ -133,12 +73,15 @@ function formatTime(iso: string): string {
 }
 
 export default function NotificationCenter() {
-  const [notifs, setNotifs] = useState<Notif[]>(MOCK_NOTIFS);
+  const notifs = useNotifStore((s) => s.notifications);
+  const unreadCount = useNotifStore((s) => s.unreadCount);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const unreadCount = notifs.filter((n) => !n.isRead).length;
+  useEffect(() => {
+    void fetchNotifications();
+  }, []);
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -150,11 +93,8 @@ export default function NotificationCenter() {
     return () => document.removeEventListener('mousedown', handle);
   }, []);
 
-  const handleNotifClick = (notif: Notif) => {
-    setNotifs((prev) =>
-      prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
-    );
-    console.warn('TODO: markNotificationRead', notif.id);
+  const handleNotifClick = (notif: Notification) => {
+    void markNotificationRead(notif.id);
     if (notif.link) {
       router.push(notif.link);
     }
@@ -162,8 +102,7 @@ export default function NotificationCenter() {
   };
 
   const markAllRead = () => {
-    setNotifs((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    console.warn('TODO: markAllNotificationsRead');
+    void markAllNotificationsRead();
   };
 
   return (
@@ -239,9 +178,11 @@ export default function NotificationCenter() {
                     >
                       {notif.title}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.body}</p>
+                    {notif.body && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.body}</p>
+                    )}
                     <p className="text-[10px] text-muted-foreground/60 mt-1">
-                      {formatTime(notif.createdAt)}
+                      {notif.timeAgo || formatTime(notif.createdAt)}
                     </p>
                   </div>
                   {!notif.isRead && (

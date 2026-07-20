@@ -6,11 +6,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, Newspaper, LogOut } from "lucide-react";
+import { LayoutGrid, Newspaper, LogOut, Compass } from "lucide-react";
 import NotificationCenter from "@/components/NotificationCenter";
 import { logoutUser } from "@/services/auth.service";
 
 const LINKS = [
+  { href: "/dashboard", label: "לוח בקרה", icon: Compass },
   { href: "/feed", label: "פיד", icon: Newspaper },
   { href: "/portfolios", label: "תיקי עבודות", icon: LayoutGrid },
 ];
