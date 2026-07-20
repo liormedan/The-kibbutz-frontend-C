@@ -64,8 +64,8 @@ export default function DashboardSidebar({
   // (consistent across the whole app — no page-local tab state).
   const tabs: { id: DashboardTab; label: string; icon: ReactNode; route: string }[] = [
     { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/projects" },
-    { id: "feed", label: "פיד", icon: <Newspaper className={iconCls} />, route: "/feed" },
-    { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
+    { id: "feed", label: t.feed, icon: <Newspaper className={iconCls} />, route: "/feed" },
+    { id: "portfolios", label: t.portfolios, icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
     { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
     { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/my-applications" },
     { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
@@ -77,7 +77,7 @@ export default function DashboardSidebar({
 
   const MOBILE_TABS: { id: DashboardTab; label: string; route?: string; badge?: number; icon: (active: boolean) => React.ReactNode }[] = [
     {
-      id: "explore", label: "גלה", route: "/projects",
+      id: "explore", label: t.explore, route: "/projects",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -86,7 +86,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "my-projects", label: "פרויקטים", route: "/my-projects",
+      id: "my-projects", label: t.myProjects, route: "/my-projects",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5" fill={active ? "currentColor" : "none"}/>
@@ -97,7 +97,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "messages", label: "הודעות",
+      id: "messages", label: t.messages,
       route: "/messages",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -106,7 +106,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "teams", label: "צוותים", route: "/teams",
+      id: "teams", label: t.teams, route: "/teams",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -117,7 +117,7 @@ export default function DashboardSidebar({
       ),
     },
     {
-      id: "profile", label: "פרופיל", route: "/profile",
+      id: "profile", label: t.profile, route: "/profile",
       icon: (active) => (
         <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

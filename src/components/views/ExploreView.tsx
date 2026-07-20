@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { Cpu, Database, Globe, Leaf, Plus, Search, UserPlus, Users } from "lucide-react";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
 import EmptyState from "@/components/EmptyState";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 
 type Domain = "leaf" | "cpu" | "database" | "globe";
 
@@ -33,16 +35,17 @@ const PROJECTS: DiscoverProject[] = [
 
 const IconMap: Record<Domain, typeof Leaf> = { leaf: Leaf, cpu: Cpu, database: Database, globe: Globe };
 
-const DOMAINS: { value: Domain | "all"; label: string }[] = [
-  { value: "all", label: "הכל" },
-  { value: "leaf", label: "אקולוגיה" },
-  { value: "cpu", label: "בינה מלאכותית" },
-  { value: "database", label: "נתונים" },
-  { value: "globe", label: "Web3 / גלובלי" },
+const DOMAINS: { value: Domain | "all"; labelKey: TranslationKey }[] = [
+  { value: "all", labelKey: "domainAll" },
+  { value: "leaf", labelKey: "domainEco" },
+  { value: "cpu", labelKey: "domainAI" },
+  { value: "database", labelKey: "domainData" },
+  { value: "globe", labelKey: "domainWeb3" },
 ];
 
 export default function ExploreView() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [search, setSearch] = useState("");
   const [domain, setDomain] = useState<Domain | "all">("all");
 
@@ -62,21 +65,21 @@ export default function ExploreView() {
   );
 
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6" dir="rtl">
-      <ComingSoonBanner feature="פרויקטים" className="mb-4" />
+    <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
+      <ComingSoonBanner feature={t("explore")} className="mb-4" />
 
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">גלה פרויקטים</h1>
-          <p className="mt-1 text-sm text-muted-foreground">מצא פרויקטים קהילתיים שמחפשים חברים, ותרום את הכישורים שלך.</p>
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("exploreTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("exploreSub")}</p>
         </div>
         <button
           onClick={() => router.push("/projects/create")}
           className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          פרויקט חדש
+          {t("createNewProject")}
         </button>
       </div>
 
@@ -87,7 +90,7 @@ export default function ExploreView() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="חפש לפי שם, תיאור או טכנולוגיה..."
+          placeholder={t("searchProjects")}
           className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-3 pr-12 pl-4 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-primary focus:outline-none"
         />
       </div>
@@ -104,18 +107,18 @@ export default function ExploreView() {
                 : "border border-[var(--border)] bg-[var(--card)] text-muted-foreground hover:border-primary hover:text-primary"
             }`}
           >
-            {d.label}
+            {t(d.labelKey)}
           </button>
         ))}
-        <span className="ms-auto self-center text-xs text-muted-foreground">{filtered.length} פרויקטים</span>
+        <span className="ms-auto self-center text-xs text-muted-foreground">{t("projectsCount", { count: filtered.length })}</span>
       </div>
 
       {/* Grid */}
       {filtered.length === 0 ? (
         <EmptyState
           icon={<Search className="h-8 w-8 text-primary" />}
-          title="לא נמצאו פרויקטים תואמים"
-          description="נסה מילת חיפוש אחרת או בחר תחום אחר."
+          title={t("noProjectsFound")}
+          description={t("noProjectsFoundSub")}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -148,7 +151,7 @@ export default function ExploreView() {
                 </div>
 
                 <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-3">
-                  <span className="text-[11px] text-muted-foreground">מוביל: {proj.owner}</span>
+                  <span className="text-[11px] text-muted-foreground">{t("leadBy", { name: proj.owner })}</span>
                   <button
                     type="button"
                     disabled={isFull}
@@ -159,7 +162,7 @@ export default function ExploreView() {
                         : "bg-primary text-white hover:opacity-90"
                     }`}
                   >
-                    {isFull ? "מלא" : <><UserPlus className="h-3.5 w-3.5" />הצטרף</>}
+                    {isFull ? t("fullTeam") : <><UserPlus className="h-3.5 w-3.5" />{t("joinProject")}</>}
                   </button>
                 </div>
               </article>

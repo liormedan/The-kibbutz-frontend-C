@@ -30,19 +30,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardSidebar, { type DashboardTab } from "@/components/DashboardSidebar";
 import { useAuthStore } from "@/store/useAuthStore";
-
-const SIDEBAR_T: Record<string, string> = {
-  explore: "גלה פרויקטים",
-  myProjects: "הפרויקטים שלי",
-  myApplications: "המועמדויות שלי",
-  teams: "צוותים",
-  messages: "הודעות",
-  friends: "חברים",
-  profile: "פרופיל אישי",
-  settings: "הגדרות",
-  createNewProject: "פרויקט חדש",
-  all: "הכל",
-};
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 // Where each sidebar item navigates — every item has its own top-level route.
 const TAB_ROUTES: Record<DashboardTab, string> = {
@@ -75,25 +63,41 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
+  const { t, lang, dir } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("new-kibbutz-sidebar-collapsed") === "true");
   }, []);
 
+  // Sidebar labels, keyed the way DashboardSidebar expects them.
+  const sidebarT: Record<string, string> = {
+    explore: t("explore"),
+    feed: t("feed"),
+    portfolios: t("portfolios"),
+    myProjects: t("myProjects"),
+    myApplications: t("myApplications"),
+    teams: t("teams"),
+    messages: t("messages"),
+    friends: t("friends"),
+    profile: t("profile"),
+    settings: t("settings"),
+    createNewProject: t("createNewProject"),
+  };
+
   return (
     <div
       className="flex h-screen w-screen overflow-hidden font-sans bg-background text-foreground"
-      dir="rtl"
+      dir={dir}
     >
       <DashboardSidebar
         activeTab={activeFromPath(pathname)}
-        lang="he"
+        lang={lang}
         profileAvatar={user?.avatar || "/logo_clean.png"}
-        profileName={user?.name || "אורח"}
-        profileRole={user?.role === "admin" ? "מנהל" : "חבר קהילה"}
+        profileName={user?.name || t("guest")}
+        profileRole={user?.role === "admin" ? t("admin") : t("communityMember")}
         sidebarCollapsed={collapsed}
-        t={SIDEBAR_T}
+        t={sidebarT}
         onCreateProject={() => router.push("/projects/create")}
         onSelectTab={(tab) => router.push(TAB_ROUTES[tab])}
         onToggleCollapsed={() => {
