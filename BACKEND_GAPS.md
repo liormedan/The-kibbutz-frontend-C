@@ -1,150 +1,138 @@
-# פערי בקאנד — The Kibbutz Frontend
+# פערי בקאנד — The Kibbutz
 
-מסמך זה מרכז את כל הפערים בין הפרונטנד (Next.js) לבין הבקאנד הקיים
-(`KibbutzBackend`, ASP.NET Core REST). הוא נועד לסגירה מול מנהל הבקאנד:
-לכל דף/פיצ'ר מצוין מה כבר עובד, ומה חסר בצד השרת כדי שיעבוד.
+מסמך מרכז: כל מה שהפרונטנד (Next.js) צריך מהבקאנד (`KibbutzBackend`, ASP.NET Core)
+ועדיין חסר או שבור. נועד להעברה למנהל הבקאנד.
 
-> **רקע:** הפרונט נבנה במקור מול הנחת GraphQL ודומיין של *פרויקטים והתאמות*.
-> הבקאנד בפועל הוא REST עם דומיין של *רשת חברתית* (posts, comments, portfolios,
-> friendships, messages, notifications). הריפו הזה חוּוט מחדש ל-REST; פיצ'רים
-> ללא endpoint מסומנים כ־"בקרוב" ומרוכזים כאן.
+> **רקע:** הפרונט נבנה במקור למוצר של **פרויקטים והתאמות**; הבקאנד בפועל הוא **רשת
+> חברתית** (posts, portfolios, friendships, messages, notifications). הפרונט חוּוט
+> מחדש ל-REST של הבקאנד. פיצ'רים ללא endpoint מסומנים "בקרוב" בפרונט ומרוכזים כאן.
 
-## מקרא
-- ✅ עובד מול הבקאנד
-- 🟡 עובד חלקית (חלק מהשדות/פעולות חסרים)
-- ❌ אין endpoint בבקאנד — מסומן "בקרוב" בפרונט
+**מקרא:** ✅ עובד · 🟡 חלקי · ❌ אין endpoint · 🐛 באג
 
 ---
 
-## ✅ עובד — קיים בבקאנד
+## ✅ מה כבר עובד (מחובר ומאומת E2E)
 
-| פיצ'ר | פרונט | Endpoint בבקאנד |
-|---|---|---|
-| התחברות | `/login` | `POST /api/auth/login` |
-| הרשמה | `/register` | `POST /api/auth/register` |
-| רענון טוקן | (אוטומטי) | `POST /api/auth/refresh-token` |
-| התנתקות | סייד-בר | `POST /api/auth/logout` |
-| המשתמש הנוכחי | layout / profile | `GET /api/auth/me` |
-| פיד חברתי | `/feed` | `GET /api/posts/feed`, `POST /api/posts`, like/unlike, delete |
-| פוסט + תגובות | `/feed/[id]` | `GET /api/posts/{id}`, `/api/comments/posts/{id}` |
-| תיקי עבודות | `/portfolios` | `GET/POST /api/portfolios`, like, delete |
-| הודעות | `/messages` | `/api/messages/*` |
-| התראות | פעמון | `/api/notifications/*` |
-| חברים/קשרים | `/profile/[id]`, FriendsTab | `/api/friendships/*` |
+| דומיין | Endpoints |
+|---|---|
+| אימות | `POST /api/auth/register\|login\|refresh-token\|logout` · `GET /api/auth/me` |
+| פיד/פוסטים | `GET /api/posts/feed` · `POST /api/posts` · like/unlike · `DELETE` |
+| תגובות | `GET/POST /api/comments/posts/{id}` · like/unlike · delete |
+| תיקי עבודות | `GET/POST /api/portfolios` · get · like/unlike · delete |
+| הודעות | `/api/messages/conversations*` · `POST /api/messages` |
+| התראות | `/api/notifications*` |
+| חברים | `/api/friendships*` |
 
 ---
 
-## 🟡 עובד חלקית — פערי שדות/פעולות
+## 1️⃣ דומיינים יתומים — ❌ אין שום endpoint
 
-### הרשמה (`POST /api/auth/register`)
-הפרונט מקבל שדה `name` יחיד ו-`role` מסוג `participant|entrepreneur`, אך הבקאנד
-דורש `FirstName`, `LastName`, `Username`, ו-`Role` כ-enum מספרי
-(`Guest=0..Administrator=5`).
-- **פתרון זמני בפרונט:** מפצל `name` ל-first/last, גוזר `username` מהאימייל,
-  וממפה `participant|entrepreneur → Member(1)`.
-- **בקשה מהבקאנד:** או לקבל `name`+`role` מחרוזתי, או שהפרונט יוסיף שדות
-  first/last/username בטופס. צריך להחליט יחד.
+### פרויקטים — `גלה פרויקטים`, `הפרויקטים שלי`, `projects/[id]`
+- `GET /api/projects` (רשימה + `filter`/`tag`/`search`)
+- `GET /api/projects/{id}`
+- `POST /api/projects` · `PUT /api/projects/{id}` · `DELETE /api/projects/{id}`
+- `GET /api/projects/mine` · `GET /api/projects/joined` · `GET /api/projects/matching`
+- `POST /api/projects/{id}/media` · `DELETE /api/projects/{id}/media/{mediaId}`
+- `POST /api/projects/{id}/comments`
+- `POST /api/projects/{id}/leave` · `POST /api/projects/{id}/close`
 
-### תפקידים (Roles)
-תפקידי הבקאנד: `Guest, Member, Resident, KibbutzMember, Volunteer, Administrator`.
-תפקידי הפרונט: `participant, entrepreneur, admin`. אין התאמה.
-- **בקשה:** להגדיר מיפוי רשמי, או ליישר את שתי הרשימות.
-
-### התראות — טקסונומיה שונה
-הבקאנד: `PostLike, PostComment, CommentReply, FriendRequest, ... EventReminder`.
-הפרונט מיפה אליהם. אין `application/nda/badge` בבקאנד (שייכים לדומיין הישן).
-
-### הודעות — מבנה שיחות
-הבקאנד מבוסס `conversationId` (עם `participants`), הפרונט המקורי היה מבוסס
-"צ'אט לפי משתמש". חוּוט מחדש למודל השיחות. **אין SignalR/realtime** בבקאנד —
-הוחלף ב-polling. אם רוצים realtime, צריך hub בבקאנד.
-
-### פרופיל — קריאה בלבד
-`GET /api/auth/me` עובד. חסר: `GET /api/users/{id}` (פרופיל ציבורי),
-`PUT /api/users/me` (עדכון פרופיל), העלאת avatar, `GET /api/users/search`.
-כרגע `/profile/[id]` והעדכון מסומנים "בקרוב".
-
----
-
-## ❌ חסר לגמרי — אין endpoint (מסומן "בקרוב")
-
-הדפים קיימים ושומרים על העיצוב, אך אינם מחוברים לשרת. כדי להפעילם צריך
-להוסיף את ה-endpoints הבאים בבקאנד (או להסיר את הדפים):
-
-### פרופיל ומשתמשים
-- `GET /api/users/{id}` — פרופיל משתמש ציבורי
-- `PUT /api/users/me` — עדכון פרופיל (bio, שם, קישורים, כישורים)
-- `POST /api/users/me/avatar` — העלאת תמונת פרופיל
-- `GET /api/users/search?q=` — חיפוש משתמשים
-- מעקב: `POST/DELETE /api/users/{id}/follow`, `GET /api/users/me/followers|following`
-  (בבקאנד יש friendships אך לא follow)
-
-### פרויקטים (`/projects*`, `/dashboard*`, `/matches`)
-דומיין שלם שאינו קיים בבקאנד:
-- `GET/POST /api/projects`, `GET/PUT/DELETE /api/projects/{id}`
-- `GET /api/projects/mine`, `GET /api/projects/joined`, `GET /api/projects/matching`
-- מדיה: `POST/DELETE /api/projects/{id}/media`
-- תגובות פרויקט: `POST /api/projects/{id}/comments`
-
-### מועמדויות (`/dashboard/applications`, `/dashboard/my-applications`)
-- `POST /api/projects/{id}/applications`
-- `GET /api/projects/{id}/applications`
+### מועמדויות — `מועמדויות`, `המועמדויות שלי`
+- `POST /api/projects/{id}/applications` (הגשה)
+- `GET /api/projects/{id}/applications` (רשימה ליזם)
 - `PUT /api/applications/{id}` (accept/reject)
+- `GET /api/applications/mine`
 
-### התאמות (`/matches`)
-- `GET /api/matching/projects`, `GET /api/matching/users?projectId=`
+### התאמות — `matches`
+- `GET /api/matching/projects`
+- `GET /api/matching/users?projectId=`
 
-### צוותים (`/projects/[id]/team`)
-- `GET /api/projects/{id}/team`, `PUT /api/teams/{id}/status`
+### צוותים — `projects/[id]/team`
+- `GET /api/projects/{id}/team`
+- `PUT /api/teams/{id}/status`
 
-### הזמנות
-- `POST /api/invites`, `PUT /api/invites/{id}/accept|reject`
+### הזמנות (Invites)
+- `POST /api/invites` · `PUT /api/invites/{id}/accept` · `PUT /api/invites/{id}/reject`
 
-### NDA (`/nda`, `/nda/inbox`)
-- `GET/POST /api/ndas`, `GET /api/ndas/{id}`, `PUT /api/ndas/{id}/sign|reject`
+### NDA — `nda`, `nda/inbox`
+- `GET /api/ndas` · `GET /api/ndas/{id}` · `POST /api/ndas`
+- `PUT /api/ndas/{id}/sign` · `PUT /api/ndas/{id}/reject`
 
-### דיווחים
+### דיווחים ותגי הצלחה
 - `POST /api/reports`
-
-### תגי הצלחה (Badges)
-- `GET /api/users/me/badges`, `POST /api/projects/{id}/success`
-
-### אימות והרשאות
-- OAuth: `/api/auth/oauth/{provider}` (google/github/linkedin)
-- שחזור סיסמה: `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`
-- אימות אימייל: `POST /api/auth/verify-email`, `POST /api/auth/resend-verification`
+- `GET /api/users/me/badges` · `POST /api/projects/{id}/success`
 
 ---
 
-## פערי תשתית (צד בקאנד)
+## 2️⃣ דומיינים חלקיים — 🟡 חלק קיים, חלק חסר
 
-1. **CORS** — כרגע מתיר `localhost:3000/3001` בלבד (`appsettings.json`).
-   הפרונט רץ על 3000 בברירת מחדל; ודאו שהכתובת בפועל מופיעה ב-`Cors:AllowedOrigins`.
-2. **פורט** — הבקאנד רץ על `http://localhost:19653` / `https://localhost:19652`.
-   הפרונט מוגדר ל-`NEXT_PUBLIC_API_URL=http://localhost:19653`.
-3. **`GET /api/auth/me`** מחזיר את ישות `User` הגולמית (כולל `passwordHash`) ולא
-   `UserProfileDto`. מומלץ להחזיר DTO ללא שדות רגישים.
-4. **Enums כמספרים** — הבקאנד לא רשם `JsonStringEnumConverter`, לכן כל ה-enums
-   עוברים כמספרים. הפרונט מסתמך על זה. אם משנים ל-strings — צריך לעדכן את הפרונט.
-5. **`/api/posts/feed`** מסומן `[AllowAnonymous]` אך קורא ל-`GetCurrentUserId()`
-   ללא בדיקה — ייכשל למשתמש לא מחובר. מומלץ לתקן בבקאנד.
+### משתמשים / פרופיל — קיים רק `GET /api/auth/me`
+- ❌ `GET /api/users/{id}` — פרופיל ציבורי (נדרש ל-`profile/[id]`)
+- ❌ `PUT /api/users/me` — עדכון פרופיל (bio, שם, קישורים, כישורים)
+- ❌ `POST /api/users/me/avatar` — העלאת תמונת פרופיל
+- ❌ `GET /api/users/search?q=` — חיפוש משתמשים
+- ❌ `POST /api/users/me/onboarding` — השלמת Onboarding
+
+### מעקב (Follow) — קיים friendships, לא קיים follow
+- ❌ `POST /api/users/{id}/follow` · `DELETE /api/users/{id}/follow`
+- ❌ `GET /api/users/me/followers` · `GET /api/users/me/following`
 
 ---
 
-## 🐛 באגים שהתגלו ב-E2E (2026-07-20)
+## 3️⃣ אימות — פיצ'רים חסרים
+- ❌ OAuth: `/api/auth/oauth/{provider}` (google / github / linkedin)
+- ❌ `POST /api/auth/forgot-password` · `POST /api/auth/reset-password`
+- ❌ `POST /api/auth/verify-email` · `POST /api/auth/resend-verification`
 
-בבדיקת E2E מול הבקאנד האמיתי התגלו שלושה באגים בצד השרת (הפרונט תקין):
+---
 
-1. **`POST /api/posts` → 400 (NullReferenceException)** — הפוסט נשמר אך התשובה
-   נכשלת כי `post.Author` לא נטען לפני המיפוי ל-DTO.
+## 4️⃣ באגים בבקאנד — 🐛 (התגלו ב-E2E; תוקנו בעותק המקומי, יש להחיל בריפו הרשמי)
+
+1. **`POST /api/posts` → 400** (`NullReferenceException`). הפוסט נשמר אך המיפוי
+   ל-DTO ניגש ל-`post.Author` שלא נטען.
+   *תיקון:* אחרי `SaveChangesAsync` — `await _context.Entry(post).Reference(p => p.Author).LoadAsync();`
+   `await _context.Entry(post).Collection(p => p.Tags).LoadAsync();`
+
 2. **`POST /api/portfolios` → 400** — אותו שורש (`portfolio.Owner` null).
-3. **`GET /api/messages/conversations` → 400** — filtered include עם `.Take(1)`
-   דורש `SQL APPLY` שאין ב-SQLite.
+   *תיקון:* טעינת `Owner` + `Tags` לפני המיפוי.
 
-תיאור מלא + patch מדויק לכל אחד: ראה `docs/BACKEND_BUGS.md`. אחרי התיקונים:
-**15/15** בדיקות E2E עוברות (auth · posts · comments · portfolios · notifications ·
-conversations/messages).
+3. **`GET /api/messages/conversations` → 400** — `"SQL APPLY not supported on SQLite"`.
+   נובע מ-`.ThenInclude(c => c.Messages.OrderByDescending(...).Take(1))`.
+   *תיקון:* include רגיל של `Messages` + בחירת ההודעה האחרונה בזיכרון
+   (`Messages.OrderByDescending(m => m.SentAt).FirstOrDefault()`).
 
-ממצא מינורי נוסף: `POST /api/friendships/requests` מחזיר `200` בלי `Data` (הפרונט
-הוקשח לא לקרוס). כיסוי מלא של **כל 40 ה-endpoints** (7 קונטרולרים) רץ ב-
-`qa/api-coverage.mjs` → **40/40 עוברים**. פירוט ב-`qa/API_COVERAGE.md`.
+4. **`POST /api/friendships/requests`** — מחזיר `200` עם `data: null` (בניגוד לשאר
+   ה-create endpoints). *תיקון:* להחזיר `Data = <FriendshipDto>`.
+
+---
+
+## 5️⃣ תשתית ואיכות
+1. **CORS** — כרגע מתיר רק `localhost:3000/3001` (`appsettings.json`). להוסיף את
+   כתובת הפרונט בפועל (dev + production).
+2. **`GET /api/auth/me`** — מחזיר את ישות `User` הגולמית כולל `passwordHash`
+   (חשיפת מידע רגיש!). מומלץ להחזיר `UserProfileDto`.
+3. **`GET /api/posts/feed`** — מסומן `[AllowAnonymous]` אך קורא ל-`GetCurrentUserId()`
+   ללא בדיקה → קורס למשתמש לא מחובר.
+4. **Enums כמספרים** — הבקאנד לא רשם `JsonStringEnumConverter`, לכן כל ה-enums
+   עוברים כמספרים. הפרונט מסתמך על זה — אם משנים ל-strings, לעדכן את הפרונט.
+
+---
+
+## קונבנציות ל-endpoints חדשים (כדי שיתאימו למה שהפרונט כבר מצפה לו)
+- **מעטפת:** `ApiResponse<T> { success, message?, data?, errors?, timestamp }`.
+- **עימוד:** `PaginatedResponse<T> { items, totalCount, pageNumber, pageSize, ... }`,
+  פרמטרים `?pageNumber=&pageSize=`.
+- **אימות:** JWT Bearer (`Authorization: Bearer <token>`).
+- **JSON ב-camelCase; enums כמספרים.**
+- הרפרנס המלא של החוזה הקיים: `../docs/API_CONTRACT.md`.
+
+---
+
+## תעדוף מוצע
+| עדיפות | מה | למה |
+|---|---|---|
+| **P0** | 4 הבאגים + `me` שמחזיר passwordHash + CORS | שוברים/סיכון אבטחה; מהיר לתקן |
+| **P1** | משתמשים/פרופיל (`GET /users/{id}`, `PUT /users/me`, avatar, search) | נדרש להמון דפים (פרופיל, הודעות, חיפוש) |
+| **P2** | דומיין הפרויקטים (projects + applications + matching + teams) | הליבה היתומה הגדולה ביותר |
+| **P3** | NDA, invites, reports, badges, OAuth, שחזור/אימות אימייל | פיצ'רים משניים |
+
+**סה"כ:** ~44 endpoints חסרים · 4 באגים · 4 נושאי תשתית.
