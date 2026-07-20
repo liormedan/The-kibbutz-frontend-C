@@ -144,3 +144,7 @@
 תיאור מלא + patch מדויק לכל אחד: ראה `docs/BACKEND_BUGS.md`. אחרי התיקונים:
 **15/15** בדיקות E2E עוברות (auth · posts · comments · portfolios · notifications ·
 conversations/messages).
+
+ממצא מינורי נוסף: `POST /api/friendships/requests` מחזיר `200` בלי `Data` (הפרונט
+הוקשח לא לקרוס). כיסוי מלא של **כל 40 ה-endpoints** (7 קונטרולרים) רץ ב-
+`qa/api-coverage.mjs` → **40/40 עוברים**. פירוט ב-`qa/API_COVERAGE.md`.

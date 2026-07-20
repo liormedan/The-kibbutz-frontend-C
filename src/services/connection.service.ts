@@ -38,6 +38,11 @@ export async function sendConnectionRequest(
 ): Promise<ConnectionRequest> {
   const body: SendFriendRequestDto = { addresseeId: userId };
   const dto = await api.post<FriendshipDto>("/api/friendships/requests", body);
+  // The backend currently returns success with no Data on this endpoint
+  // (see docs/BACKEND_BUGS.md) — fall back to a synthetic pending request.
+  if (!dto?.friendshipId) {
+    return { ...emptyRequest(""), to: { ...emptySummary, id: userId } };
+  }
   return mapConnectionRequest(dto);
 }
 
