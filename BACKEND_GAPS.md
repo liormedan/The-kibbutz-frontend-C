@@ -133,11 +133,14 @@
 
 ## 🐛 באגים שהתגלו ב-E2E (2026-07-20)
 
-בבדיקת E2E מול הבקאנד האמיתי התגלו שני באגים בצד השרת (הפרונט תקין):
+בבדיקת E2E מול הבקאנד האמיתי התגלו שלושה באגים בצד השרת (הפרונט תקין):
 
 1. **`POST /api/posts` → 400 (NullReferenceException)** — הפוסט נשמר אך התשובה
    נכשלת כי `post.Author` לא נטען לפני המיפוי ל-DTO.
 2. **`POST /api/portfolios` → 400** — אותו שורש (`portfolio.Owner` null).
+3. **`GET /api/messages/conversations` → 400** — filtered include עם `.Take(1)`
+   דורש `SQL APPLY` שאין ב-SQLite.
 
-תיאור מלא + patch מדויק: ראה `docs/BACKEND_BUGS.md`. אחרי התיקון: **10/10**
-בדיקות E2E עוברות (register→login→post→like→comment→portfolio→feed).
+תיאור מלא + patch מדויק לכל אחד: ראה `docs/BACKEND_BUGS.md`. אחרי התיקונים:
+**15/15** בדיקות E2E עוברות (auth · posts · comments · portfolios · notifications ·
+conversations/messages).

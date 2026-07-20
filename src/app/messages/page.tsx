@@ -1,18 +1,35 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ChevronLeft, MessageSquare, Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
-import { connectChatHub, fetchMessages, sendMessage } from "@/services/conversation.service";
-import { fetchUserById } from "@/services/user.service";
+import {
+  connectChatHub,
+  fetchMessages,
+  fetchConversations,
+  sendMessage,
+  createConversation,
+  markConversationRead,
+} from "@/services/conversation.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useConversationStore } from "@/store/useConversationStore";
-import type { Message } from "@/types/message.types";
+import type { Message, Conversation, ParticipantInfo } from "@/types/message.types";
 
 // Stable reference for the "no messages" case — returning a fresh []
 // from the zustand selector triggers an infinite re-render loop in React 19.
 const NO_MESSAGES: Message[] = [];
+
+function otherParticipant(
+  conv: Conversation | undefined,
+  currentUserId: string,
+): ParticipantInfo | undefined {
+  return conv?.participantsInfo?.find((p) => p.id !== currentUserId);
+}
+
+function convTitle(conv: Conversation | undefined, currentUserId: string): string {
+  return conv?.title || otherParticipant(conv, currentUserId)?.name || "שיחה";
+}
 
 function MessagesLoading() {
   return (
@@ -25,60 +42,51 @@ function MessagesLoading() {
 function MessagesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentUserId = useAuthStore(state => state.user?.id ?? "");
-  const isLoading = useConversationStore(state => state.isLoading);
-  const conversations = useConversationStore(state => state.conversations);
-  const otherUserId = searchParams.get("userId");
+  const currentUserId = useAuthStore((state) => state.user?.id ?? "");
+  const isLoading = useConversationStore((state) => state.isLoading);
+  const conversations = useConversationStore((state) => state.conversations);
+  const conversationId = searchParams.get("conversationId");
+  const startUserId = searchParams.get("userId");
   const [content, setContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
-  const [userCache, setUserCache] = useState<Record<string, { name: string; avatar: string }>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
-  
-  const messages = useConversationStore(state =>
-    otherUserId ? (state.messagesByConversation[otherUserId] ?? NO_MESSAGES) : NO_MESSAGES
+
+  const messages = useConversationStore((state) =>
+    conversationId ? (state.messagesByConversation[conversationId] ?? NO_MESSAGES) : NO_MESSAGES,
   );
 
+  const activeConversation = conversations.find((c) => c.id === conversationId);
+
+  // Load the conversation list once.
   useEffect(() => {
-    if (!otherUserId) return;
-    void fetchMessages(otherUserId).catch(() => setError("לא ניתן לטעון את היסטוריית השיחה."));
-    return connectChatHub(otherUserId);
-  }, [otherUserId]);
+    void fetchConversations().catch(() => setError("לא ניתן לטעון את רשימת השיחות."));
+  }, []);
 
+  // Start a chat with a specific user: create/open a direct conversation, then
+  // switch the URL to ?conversationId=.
   useEffect(() => {
-    const idsToFetch = new Set<string>();
-    if (otherUserId && !userCache[otherUserId]) idsToFetch.add(otherUserId);
-    conversations.forEach(c => {
-      const otherId = c.participants.find(p => p !== currentUserId);
-      if (otherId && !userCache[otherId]) {
-        idsToFetch.add(otherId);
-      }
-    });
+    if (!startUserId || conversationId) return;
+    let cancelled = false;
+    void createConversation([startUserId])
+      .then((id) => {
+        if (!cancelled) router.replace(`/messages?conversationId=${id}`);
+      })
+      .catch(() => setError("לא ניתן לפתוח שיחה חדשה."));
+    return () => {
+      cancelled = true;
+    };
+  }, [startUserId, conversationId, router]);
 
-    if (idsToFetch.size === 0) return;
-
-    idsToFetch.forEach(async (uid) => {
-      try {
-        const u = await fetchUserById(uid);
-        setUserCache(prev => ({ ...prev, [uid]: { name: u.name, avatar: u.avatar } }));
-      } catch (err) {
-        console.error("Failed to fetch user profile:", uid, err);
-      }
-    });
-  }, [otherUserId, conversations, currentUserId]);
-
-  const displayConversations = useMemo(() => {
-    const list = [...conversations];
-    if (otherUserId && !list.some(c => c.participants.includes(otherUserId))) {
-      list.unshift({
-        id: otherUserId,
-        type: "direct",
-        participants: [currentUserId, otherUserId],
-        createdAt: new Date().toISOString(),
-      });
-    }
-    return list;
-  }, [conversations, otherUserId, currentUserId]);
+  // Load + poll messages for the active conversation.
+  useEffect(() => {
+    if (!conversationId) return;
+    void fetchMessages(conversationId).catch(() =>
+      setError("לא ניתן לטעון את היסטוריית השיחה."),
+    );
+    void markConversationRead(conversationId);
+    return connectChatHub(conversationId);
+  }, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,12 +94,12 @@ function MessagesContent() {
 
   async function handleSend() {
     const message = content.trim();
-    if (!message || !otherUserId || isSending) return;
+    if (!message || !conversationId || isSending) return;
     setContent("");
     setIsSending(true);
     setError("");
     try {
-      await sendMessage(otherUserId, message);
+      await sendMessage(conversationId, message);
     } catch {
       setContent(message);
       setError("שליחת ההודעה נכשלה. נסו שוב.");
@@ -99,6 +107,8 @@ function MessagesContent() {
       setIsSending(false);
     }
   }
+
+  const headerOther = otherParticipant(activeConversation, currentUserId);
 
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6" dir="rtl">
@@ -108,16 +118,16 @@ function MessagesContent() {
             <MessageSquare className="h-5 w-5 text-[#d2642d]" />
             <h1 className="text-lg font-bold">שיחות</h1>
           </div>
-          {displayConversations.length > 0 ? (
-            displayConversations.map(c => {
-              const otherId = c.participants.find(p => p !== currentUserId) ?? "";
-              const name = userCache[otherId]?.name ?? otherId;
-              const avatar = userCache[otherId]?.avatar;
-              const active = otherUserId === otherId;
+          {conversations.length > 0 ? (
+            conversations.map((c) => {
+              const other = otherParticipant(c, currentUserId);
+              const name = convTitle(c, currentUserId);
+              const avatar = other?.avatar;
+              const active = conversationId === c.id;
               return (
                 <button
                   key={c.id}
-                  onClick={() => router.push(`/messages?userId=${otherId}`)}
+                  onClick={() => router.push(`/messages?conversationId=${c.id}`)}
                   className={`w-full flex items-center gap-3 rounded-xl p-3 text-right mb-2 transition-all duration-200 border-r-2 ${
                     active
                       ? "border-[#d2642d] bg-[#d2642d]/10"
@@ -126,6 +136,7 @@ function MessagesContent() {
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d2642d]/10 text-sm font-bold text-[#d2642d]">
                     {avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={avatar} alt={name} className="h-full w-full rounded-xl object-cover" />
                     ) : (
                       name[0]?.toUpperCase() ?? "?"
@@ -137,6 +148,11 @@ function MessagesContent() {
                       {c.lastMessage?.content ?? "שיחה פעילה"}
                     </p>
                   </div>
+                  {c.unreadCount ? (
+                    <span className="min-w-5 rounded-full bg-[#d2642d] px-1.5 py-0.5 text-center text-[10px] text-white">
+                      {c.unreadCount}
+                    </span>
+                  ) : null}
                 </button>
               );
             })
@@ -146,12 +162,12 @@ function MessagesContent() {
         </aside>
 
         <section className="flex min-w-0 flex-1 flex-col">
-          {!otherUserId ? (
+          {!conversationId ? (
             <div className="flex flex-1 items-center justify-center p-6">
               <EmptyState
                 icon={<MessageSquare className="h-8 w-8 text-[#d2642d]" />}
-                title="אין שיחות עדיין"
-                description="מצאו התאמה מתאימה והתחילו שיחה חדשה."
+                title="אין שיחה פתוחה"
+                description="בחרו שיחה מהרשימה, או מצאו התאמה והתחילו שיחה חדשה."
                 action={
                   <button type="button" onClick={() => router.push("/matches")} className="rounded-xl bg-[#d2642d] px-5 py-2.5 text-sm font-medium text-white">
                     התחלת שיחה
@@ -164,14 +180,15 @@ function MessagesContent() {
               <header className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3 md:px-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d2642d]/10 text-sm font-bold text-[#d2642d]">
-                    {userCache[otherUserId]?.avatar ? (
-                      <img src={userCache[otherUserId].avatar} alt={userCache[otherUserId].name} className="h-full w-full rounded-xl object-cover" />
+                    {headerOther?.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={headerOther.avatar} alt={headerOther.name} className="h-full w-full rounded-xl object-cover" />
                     ) : (
-                      (userCache[otherUserId]?.name ?? otherUserId)[0]?.toUpperCase() ?? "?"
+                      convTitle(activeConversation, currentUserId)[0]?.toUpperCase() ?? "?"
                     )}
                   </div>
                   <div>
-                    <h2 className="font-bold text-sm md:text-base">{userCache[otherUserId]?.name ?? otherUserId}</h2>
+                    <h2 className="font-bold text-sm md:text-base">{convTitle(activeConversation, currentUserId)}</h2>
                     <p className="text-xs text-[var(--muted-foreground)]">שיחה ישירה</p>
                   </div>
                 </div>
@@ -182,7 +199,7 @@ function MessagesContent() {
 
               <div className="flex-1 space-y-3 overflow-y-auto p-4 md:p-6">
                 {isLoading ? (
-                  [0, 1, 2].map(item => (
+                  [0, 1, 2].map((item) => (
                     <div key={item} className={`h-14 w-2/3 animate-pulse rounded-2xl bg-[#d2642d]/10 ${item % 2 ? "mr-auto" : ""}`} />
                   ))
                 ) : messages.length === 0 ? (
@@ -190,7 +207,7 @@ function MessagesContent() {
                     שלחו הודעה ראשונה כדי להתחיל את השיחה.
                   </div>
                 ) : (
-                  messages.map(message => {
+                  messages.map((message) => {
                     const mine = message.senderId === currentUserId;
                     return (
                       <div key={message.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
@@ -212,8 +229,8 @@ function MessagesContent() {
                 <div className="flex items-end gap-2">
                   <textarea
                     value={content}
-                    onChange={event => setContent(event.target.value)}
-                    onKeyDown={event => {
+                    onChange={(event) => setContent(event.target.value)}
+                    onKeyDown={(event) => {
                       if (event.key === "Enter" && !event.shiftKey) {
                         event.preventDefault();
                         void handleSend();

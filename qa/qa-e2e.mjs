@@ -95,6 +95,27 @@ if (session) {
   record("GET /api/portfolios", Boolean(portfolios.json?.data?.items), `items ${portfolios.json?.data?.items?.length ?? "?"}`);
   const notifs = await apiGet("/api/notifications?pageNumber=1&pageSize=20", session.accessToken);
   record("GET /api/notifications", notifs.status < 400, `status ${notifs.status}`);
+
+  // Messages / conversations flow (needs a second user)
+  const regB = await apiPost("/api/auth/register", {
+    firstName: "QA", lastName: "Peer", username: `qb_${uniq}`,
+    email: `qb_${uniq}@kibbutz.local`, password: "QaTester!2026", role: 1,
+  });
+  const peerId = regB.json?.data?.user?.userId;
+  record("register peer user", Boolean(peerId));
+  if (peerId) {
+    const conv = await apiPost("/api/messages/conversations", { participantIds: [peerId], type: 0 }, session.accessToken);
+    const convId = conv.json?.data?.conversationId;
+    record("POST /api/messages/conversations", Boolean(convId), `status ${conv.status}`);
+    if (convId) {
+      const msg = await apiPost("/api/messages", { conversationId: convId, content: "שלום E2E" }, session.accessToken);
+      record("POST /api/messages", msg.status < 400, `status ${msg.status}`);
+      const convList = await apiGet("/api/messages/conversations?pageNumber=1&pageSize=20", session.accessToken);
+      record("GET /api/messages/conversations", Boolean(convList.json?.data?.items), `items ${convList.json?.data?.items?.length ?? "?"}`);
+      const msgList = await apiGet(`/api/messages/conversations/${convId}?pageNumber=1&pageSize=50`, session.accessToken);
+      record("GET /api/messages/conversations/{id}", Boolean(msgList.json?.data?.items), `items ${msgList.json?.data?.items?.length ?? "?"}`);
+    }
+  }
 }
 
 // ── 2. Browser nav sweep with a REAL session ──

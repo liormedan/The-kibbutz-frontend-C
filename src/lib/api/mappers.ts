@@ -162,10 +162,18 @@ export function mapMessage(m: MessageDto): Message {
 }
 
 export function mapConversation(c: ConversationDto): Conversation {
+  const participants = c.participants ?? [];
   return {
     id: c.conversationId,
-    type: "direct",
-    participants: (c.participants ?? []).map((p) => p.userId),
+    type: c.type === 1 ? "team_room" : "direct",
+    participants: participants.map((p) => p.userId),
+    participantsInfo: participants.map((p) => ({
+      id: p.userId,
+      name: p.fullName || `${p.firstName} ${p.lastName}`.trim() || p.username,
+      avatar: p.profilePictureUrl ?? undefined,
+    })),
+    title: c.name ?? undefined,
+    unreadCount: c.unreadCount,
     lastMessage: c.lastMessage ? mapMessage(c.lastMessage) : undefined,
     createdAt: c.lastMessageAt ?? new Date(0).toISOString(),
   };
