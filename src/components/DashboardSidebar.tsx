@@ -60,17 +60,16 @@ export default function DashboardSidebar({
   const router = useRouter();
   const unreadCount = useConversationStore(state => selectUnreadConversations(state).length);
   const iconCls = sidebarCollapsed ? "w-7 h-7" : "w-5 h-5";
-  // Real (backend-powered) features first; the "coming soon" project domain after.
-  const tabs: { id: DashboardTab; label: string; icon: ReactNode; route?: string; soon?: boolean }[] = [
+  const tabs: { id: DashboardTab; label: string; icon: ReactNode; route?: string }[] = [
+    { id: "explore", label: t.explore, icon: <Compass className={iconCls} /> },
     { id: "feed", label: "פיד", icon: <Newspaper className={iconCls} /> },
     { id: "portfolios", label: "תיקי עבודות", icon: <LayoutGrid className={iconCls} /> },
+    { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} /> },
+    { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/dashboard/my-applications" },
+    { id: "teams", label: t.teams, icon: <Users className={iconCls} /> },
     { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
     { id: "friends", label: t.friends, icon: <Users className={iconCls} /> },
     { id: "profile", label: t.profile, icon: <User className={iconCls} /> },
-    { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, soon: true },
-    { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, soon: true },
-    { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/dashboard/my-applications", soon: true },
-    { id: "teams", label: t.teams, icon: <Users className={iconCls} />, soon: true },
     { id: "settings", label: t.settings, icon: <SlidersHorizontal className={iconCls} /> },
   ];
 
@@ -240,11 +239,6 @@ export default function DashboardSidebar({
             >
               {tab.icon}
               {!sidebarCollapsed && <span className="text-sm font-medium">{tab.label}</span>}
-              {!sidebarCollapsed && tab.soon && (
-                <span className={`${lang === "he" ? "mr-auto" : "ml-auto"} rounded-full bg-amber-100 px-2 py-0.5 text-center text-[9px] font-medium text-amber-700`}>
-                  בקרוב
-                </span>
-              )}
               {!sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (
                 <span className={`${lang === "he" ? "mr-auto" : "ml-auto"} min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center text-[10px] text-white`}>
                   {unreadCount}

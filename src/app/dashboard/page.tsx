@@ -770,7 +770,7 @@ export default function Home() {
   // App states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("All");
-  const [activeTab, setActiveTab] = useState<ActiveTab>("feed");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("explore");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   // item 23 – advanced filter panel
