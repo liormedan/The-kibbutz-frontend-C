@@ -41,6 +41,15 @@ export default function RootLayout({
 
   return (
     <html lang="he" className="h-full antialiased">
+      <head>
+        {/* Apply the saved theme before first paint to avoid a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('new-kibbutz-theme')==='dark')document.documentElement.classList.add('dark-theme')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <PendingBackendToast />

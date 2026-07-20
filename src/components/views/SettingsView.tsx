@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { Bell, ChevronDown, Info, LogOut, Sparkles, SlidersHorizontal } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { applyTheme, getTheme } from "@/lib/theme";
 
 type SettingsTab = "appearance" | "notifications" | "privacy" | "about";
 
@@ -13,7 +14,6 @@ export default function SettingsView() {
   const logout = useAuthStore((s) => s.logout);
 
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("appearance");
-  const [lang, setLang] = useState<"he" | "en">("he");
   const [isDark, setIsDark] = useState(false);
   const [notifMessages, setNotifMessages] = useState(true);
   const [notifProjects, setNotifProjects] = useState(true);
@@ -21,20 +21,12 @@ export default function SettingsView() {
   const [privacyPublic, setPrivacyPublic] = useState(true);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("new-kibbutz-lang") as "en" | "he" | null;
-    if (savedLang) setLang(savedLang);
-    if (localStorage.getItem("new-kibbutz-theme") === "dark") setIsDark(true);
+    setIsDark(getTheme() === "dark");
   }, []);
 
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    localStorage.setItem("new-kibbutz-theme", next ? "dark" : "light");
-  };
-  const toggleLanguage = () => {
-    const next = lang === "he" ? "en" : "he";
-    setLang(next);
-    localStorage.setItem("new-kibbutz-lang", next);
+  const setTheme = (dark: boolean) => {
+    setIsDark(dark);
+    applyTheme(dark ? "dark" : "light"); // applies the .dark-theme class app-wide
   };
 
   const nav: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
@@ -51,7 +43,7 @@ export default function SettingsView() {
         style={{
           display: "grid",
           gridTemplateColumns: "12rem 1fr",
-          background: "rgba(247,244,237,0.7)",
+          background: "var(--background-subtle)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -89,19 +81,18 @@ export default function SettingsView() {
             <div className="max-w-xl space-y-6">
               <p className="text-xs font-semibold text-muted-foreground tracking-widest uppercase">מראה</p>
 
-              {/* Language */}
+              {/* Language — the app is currently Hebrew-only; English is planned */}
               <div className="flex items-center justify-between gap-4 py-4 border-b border-[var(--border)]">
                 <div>
                   <p className="text-sm font-semibold text-foreground">שפה</p>
                   <p className="text-xs text-muted-foreground mt-0.5">שפת ממשק המשתמש</p>
                 </div>
-                <div className="flex shrink-0 gap-2">
-                  <button onClick={() => { if (lang !== "he") toggleLanguage(); }}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "he" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
-                  >עברית</button>
-                  <button onClick={() => { if (lang !== "en") toggleLanguage(); }}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "en" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
-                  >English</button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="px-4 py-1.5 rounded-full text-xs font-medium bg-primary text-white">עברית</span>
+                  <span className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium border border-[var(--border)] text-muted-foreground opacity-60">
+                    English
+                    <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[9px] font-semibold">בקרוב</span>
+                  </span>
                 </div>
               </div>
 
@@ -112,7 +103,7 @@ export default function SettingsView() {
                   <p className="text-xs text-muted-foreground mt-0.5">בחר מצב תצוגה</p>
                 </div>
                 <div className="flex shrink-0 gap-3">
-                  <button onClick={() => { if (isDark) toggleTheme(); }}
+                  <button onClick={() => setTheme(false)}
                     className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all cursor-pointer ${!isDark ? "border-primary" : "border-[var(--border)] opacity-60 hover:opacity-100"}`}
                   >
                     <div className="w-14 h-9 rounded-lg overflow-hidden flex">
@@ -120,7 +111,7 @@ export default function SettingsView() {
                     </div>
                     <span className="text-[10px] text-muted-foreground">בהיר</span>
                   </button>
-                  <button onClick={() => { if (!isDark) toggleTheme(); }}
+                  <button onClick={() => setTheme(true)}
                     className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all cursor-pointer ${isDark ? "border-primary" : "border-[var(--border)] opacity-60 hover:opacity-100"}`}
                   >
                     <div className="w-14 h-9 rounded-lg overflow-hidden flex">
