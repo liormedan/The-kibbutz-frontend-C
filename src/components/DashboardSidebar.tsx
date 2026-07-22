@@ -83,11 +83,10 @@ export default function DashboardSidebar({
     {
       label: t.navGroupManage,
       items: [
+        // One entry for the whole project workflow — requests, applications and
+        // teams are tabs inside /my-projects, not separate sidebar items.
         { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
-        { id: "applications", label: t.applicationsReceived, icon: <UserPlus className={iconCls} />, route: "/applications" },
-        { id: "my-applications", label: t.myApplications, icon: <FileText className={iconCls} />, route: "/my-applications" },
         { id: "my-portfolio", label: t.myPortfolio, icon: <Briefcase className={iconCls} />, route: "/my-portfolio" },
-        { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
       ],
     },
   ];

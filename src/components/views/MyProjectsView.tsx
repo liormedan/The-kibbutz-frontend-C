@@ -67,25 +67,10 @@ export default function MyProjectsView() {
   const membersLabel = (p: Project) =>
     t("membersCount", { current: p.members?.length ?? 0, max: p.maxMembers });
 
+  // The hub layout (/my-projects/layout.tsx) supplies the title and the
+  // "new project" button, so this view renders only its list.
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <FolderGit2 className="h-7 w-7 text-primary" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t("myProjects")}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t("myProjectsSub")}</p>
-          </div>
-        </div>
-        <button
-          onClick={() => router.push("/projects/create")}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          {t("createNewProject")}
-        </button>
-      </div>
-
+    <div dir={dir}>
       {error && <p className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</p>}
 
       {loading ? (

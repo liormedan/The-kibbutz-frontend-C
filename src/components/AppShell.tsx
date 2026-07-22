@@ -54,10 +54,8 @@ function activeFromPath(pathname: string): DashboardTab {
   if (pathname.startsWith("/portfolios")) return "portfolios";
   if (pathname.startsWith("/messages")) return "messages";
   if (pathname.startsWith("/profile")) return "profile";
+  // The hub and all of its tabs highlight the single "my projects" entry.
   if (pathname.startsWith("/my-projects")) return "my-projects";
-  if (pathname.startsWith("/my-applications")) return "my-applications";
-  if (pathname.startsWith("/applications")) return "applications";
-  if (pathname.startsWith("/teams")) return "teams";
   if (pathname.startsWith("/friends")) return "friends";
   if (pathname.startsWith("/settings")) return "settings";
   return "explore";
