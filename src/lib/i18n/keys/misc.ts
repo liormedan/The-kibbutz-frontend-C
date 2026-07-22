@@ -7,6 +7,7 @@ export const misc = {
     devModeHint: "הצגת נתוני דוגמה כדי לבחון את העיצוב עד שהשרת יספק תוכן אמיתי",
 
     cardMenuLabel: "אפשרויות",
+    accountMenuLabel: "תפריט חשבון",
 
     // AppTopBar / NotificationCenter
     notifTitle: "התראות",
@@ -111,6 +112,7 @@ export const misc = {
     devModeHint: "Show sample data to review the design until the server serves real content",
 
     cardMenuLabel: "Options",
+    accountMenuLabel: "Account menu",
 
     // AppTopBar / NotificationCenter
     notifTitle: "Notifications",

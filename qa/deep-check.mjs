@@ -108,11 +108,15 @@ section("B · הסרגל העליון — קליקים");
   const closed = await page.evaluate(() => !document.querySelector("header.sticky .absolute"));
   ok("קליק בחוץ סוגר את הפאנל", closed);
 
-  // avatar → profile
+  // avatar opens the account menu, and its profile item navigates
   await page.goto(BASE + "/projects", { waitUntil: "networkidle" });
   await page.click('[data-testid="topbar-avatar"]');
+  await page.waitForTimeout(200);
+  ok("האווטאר פותח תפריט חשבון", await page.locator('[data-testid="account-menu-panel"]').count() === 1);
+  ok("התפריט כולל התנתקות", await page.locator('[data-testid="account-logout"]').count() === 1);
+  await page.click('[data-testid="account-profile"]');
   await page.waitForURL("**/profile", { timeout: 5000 }).catch(() => {});
-  ok("האווטאר מוביל לפרופיל", new URL(page.url()).pathname === "/profile", page.url());
+  ok("פריט הפרופיל מנווט לפרופיל", new URL(page.url()).pathname === "/profile", page.url());
 
   // create button → create page
   await page.goto(BASE + "/projects", { waitUntil: "networkidle" });

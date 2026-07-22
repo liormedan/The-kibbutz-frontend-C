@@ -1,7 +1,7 @@
 "use client";
 // הקיבוץ – AppTopBar
 // The fixed action cluster that AppShell renders above every hosted page:
-// "new project" · notifications · avatar.
+// "new project" · notifications · account menu (the avatar).
 //
 // Placement: the bar inherits the document direction and pins the cluster to
 // the flex END, so it lands top-LEFT in Hebrew (sidebar on the right) and
@@ -11,13 +11,12 @@
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import NotificationCenter from "@/components/NotificationCenter";
-import { useAuthStore } from "@/store/useAuthStore";
+import AccountMenu from "@/components/AccountMenu";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function AppTopBar() {
   const router = useRouter();
   const { t, dir } = useI18n();
-  const user = useAuthStore((s) => s.user);
 
   return (
     <header
@@ -36,21 +35,7 @@ export default function AppTopBar() {
 
       <NotificationCenter />
 
-      <button
-        type="button"
-        data-testid="topbar-avatar"
-        onClick={() => router.push("/profile")}
-        title={user?.name || t("profile")}
-        aria-label={t("profile")}
-        className="shrink-0 rounded-xl transition-opacity hover:opacity-80 cursor-pointer"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={user?.avatar || "/logo_clean.png"}
-          alt={user?.name || t("profile")}
-          className="h-9 w-9 rounded-xl border border-[var(--border)] object-cover"
-        />
-      </button>
+      <AccountMenu />
     </header>
   );
 }
