@@ -246,10 +246,12 @@ export default function DashboardSidebar({
         {/* Expanded: the logo is centred and the collapse button is taken out of
             flow (absolute) so it cannot pull the logo off-centre. */}
         <div className={`relative flex items-center mb-5 ${sidebarCollapsed ? "flex-col gap-2 justify-center" : "justify-center"}`}>
+          {/* The round emblem (logo_clean.png) in both states — the rectangular
+              logo.jpg wordmark board is no longer used here. */}
           {sidebarCollapsed ? (
-            <Image src="/logo_clean.png" alt="The Kibbutz" width={44} height={44} className="rounded-lg object-cover" />
+            <Image src="/logo_clean.png" alt="The Kibbutz" width={44} height={44} className="rounded-full object-cover" />
           ) : (
-            <Image src="/logo.jpg" alt="The Kibbutz" width={100} height={34} className="rounded-md object-contain" />
+            <Image src="/logo_clean.png" alt="The Kibbutz" width={72} height={72} className="rounded-full object-cover" />
           )}
           <button
             onClick={onToggleCollapsed}
