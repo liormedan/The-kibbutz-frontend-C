@@ -29,7 +29,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DashboardSidebar, { type DashboardTab } from "@/components/DashboardSidebar";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 // Where each sidebar item navigates — every item has its own top-level route.
@@ -64,7 +63,6 @@ function activeFromPath(pathname: string): DashboardTab {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const user = useAuthStore((s) => s.user);
   const { t, lang, dir } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -88,7 +86,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     friends: t("friends"),
     profile: t("profile"),
     settings: t("settings"),
-    createNewProject: t("createNewProject"),
   };
 
   return (
@@ -99,12 +96,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <DashboardSidebar
         activeTab={activeFromPath(pathname)}
         lang={lang}
-        profileAvatar={user?.avatar || "/logo_clean.png"}
-        profileName={user?.name || t("guest")}
-        profileRole={user?.role === "admin" ? t("admin") : t("communityMember")}
         sidebarCollapsed={collapsed}
         t={sidebarT}
-        onCreateProject={() => router.push("/projects/create")}
         onSelectTab={(tab) => router.push(TAB_ROUTES[tab])}
         onToggleCollapsed={() => {
           const next = !collapsed;
