@@ -15,6 +15,31 @@ import { useAuthStore } from "@/store/useAuthStore";
 import type { UserProfile, OnboardingInput, UserSummary } from "@/types/user.types";
 import type { Project } from "@/types/project.types";
 
+// Build a UserProfile from the already-authenticated auth-store user. Used when
+// /api/auth/me is unreachable (offline dev login, or the backend is down): the
+// user is logged in, so the profile page must still render with what we have
+// instead of hanging on its loading skeleton forever.
+function profileFromAuthStore(): UserProfile | null {
+  const user = useAuthStore.getState().user;
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    bio: "",
+    role: "",
+    avatar: user.avatar ?? "",
+    links: "",
+    skills: [],
+    canCreateProjects: user.canCreateProjects,
+    canJoinProjects: user.canJoinProjects,
+    isProfileComplete: user.isProfileComplete,
+    emailVerified: user.emailVerified,
+    successCount: 0,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export async function fetchCurrentUser(): Promise<UserProfile | null> {
   const { setProfile, setLoadingProfile } = useUserStore.getState();
   setLoadingProfile(true);
@@ -24,7 +49,10 @@ export async function fetchCurrentUser(): Promise<UserProfile | null> {
     setProfile(profile);
     return profile;
   } catch {
-    return null;
+    // Fall back to the auth-store user so /profile renders instead of hanging.
+    const fallback = profileFromAuthStore();
+    if (fallback) setProfile(fallback);
+    return fallback;
   } finally {
     setLoadingProfile(false);
   }

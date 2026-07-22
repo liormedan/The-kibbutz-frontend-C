@@ -1,6 +1,9 @@
 // i18n fragment: profile — filled during the page conversion.
 export const profile = {
   he: {
+    profileUnavailable: "לא ניתן לטעון את הפרופיל",
+    profileUnavailableSub: "ייתכן שההתחברות פגה. רעננו את הדף או התחברו מחדש.",
+    profileRetry: "רענון",
     profileBack: "חזרה",
     profileRolePlaceholder: "תפקיד",
     profileSaveBtn: "שמור",
@@ -40,6 +43,9 @@ export const profile = {
     profileAchievedSuffix: "תגי הצלחה בפלטפורמת הקיבוץ.",
   } as Record<string, string>,
   en: {
+    profileUnavailable: "Couldn't load your profile",
+    profileUnavailableSub: "Your session may have expired. Refresh the page or sign in again.",
+    profileRetry: "Refresh",
     profileBack: "Back",
     profileRolePlaceholder: "Role",
     profileSaveBtn: "Save",

@@ -49,9 +49,13 @@ export default function ProfilePage() {
   const setProjects = useUserStore(state => state.setProjects);
   const setLoadingProjects = useUserStore(state => state.setLoadingProjects);
   const [demo, toggleDemo] = useDemoMode("profile");
+  // Whether the profile fetch has settled at least once. Without it, a settled
+  // fetch that produced no profile would either flash the error state before
+  // the request runs, or hang on the skeleton forever.
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    void fetchCurrentUser();
+    void fetchCurrentUser().finally(() => setChecked(true));
     void fetchBadges();
     setLoadingProjects(true);
     void fetchMyProjects()
@@ -79,8 +83,14 @@ export default function ProfilePage() {
       .finally(() => setLoadingProjects(false));
   }, [setLoadingProjects, setProjects]);
 
-  if (isLoadingProfile || !profile) {
+  if (!checked || isLoadingProfile) {
     return <ProfileSkeleton />;
+  }
+
+  // Fetch settled but there is no profile and no store user to fall back to
+  // (e.g. session cleared while the cookie remained). Never hang on the skeleton.
+  if (!profile) {
+    return <ProfileUnavailable />;
   }
 
   // A profile with no bio, role, skills, badges or projects renders an almost
@@ -98,6 +108,27 @@ export default function ProfilePage() {
       onToggleDemo={toggleDemo}
       bare={bare}
     />
+  );
+}
+
+/** Shown when the profile could not be loaded and there is nothing to fall back
+ *  to — instead of hanging on the loading skeleton. Reloading re-runs the fetch. */
+function ProfileUnavailable() {
+  const { t, dir } = useI18n();
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-6" dir={dir}>
+      <div className="glass-card max-w-sm rounded-2xl p-8 text-center">
+        <p className="text-base font-semibold text-foreground">{t("profileUnavailable")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("profileUnavailableSub")}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90"
+        >
+          {t("profileRetry")}
+        </button>
+      </div>
+    </div>
   );
 }
 
