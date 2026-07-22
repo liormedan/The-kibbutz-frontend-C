@@ -15,7 +15,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, Send, ChevronRight, Check, Loader2, Shield, AlertCircle, Lock, CreditCard } from "lucide-react";
 import NdaTemplate from "@/components/NdaTemplate";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Step = "form" | "payment" | "preview" | "sent";
@@ -101,7 +100,6 @@ export default function NdaPage() {
     <div className="min-h-screen bg-background p-6" dir={dir}>
       <div className="max-w-2xl mx-auto">
 
-        <ComingSoonBanner feature={t("ndaFeature")} className="mb-4" />
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">

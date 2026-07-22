@@ -7,20 +7,14 @@ import {
   Briefcase,
   ChevronDown,
   Compass,
-  FileText,
   FolderGit2,
-  UserPlus,
-  LayoutGrid,
-  LogOut,
   MessageSquare,
   Newspaper,
-  Plus,
   SlidersHorizontal,
   User,
   Users,
 } from "lucide-react";
 import { selectUnreadConversations, useConversationStore } from "@/store/useConversationStore";
-import { logoutUser } from "@/services/auth.service";
 
 export type DashboardTab =
   | "explore"
@@ -39,12 +33,8 @@ export type DashboardTab =
 interface DashboardSidebarProps {
   activeTab: DashboardTab;
   lang: "en" | "he";
-  profileAvatar: string;
-  profileName: string;
-  profileRole: string;
   sidebarCollapsed: boolean;
   t: Record<string, string>;
-  onCreateProject: () => void;
   onSelectTab: (tab: DashboardTab) => void;
   onToggleCollapsed: () => void;
 }
@@ -52,12 +42,8 @@ interface DashboardSidebarProps {
 export default function DashboardSidebar({
   activeTab,
   lang,
-  profileAvatar,
-  profileName,
-  profileRole,
   sidebarCollapsed,
   t,
-  onCreateProject,
   onSelectTab,
   onToggleCollapsed,
 }: DashboardSidebarProps) {
@@ -77,17 +63,17 @@ export default function DashboardSidebar({
         { id: "feed", label: t.feed, icon: <Newspaper className={iconCls} />, route: "/feed" },
         { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
         { id: "friends", label: t.friends, icon: <Users className={iconCls} />, route: "/friends" },
-        { id: "portfolios", label: t.portfolios, icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
+        // Portfolios browsing is reached from "תיק העבודות שלי" in the manage
+        // group — it used to sit here too, which duplicated the concept.
       ],
     },
     {
       label: t.navGroupManage,
       items: [
+        // One entry for the whole project workflow — requests, applications and
+        // teams are tabs inside /my-projects, not separate sidebar items.
         { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
-        { id: "applications", label: t.applicationsReceived, icon: <UserPlus className={iconCls} />, route: "/applications" },
-        { id: "my-applications", label: t.myApplications, icon: <FileText className={iconCls} />, route: "/my-applications" },
         { id: "my-portfolio", label: t.myPortfolio, icon: <Briefcase className={iconCls} />, route: "/my-portfolio" },
-        { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
       ],
     },
   ];
@@ -102,7 +88,7 @@ export default function DashboardSidebar({
       data-testid={`sidebar-${tab.id}`}
       onClick={() => router.push(tab.route)}
       title={sidebarCollapsed ? tab.label : undefined}
-      className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
+      className={`relative w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer ${
         sidebarCollapsed ? "justify-center" : (lang === "he" ? "text-right" : "text-left")
       } ${
         activeTab === tab.id
@@ -250,18 +236,23 @@ export default function DashboardSidebar({
         className={`fixed top-0 bottom-0 ${
           lang === "he" ? "right-0 border-l" : "left-0 border-r"
         } glass-panel z-30 flex flex-col transition-[width,padding] duration-300 ${
-          sidebarCollapsed ? "w-[88px] p-3" : "w-64 p-6"
+          sidebarCollapsed ? "w-[88px] p-3" : "w-64 px-5 py-4"
         } border-[var(--border)]`}
       >
-        <div className={`flex items-center mb-8 ${sidebarCollapsed ? "flex-col gap-3 items-center" : "justify-between gap-3"}`}>
+        {/* Expanded: the logo is centred and the collapse button is taken out of
+            flow (absolute) so it cannot pull the logo off-centre. */}
+        <div className={`relative flex items-center mb-5 ${sidebarCollapsed ? "flex-col gap-2 justify-center" : "justify-center"}`}>
           {sidebarCollapsed ? (
-            <Image src="/logo_clean.png" alt="The Kibbutz" width={52} height={52} className="rounded-lg object-cover mx-auto" />
+            <Image src="/logo_clean.png" alt="The Kibbutz" width={44} height={44} className="rounded-lg object-cover" />
           ) : (
             <Image src="/logo.jpg" alt="The Kibbutz" width={100} height={34} className="rounded-md object-contain" />
           )}
           <button
             onClick={onToggleCollapsed}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer"
+            className={`p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer ${
+              sidebarCollapsed ? "" : "absolute top-1/2 -translate-y-1/2"
+            }`}
+            style={sidebarCollapsed ? undefined : { insetInlineEnd: 0 }}
             title={sidebarCollapsed ? "הרחב" : "כווץ"}
           >
             <ChevronDown
@@ -274,8 +265,9 @@ export default function DashboardSidebar({
           </button>
         </div>
 
-        {/* overflow-y-auto: without it the last items are unreachable on a
-            short window or at high browser zoom. */}
+        {/* The rail is sized to fit a short viewport without scrolling (compact
+            logo, py-2 rows, no account card). overflow-y-auto stays as the
+            safety net for very high browser zoom. */}
         <nav className="flex-1 min-h-0 overflow-y-auto space-y-1">
           {navGroups.map((group, gi) => (
             <div key={group.label} className={gi > 0 ? "pt-3" : ""}>
@@ -292,41 +284,11 @@ export default function DashboardSidebar({
           ))}
         </nav>
 
-        {/* Profile + settings: pinned so they are always reachable. */}
+        {/* Profile + settings: pinned so they are always reachable.
+            Logging out lives inside /settings — the sidebar no longer carries
+            an account card of its own. */}
         <div className="mt-2 space-y-1 border-t border-[var(--border)] pt-2">
           {bottomTabs.map((tab) => renderNavButton(tab))}
-        </div>
-
-        <div className="my-4">
-          <button
-            onClick={onCreateProject}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-secondary to-gold text-foreground font-semibold shadow-md transition-all transform hover:-translate-y-0.5 cursor-pointer ${
-              sidebarCollapsed ? "px-2" : "text-sm"
-            }`}
-            title={sidebarCollapsed ? t.createNewProject : undefined}
-          >
-            <Plus className={`shrink-0 ${sidebarCollapsed ? "w-7 h-7" : "w-4 h-4"}`} />
-            {!sidebarCollapsed && <span>{t.createNewProject}</span>}
-          </button>
-        </div>
-
-        <div className={`pt-4 border-t border-[var(--border)] flex items-center gap-3 ${sidebarCollapsed ? "justify-center" : ""}`}>
-          <img
-            src={profileAvatar}
-            alt={profileName}
-            className="w-9 h-9 rounded-xl border border-[var(--border)] object-cover shrink-0"
-          />
-          {!sidebarCollapsed && (
-            <>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{profileName}</p>
-                <p className="text-xs text-muted-foreground truncate">{profileRole}</p>
-              </div>
-              <button onClick={() => logoutUser().then(() => router.push("/login"))} className="text-muted-foreground hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-white/5 cursor-pointer">
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          )}
         </div>
       </div>
     </aside>

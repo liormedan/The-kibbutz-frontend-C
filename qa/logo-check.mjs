@@ -1,0 +1,25 @@
+import { chromium } from "playwright";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+const __dirname=dirname(fileURLToPath(import.meta.url));
+const BASE="http://localhost:3000";
+const b=await chromium.launch();
+const ctx=await b.newContext({viewport:{width:1440,height:900}});
+await ctx.addCookies([{name:"kibbutz-session",value:"1",url:BASE},{name:"kibbutz-role",value:"participant",url:BASE}]);
+const p=await ctx.newPage();
+await p.goto(BASE+"/projects",{waitUntil:"load"});await p.waitForTimeout(1500);
+const r=await p.evaluate(()=>{
+  const aside=document.querySelector("aside > div");
+  const img=aside.querySelector("img");
+  const a=aside.getBoundingClientRect(), i=img.getBoundingClientRect();
+  const cs=getComputedStyle(aside);
+  const padL=parseFloat(cs.paddingLeft), padR=parseFloat(cs.paddingRight);
+  const innerL=a.left+padL, innerR=a.right-padR;
+  const innerCenter=(innerL+innerR)/2, imgCenter=(i.left+i.right)/2;
+  return {innerCenter:Math.round(innerCenter), logoCenter:Math.round(imgCenter), offBy:Math.round(Math.abs(innerCenter-imgCenter))};
+});
+console.log(JSON.stringify(r));
+console.log(r.offBy<=2 ? "✓ logo is centred" : "✗ off-centre by "+r.offBy+"px");
+const el=await p.$("aside > div");
+await el.screenshot({path:join(__dirname,"logo-centered.png")});
+await b.close();

@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff, Loader2, Check, AlertCircle } from "lucide-react";
 import { resetPassword } from "@/services/auth.service";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -71,7 +70,6 @@ function ResetPasswordForm() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4" dir={dir}>
       <div className="glass-panel max-w-md w-full rounded-2xl p-8 shadow-2xl">
-        <ComingSoonBanner feature={t("resetTitle")} className="mb-4" />
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <Lock className="w-8 h-8 text-primary" />
         </div>

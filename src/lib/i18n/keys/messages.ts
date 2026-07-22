@@ -1,7 +1,6 @@
 // i18n fragment: messages — filled during the page conversion.
 export const messages = {
   he: {
-    msgDemoBanner: "תצוגת דמו — עדיין אין לך שיחות. כך ייראה אזור ההודעות.",
     msgConversations: "שיחות",
     msgConversation: "שיחה",
     msgActiveConversation: "שיחה פעילה",
@@ -19,7 +18,6 @@ export const messages = {
     msgErrSend: "שליחת ההודעה נכשלה. נסו שוב.",
   } as Record<string, string>,
   en: {
-    msgDemoBanner: "Demo preview — you have no conversations yet. This is how messages will look.",
     msgConversations: "Conversations",
     msgConversation: "Conversation",
     msgActiveConversation: "Active conversation",

@@ -9,7 +9,6 @@ import { Send, ChevronRight, Loader2, AlertCircle } from 'lucide-react'
 import { resendVerificationEmail } from "@/services/auth.service"
 import { useAuthStore } from "@/store/useAuthStore"
 import { useI18n } from "@/lib/i18n/LanguageProvider"
-import ComingSoonBanner from "@/components/ComingSoonBanner"
 
 export default function VerifyEmailPage() {
   const router = useRouter()
@@ -55,7 +54,6 @@ export default function VerifyEmailPage() {
   return (
     <div className='min-h-screen bg-background flex items-center justify-center p-4' dir={dir}>
       <div className='glass-panel max-w-md w-full rounded-2xl p-8 text-center shadow-2xl'>
-        <ComingSoonBanner feature={t("verifyFeatureName")} className="mb-4" />
         {/* Icon */}
         <div className='w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6'>
           <Send className='w-16 h-16 text-primary' />

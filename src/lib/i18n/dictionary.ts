@@ -35,7 +35,6 @@ const core = {
     guest: "אורח",
     communityMember: "חבר קהילה",
     admin: "מנהל",
-    comingSoon: "בקרוב",
 
     // ── Explore / home ──
     exploreTitle: "גלה פרויקטים",
@@ -55,8 +54,17 @@ const core = {
 
     // ── My projects ──
     myPortfolioSub: "פריטי תיק העבודות שפרסמת.",
+    browseAllPortfolios: "כל התיקים",
     myPortfolioEmpty: "עדיין אין לך פריטים בתיק",
     myPortfolioEmptySub: "צור פריט חדש כדי להציג את העבודות שלך לקהילה.",
+    hubSubtitle: "ניהול כל תהליכי הפרויקטים שלך.",
+    hubTabProjects: "הפרויקטים שלי",
+    hubTabRequests: "בקשות הצטרפות",
+    hubTabApplications: "מועמדויות פתוחות",
+    hubTabTeams: "הצוותים שלי",
+    myTeamsEmpty: "עדיין אינך חבר באף צוות",
+    myTeamsEmptySub: "הצטרף לפרויקט או צור אחד — הצוות שלו יופיע כאן.",
+    myTeamsRole: "התפקיד שלך: {role}",
     myProjectsSub: "הפרויקטים שיצרת ואלה שהצטרפת אליהם.",
     myProjectsCreated: "יצרתי ({count})",
     myProjectsJoined: "הצטרפתי ({count})",
@@ -101,9 +109,6 @@ const core = {
     settingsAboutTerms: "תנאי שימוש",
     settingsAboutContact: "צור קשר",
     settingsLogout: "התנתקות",
-
-    // ── Coming-soon banner ──
-    comingSoonBanner: "{feature} — הפיצ'ר הזה עדיין לא מחובר לשרת. התצוגה להמחשה בלבד.",
   },
   en: {
     // ── Sidebar / navigation ──
@@ -127,7 +132,6 @@ const core = {
     guest: "Guest",
     communityMember: "Community member",
     admin: "Admin",
-    comingSoon: "Soon",
 
     // ── Explore / home ──
     exploreTitle: "Explore Projects",
@@ -147,8 +151,17 @@ const core = {
 
     // ── My projects ──
     myPortfolioSub: "The portfolio items you published.",
+    browseAllPortfolios: "Browse all",
     myPortfolioEmpty: "No portfolio items yet",
     myPortfolioEmptySub: "Create one to show your work to the community.",
+    hubSubtitle: "Manage all your project workflows.",
+    hubTabProjects: "My Projects",
+    hubTabRequests: "Join Requests",
+    hubTabApplications: "Open Applications",
+    hubTabTeams: "My Teams",
+    myTeamsEmpty: "You are not part of any team yet",
+    myTeamsEmptySub: "Join or create a project — its team will show up here.",
+    myTeamsRole: "Your role: {role}",
     myProjectsSub: "Projects you created and ones you joined.",
     myProjectsCreated: "Created ({count})",
     myProjectsJoined: "Joined ({count})",
@@ -193,9 +206,6 @@ const core = {
     settingsAboutTerms: "Terms of use",
     settingsAboutContact: "Contact us",
     settingsLogout: "Log out",
-
-    // ── Coming-soon banner ──
-    comingSoonBanner: "{feature} — this feature isn't connected to the server yet. Preview only.",
   },
 } as const;
 

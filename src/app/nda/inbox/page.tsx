@@ -5,7 +5,6 @@ import { ChevronRight, FileText, Shield, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import NdaTemplate from "@/components/NdaTemplate";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const templateDefaults = {
@@ -74,7 +73,6 @@ export default function NdaInboxPage() {
   return (
     <main className="min-h-screen bg-background p-6" dir={dir}>
       <div className="mx-auto max-w-3xl">
-        <ComingSoonBanner feature={t("ndaFeature")} className="mb-4" />
         <button type="button" onClick={() => router.back()} className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ChevronRight className="h-4 w-4" />
           {t("ndaBack")}

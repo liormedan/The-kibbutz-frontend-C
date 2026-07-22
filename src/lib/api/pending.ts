@@ -10,7 +10,7 @@ import { ApiError } from "./client";
 export class PendingBackendError extends ApiError {
   feature: string;
   constructor(feature: string) {
-    super(`הפיצ'ר "${feature}" עדיין לא נתמך בשרת`, 501);
+    super("לא ניתן לבצע את הפעולה כרגע. נסו שוב מאוחר יותר.", 501);
     this.name = "PendingBackendError";
     this.feature = feature;
   }
@@ -20,12 +20,6 @@ export class PendingBackendError extends ApiError {
 export function notImplemented(feature: string): never {
   if (process.env.NODE_ENV !== "production") {
     console.warn(`[pending-backend] ${feature} — no REST endpoint yet`);
-  }
-  // Surface a friendly toast (PendingBackendToast listens for this).
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(
-      new CustomEvent("kibbutz:pending-backend", { detail: { feature } }),
-    );
   }
   throw new PendingBackendError(feature);
 }
