@@ -78,6 +78,11 @@
   --surface:            rgba(253, 251, 247, 0.88);
   --surface-hover:      rgba(255, 255, 255, 0.96);
   --input-bg:           #fffefb;
+  /* Status colors — success/warning reuse the brand olive & gold; danger is a
+     single warm brick red so it sits inside the palette. */
+  --danger:             #c0492f;
+  --danger-soft:        rgba(192, 73, 47, 0.10);
+  --danger-border:      rgba(192, 73, 47, 0.28);
   --font-sans:          'Segoe UI', 'Arial', system-ui, -apple-system, sans-serif;
 }
 
@@ -185,6 +190,11 @@ body {
   --surface:            rgba(42, 26, 14, 0.85);
   --surface-hover:      rgba(52, 33, 18, 0.95);
   --input-bg:           rgba(255, 255, 255, 0.06);
+
+  /* Status colors (dark) — brighter so they read on the dark brown. */
+  --danger:             #e06a4e;
+  --danger-soft:        rgba(224, 106, 78, 0.14);
+  --danger-border:      rgba(224, 106, 78, 0.32);
 }
 
 .dark-theme,
@@ -407,3 +417,61 @@ html.dark-theme .force-light .glass-card:hover {
   border-color: var(--card-hover-border) !important;
   box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.15), 0 4px 12px -5px rgba(210, 100, 45, 0.15) !important;
 }
+
+/* ============================================
+   STATUS COLORS → BRAND PALETTE
+   Same convention as the slate remap above: components keep their semantic
+   Tailwind class names, but the rendered colour comes from the brand palette.
+   success → olive (--secondary) · warning → gold (--accent)
+   info/accent → terracotta (--primary) · danger → one warm brick red
+   ============================================ */
+
+/* ── success ── */
+.text-green-500,
+.text-green-600,
+.text-green-700       { color: var(--secondary) !important; }
+.bg-green-50          { background-color: rgba(121, 155, 75, 0.10) !important; }
+.bg-green-100,
+.bg-green-500\/10     { background-color: rgba(121, 155, 75, 0.16) !important; }
+.border-green-200,
+.border-green-500\/20 { border-color: rgba(121, 155, 75, 0.28) !important; }
+
+/* ── warning ── */
+.text-amber-500,
+.text-amber-600,
+.text-amber-700,
+.text-amber-800       { color: var(--accent-hover) !important; }
+.bg-amber-50          { background-color: rgba(209, 152, 71, 0.12) !important; }
+.bg-amber-100         { background-color: rgba(209, 152, 71, 0.20) !important; }
+.border-amber-200,
+.border-amber-300\/60 { border-color: rgba(209, 152, 71, 0.35) !important; }
+
+/* ── info / accent (no purple or blue in this brand) ── */
+.text-purple-600,
+.text-purple-700,
+.text-blue-400,
+.text-blue-700        { color: var(--primary) !important; }
+.bg-purple-600        { background-color: var(--primary) !important; }
+.bg-purple-700        { background-color: var(--primary-hover) !important; }
+.bg-purple-50         { background-color: rgba(210, 100, 45, 0.10) !important; }
+.bg-purple-100,
+.bg-blue-100          { background-color: rgba(210, 100, 45, 0.16) !important; }
+.border-purple-200,
+.border-blue-200      { border-color: rgba(210, 100, 45, 0.28) !important; }
+.ring-purple-300      { --tw-ring-color: rgba(210, 100, 45, 0.35) !important; }
+
+/* ── danger (single restrained red) ── */
+.text-red-400,
+.text-red-500,
+.text-red-600,
+.text-red-700         { color: var(--danger) !important; }
+.bg-red-500,
+.bg-red-600,
+.bg-red-700           { background-color: var(--danger) !important; }
+.bg-red-50,
+.bg-red-100,
+.bg-red-500\/8,
+.bg-red-500\/10       { background-color: var(--danger-soft) !important; }
+.border-red-200,
+.border-red-300\/60,
+.border-red-500\/20   { border-color: var(--danger-border) !important; }
