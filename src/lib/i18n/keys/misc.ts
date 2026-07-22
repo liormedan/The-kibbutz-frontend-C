@@ -1,6 +1,11 @@
 // i18n fragment: misc — filled during the page conversion.
 export const misc = {
   he: {
+    // DevDataToggle (development builds only)
+    devModeOff: "מצב פיתוח",
+    devModeOn: "נתוני דמו פעילים",
+    devModeHint: "הצגת נתוני דוגמה כדי לבחון את העיצוב עד שהשרת יספק תוכן אמיתי",
+
     // AppTopBar / NotificationCenter
     notifTitle: "התראות",
     notifMarkAll: "סמן הכל כנקרא",
@@ -98,6 +103,11 @@ export const misc = {
     miscChat: "צ׳אט",
   } as Record<string, string>,
   en: {
+    // DevDataToggle (development builds only)
+    devModeOff: "Dev mode",
+    devModeOn: "Demo data on",
+    devModeHint: "Show sample data to review the design until the server serves real content",
+
     // AppTopBar / NotificationCenter
     notifTitle: "Notifications",
     notifMarkAll: "Mark all as read",

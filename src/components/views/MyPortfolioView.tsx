@@ -11,10 +11,14 @@ import EmptyState from "@/components/EmptyState";
 import { fetchPortfolios } from "@/services/portfolio.service";
 import type { PortfolioDto } from "@/lib/api/types";
 import { useAuthStore } from "@/store/useAuthStore";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { demoMyPortfolios } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function MyPortfolioView() {
   const { t, dir } = useI18n();
+  const [demo, toggleDemo] = useDemoMode("my-portfolio");
   const currentUser = useAuthStore((s) => s.user);
   const [all, setAll] = useState<PortfolioDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +47,13 @@ export default function MyPortfolioView() {
     [all, currentUser?.id],
   );
 
+  const shown = useMemo(
+    () => (demo && mine.length === 0
+      ? demoMyPortfolios(currentUser?.id ?? "", currentUser?.name ?? "")
+      : mine),
+    [demo, mine, currentUser?.id, currentUser?.name],
+  );
+
   return (
     <div dir={dir} className="mx-auto w-full max-w-3xl p-4 md:p-6">
       <div className="mb-6 flex items-center justify-between gap-3">
@@ -54,6 +65,7 @@ export default function MyPortfolioView() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={mine.length > 0} />
           {/* The public browse is no longer in the sidebar, so it is reached
               from here — otherwise /portfolios would be unlinked. */}
           <Link
@@ -80,7 +92,7 @@ export default function MyPortfolioView() {
         <div className="flex justify-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : mine.length === 0 ? (
+      ) : shown.length === 0 ? (
         <EmptyState
           icon={<Briefcase className="h-8 w-8 text-primary" />}
           title={t("myPortfolioEmpty")}
@@ -88,7 +100,7 @@ export default function MyPortfolioView() {
         />
       ) : (
         <div className="space-y-3">
-          {mine.map((p) => (
+          {shown.map((p) => (
             <Link
               key={p.portfolioId}
               href={`/portfolios/${p.portfolioId}`}

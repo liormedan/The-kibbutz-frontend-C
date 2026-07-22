@@ -21,6 +21,9 @@ import { fetchMatchingProjects, fetchMatchingUsers, type MatchedUser } from "@/s
 import { fetchMyProjects } from "@/services/user.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Project, ProjectIconType } from "@/types/project.types";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { DEMO_MATCHED_USERS, demoMatchedProjects, demoOwnedProjects } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpFilter = "all" | "1-2" | "3-5" | "5+";
@@ -48,6 +51,7 @@ export default function MatchesPage() {
   const router = useRouter();
   const user = useAuthStore(state => state.user);
   const isEntrepreneur = user?.canCreateProjects ?? false;
+  const [demo, toggleDemo] = useDemoMode("matches");
   const [ownedProjects, setOwnedProjects] = useState<Project[]>([]);
   const [matchedProjects, setMatchedProjects] = useState<Project[]>([]);
   const [matchedUsers, setMatchedUsers] = useState<MatchedUser[]>([]);
@@ -106,18 +110,30 @@ export default function MatchesPage() {
     setShowApplyModal(true);
   }
 
+  // Demo data only stands in while the real match lists come back empty.
+  const noMatches = matchedProjects.length === 0 && matchedUsers.length === 0;
+  const useDemo = demo && noMatches;
+  const shownProjects = useDemo ? demoMatchedProjects() : matchedProjects;
+  const shownUsers = useDemo ? DEMO_MATCHED_USERS : matchedUsers;
+  // An entrepreneur picks a project before seeing matches. With no backend the
+  // picker is empty, so demo mode fills it too — otherwise the results below
+  // could never render and the toggle would look broken.
+  const shownOwned = useDemo && ownedProjects.length === 0
+    ? demoOwnedProjects(user?.id ?? "me", user?.name ?? "")
+    : ownedProjects;
+
   const visibleProjects = useMemo(
-    () => matchedProjects.filter(project => !dismissedIds.has(project.id)),
-    [dismissedIds, matchedProjects]
+    () => shownProjects.filter(project => !dismissedIds.has(project.id)),
+    [dismissedIds, shownProjects]
   );
 
   const visibleUsers = useMemo(
-    () => matchedUsers.filter(matchedUser => {
+    () => shownUsers.filter(matchedUser => {
       if (dismissedIds.has(matchedUser.id)) return false;
       if (expFilter === "all") return true;
       return matchedUser.skills.some(skill => normalizeExperience(skill.level) === expFilter);
     }),
-    [dismissedIds, expFilter, matchedUsers]
+    [dismissedIds, expFilter, shownUsers]
   );
 
   const expFilters: { key: ExpFilter; label: string }[] = [
@@ -132,14 +148,17 @@ export default function MatchesPage() {
   return (
     <>
       <div className="mx-auto max-w-5xl p-4 md:p-6">
-        <div className="mb-6 flex items-center gap-3">
-          <Sparkles className="h-7 w-7 text-[var(--primary)]" />
-          <div>
-            <h1 className="text-3xl font-bold text-[var(--foreground)]">{t("miscMatchesTitle")}</h1>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-              {isEntrepreneur ? t("miscMatchesSubtitleEntrepreneur") : t("miscMatchesSubtitleParticipant")}
-            </p>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Sparkles className="h-7 w-7 text-[var(--primary)]" />
+            <div>
+              <h1 className="text-3xl font-bold text-[var(--foreground)]">{t("miscMatchesTitle")}</h1>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                {isEntrepreneur ? t("miscMatchesSubtitleEntrepreneur") : t("miscMatchesSubtitleParticipant")}
+              </p>
+            </div>
           </div>
+          <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={!noMatches} />
         </div>
 
         {isEntrepreneur && (
@@ -151,7 +170,7 @@ export default function MatchesPage() {
               className="w-full rounded-xl border border-[var(--border)] bg-background px-4 py-3 text-sm outline-none focus:border-primary"
             >
               <option value="">{t("miscSelectProjectOption")}</option>
-              {ownedProjects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}
+              {shownOwned.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}
             </select>
           </div>
         )}
