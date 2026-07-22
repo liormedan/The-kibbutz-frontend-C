@@ -53,13 +53,23 @@ export default function MyPortfolioView() {
             <p className="mt-1 text-sm text-muted-foreground">{t("myPortfolioSub")}</p>
           </div>
         </div>
-        <Link
-          href="/portfolios/create"
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          {t("socialCreatePortfolio")}
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          {/* The public browse is no longer in the sidebar, so it is reached
+              from here — otherwise /portfolios would be unlinked. */}
+          <Link
+            href="/portfolios"
+            className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary hover:text-primary"
+          >
+            {t("browseAllPortfolios")}
+          </Link>
+          <Link
+            href="/portfolios/create"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            {t("socialCreatePortfolio")}
+          </Link>
+        </div>
       </div>
 
       {error && (

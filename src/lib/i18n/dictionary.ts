@@ -55,6 +55,7 @@ const core = {
 
     // ── My projects ──
     myPortfolioSub: "פריטי תיק העבודות שפרסמת.",
+    browseAllPortfolios: "כל התיקים",
     myPortfolioEmpty: "עדיין אין לך פריטים בתיק",
     myPortfolioEmptySub: "צור פריט חדש כדי להציג את העבודות שלך לקהילה.",
     myProjectsSub: "הפרויקטים שיצרת ואלה שהצטרפת אליהם.",
@@ -147,6 +148,7 @@ const core = {
 
     // ── My projects ──
     myPortfolioSub: "The portfolio items you published.",
+    browseAllPortfolios: "Browse all",
     myPortfolioEmpty: "No portfolio items yet",
     myPortfolioEmptySub: "Create one to show your work to the community.",
     myProjectsSub: "Projects you created and ones you joined.",

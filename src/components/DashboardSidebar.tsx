@@ -10,7 +10,6 @@ import {
   FileText,
   FolderGit2,
   UserPlus,
-  LayoutGrid,
   LogOut,
   MessageSquare,
   Newspaper,
@@ -77,7 +76,8 @@ export default function DashboardSidebar({
         { id: "feed", label: t.feed, icon: <Newspaper className={iconCls} />, route: "/feed" },
         { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
         { id: "friends", label: t.friends, icon: <Users className={iconCls} />, route: "/friends" },
-        { id: "portfolios", label: t.portfolios, icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
+        // Portfolios browsing is reached from "תיק העבודות שלי" in the manage
+        // group — it used to sit here too, which duplicated the concept.
       ],
     },
     {
