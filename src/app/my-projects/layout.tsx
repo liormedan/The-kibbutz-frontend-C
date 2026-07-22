@@ -5,8 +5,8 @@
 // tab bar once; switching tabs only swaps the child page.
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { FolderGit2, Plus } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { FolderGit2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
@@ -20,27 +20,18 @@ const TABS = [
 export default function MyProjectsLayout({ children }: { children: React.ReactNode }) {
   const { t, dir } = useI18n();
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
-        <div className="mb-5 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <FolderGit2 className="h-7 w-7 shrink-0 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{t("myProjects")}</h1>
-              <p className="mt-1 text-sm text-muted-foreground">{t("hubSubtitle")}</p>
-            </div>
+        {/* No "new project" button here — it lives in AppTopBar now, on every
+            page, so a second one in this header would just duplicate it. */}
+        <div className="mb-5 flex items-center gap-3">
+          <FolderGit2 className="h-7 w-7 shrink-0 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{t("myProjects")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("hubSubtitle")}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push("/projects/create")}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" />
-            {t("createNewProject")}
-          </button>
         </div>
 
         <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-[var(--border)]">

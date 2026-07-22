@@ -8,12 +8,14 @@ import { Bell, Check, FileText, MessageSquare, UserPlus, AlertTriangle, Heart } 
 import { useRouter } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react';
 import { useNotifStore } from '@/store/useNotifStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   fetchNotifications,
   markNotificationRead,
   markAllNotificationsRead,
 } from '@/services/notification.service';
 import type { Notification } from '@/types/api.types';
+import { useI18n } from '@/lib/i18n/LanguageProvider';
 
 function getNotifIcon(type: string): React.ReactNode {
   switch (type) {
@@ -60,16 +62,18 @@ function getNotifColor(type: string): string {
   }
 }
 
-function formatTime(iso: string): string {
+type Translate = (key: string, vars?: Record<string, string | number>) => string;
+
+function formatTime(iso: string, t: Translate): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60000);
   const hours = Math.floor(diffMs / 3600000);
   const days = Math.floor(diffMs / 86400000);
 
-  if (mins < 1) return 'עכשיו';
-  if (mins < 60) return `לפני ${mins} דק'`;
-  if (hours < 24) return `לפני ${hours} שע'`;
-  return `לפני ${days} ימים`;
+  if (mins < 1) return t('notifNow');
+  if (mins < 60) return t('notifMinsAgo', { n: mins });
+  if (hours < 24) return t('notifHoursAgo', { n: hours });
+  return t('notifDaysAgo', { n: days });
 }
 
 export default function NotificationCenter() {
@@ -78,10 +82,16 @@ export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { t, dir } = useI18n();
+  const token = useAuthStore((s) => s.token);
 
+  // Only ask for notifications once there is a token. AppTopBar mounts this on
+  // every page, so an unauthenticated fetch would 401 on every route — and a
+  // 401 ends the session and bounces the user to "/".
   useEffect(() => {
+    if (!token) return;
     void fetchNotifications();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -111,7 +121,7 @@ export default function NotificationCenter() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-9 h-9 rounded-xl hover:bg-primary/8 flex items-center justify-center text-foreground transition-colors"
-        aria-label="התראות"
+        aria-label={t('notifTitle')}
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -121,16 +131,17 @@ export default function NotificationCenter() {
         )}
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown. end-0: the bell sits at the inline END of the top bar (left
+          in RTL, right in LTR), so anchoring there keeps the panel on screen. */}
       {isOpen && (
         <div
-          className="absolute left-0 top-full mt-2 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden"
-          dir="rtl"
+          className="absolute end-0 top-full mt-2 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden"
+          dir={dir}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm text-foreground">התראות</span>
+              <span className="font-semibold text-sm text-foreground">{t('notifTitle')}</span>
               {unreadCount > 0 && (
                 <span className="bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   {unreadCount}
@@ -142,7 +153,7 @@ export default function NotificationCenter() {
                 onClick={markAllRead}
                 className="text-[11px] text-primary hover:text-primary-dark transition-colors"
               >
-                סמן הכל כנקרא
+                {t('notifMarkAll')}
               </button>
             )}
           </div>
@@ -152,7 +163,7 @@ export default function NotificationCenter() {
             {notifs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Bell className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                <p className="text-sm text-muted-foreground">אין התראות חדשות</p>
+                <p className="text-sm text-muted-foreground">{t('notifEmpty')}</p>
               </div>
             ) : (
               notifs.map((notif) => (
@@ -160,7 +171,7 @@ export default function NotificationCenter() {
                   key={notif.id}
                   onClick={() => handleNotifClick(notif)}
                   className={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-primary/3 transition-colors border-b border-[var(--border)]/50 last:border-0 ${
-                    !notif.isRead ? 'border-r-2 border-r-primary bg-primary/3' : ''
+                    !notif.isRead ? 'border-s-2 border-s-primary bg-primary/3' : ''
                   }`}
                 >
                   <div
@@ -182,7 +193,7 @@ export default function NotificationCenter() {
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notif.body}</p>
                     )}
                     <p className="text-[10px] text-muted-foreground/60 mt-1">
-                      {notif.timeAgo || formatTime(notif.createdAt)}
+                      {notif.timeAgo || formatTime(notif.createdAt, t)}
                     </p>
                   </div>
                   {!notif.isRead && (

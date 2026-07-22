@@ -1,6 +1,15 @@
 // i18n fragment: misc — filled during the page conversion.
 export const misc = {
   he: {
+    // AppTopBar / NotificationCenter
+    notifTitle: "התראות",
+    notifMarkAll: "סמן הכל כנקרא",
+    notifEmpty: "אין התראות חדשות",
+    notifNow: "עכשיו",
+    notifMinsAgo: "לפני {n} דק'",
+    notifHoursAgo: "לפני {n} שע'",
+    notifDaysAgo: "לפני {n} ימים",
+
     // matches/page.tsx
     miscLoadMatchesError: "שגיאה בטעינת ההתאמות",
     miscLoadUsersError: "שגיאה בטעינת משתתפים",
@@ -89,6 +98,15 @@ export const misc = {
     miscChat: "צ׳אט",
   } as Record<string, string>,
   en: {
+    // AppTopBar / NotificationCenter
+    notifTitle: "Notifications",
+    notifMarkAll: "Mark all as read",
+    notifEmpty: "No new notifications",
+    notifNow: "Just now",
+    notifMinsAgo: "{n} min ago",
+    notifHoursAgo: "{n} h ago",
+    notifDaysAgo: "{n} days ago",
+
     // matches/page.tsx
     miscLoadMatchesError: "Error loading matches",
     miscLoadUsersError: "Error loading participants",

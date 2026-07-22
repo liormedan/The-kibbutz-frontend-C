@@ -28,6 +28,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import AppTopBar from "@/components/AppTopBar";
 import DashboardSidebar, { type DashboardTab } from "@/components/DashboardSidebar";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
@@ -106,8 +107,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         }}
       />
       {/* Content region. Each page controls its own padding/width, so pages
-          that bring their own <main> stay the single semantic main. */}
+          that bring their own <main> stay the single semantic main. The top bar
+          is sticky inside this scroller, so it stays put on every page. */}
       <div className="min-w-0 flex-1 h-full overflow-y-auto pb-20 md:pb-0">
+        <AppTopBar />
         {children}
       </div>
     </div>

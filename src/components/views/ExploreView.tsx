@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Cpu, Database, Globe, Leaf, Plus, Search, UserPlus, Users } from "lucide-react";
+import { Cpu, Database, Globe, Leaf, Search, UserPlus, Users } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
@@ -66,19 +66,10 @@ export default function ExploreView() {
   return (
     <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
 
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("exploreTitle")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("exploreSub")}</p>
-        </div>
-        <button
-          onClick={() => router.push("/projects/create")}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          {t("createNewProject")}
-        </button>
+      {/* Header. The "new project" button lives in AppTopBar, on every page. */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("exploreTitle")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("exploreSub")}</p>
       </div>
 
       {/* Search */}
