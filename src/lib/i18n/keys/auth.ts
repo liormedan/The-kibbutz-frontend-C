@@ -11,6 +11,11 @@ export const auth = {
     authLoginTab: "כניסה",
     authRegisterTab: "הרשמה",
     authDevLogin: "כניסת מפתחים",
+    authDevLoggingIn: "נכנס...",
+    authDevHint: "מתחבר לבקאנד אם הוא זמין, אחרת נכנס במצב מקומי",
+    authDevOnline: "מחובר לבקאנד האמיתי",
+    authDevOffline: "מצב מקומי — הבקאנד לא זמין, הנתונים להמחשה",
+    authOrNormalLogin: "או התחבר רגיל",
 
     // AuthPage — labels & placeholders
     authEmailLabel: "אימייל",
@@ -136,6 +141,11 @@ export const auth = {
     authLoginTab: "Sign in",
     authRegisterTab: "Sign up",
     authDevLogin: "Developer login",
+    authDevLoggingIn: "Signing in...",
+    authDevHint: "Signs in against the backend when it's up, otherwise runs locally",
+    authDevOnline: "Connected to the real backend",
+    authDevOffline: "Local mode — backend unavailable, data is mock",
+    authOrNormalLogin: "or sign in normally",
 
     // AuthPage — labels & placeholders
     authEmailLabel: "Email",

@@ -52,13 +52,42 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
   const [forgotSent, setForgotSent] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", role: "" });
   const update = (f: string, v: string) => setForm(p => ({ ...p, [f]: v }));
-  const isDev = process.env.NEXT_PUBLIC_DEV_BYPASS === "true";
+  // Developer entry: always available while developing; in a production build
+  // only when NEXT_PUBLIC_DEV_BYPASS is explicitly turned on.
+  const isDev =
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXT_PUBLIC_DEV_BYPASS === "true";
+  const [devMode, setDevMode] = useState<"online" | "offline" | null>(null);
 
+  /**
+   * Dev login that works in both situations:
+   *  1. Backend up   → real login with the dev account (NEXT_PUBLIC_DEV_EMAIL/PASSWORD),
+   *                    so you get a real JWT and real data.
+   *  2. Backend down → local mock session, so the frontend runs standalone.
+   */
   async function handleDevLogin() {
     setLoading("dev");
-    await new Promise(r => setTimeout(r, 400));
-    devBypassLogin();                          // sets useAuthStore with mock user
-    setSessionCookies("entrepreneur");        // lets proxy.ts allow /projects
+    setError("");
+
+    const devEmail = process.env.NEXT_PUBLIC_DEV_EMAIL;
+    const devPassword = process.env.NEXT_PUBLIC_DEV_PASSWORD;
+
+    if (devEmail && devPassword) {
+      try {
+        const payload = await loginWithEmail({ email: devEmail, password: devPassword });
+        setSessionCookies(payload.user.role.toLowerCase());
+        setDevMode("online");
+        router.push("/projects");
+        return;
+      } catch {
+        // Backend unreachable or credentials rejected → fall through to the
+        // offline mock so the frontend is still usable on its own.
+      }
+    }
+
+    devBypassLogin();                   // seeds useAuthStore with a mock user
+    setSessionCookies("entrepreneur");  // lets proxy.ts allow protected routes
+    setDevMode("offline");
     router.push("/projects");
   }
 
@@ -167,21 +196,31 @@ export default function AuthPage({ initialTab = "login" }: AuthPageProps) {
                 </div>
               </div>
 
-            {/* ── DEV BYPASS ── */}
-            {false && isDev && (
-              <div className="mb-5">
-                <button onClick={handleDevLogin} disabled={!!loading}
-                  className="hidden">
-                  {loading === "dev" ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="text-lg">🛠️</span>}
-                  {loading === "dev" ? "נכנס..." : "כניסת מפתחים — עקוף אימות"}
+            {/* ── DEVELOPER ENTRY (dev builds only) ── */}
+            {isDev && (
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={handleDevLogin}
+                  disabled={!!loading}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {loading === "dev"
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <span className="text-base">🛠️</span>}
+                  {loading === "dev" ? t("authDevLoggingIn") : t("authDevLogin")}
                 </button>
-                <p className="text-center text-[10px] text-muted-foreground mt-1.5 opacity-60">
-                  מופיע כי NEXT_PUBLIC_DEV_BYPASS=true
+                <p className="mt-1.5 text-center text-[10px] text-muted-foreground opacity-70">
+                  {devMode === "offline"
+                    ? t("authDevOffline")
+                    : devMode === "online"
+                      ? t("authDevOnline")
+                      : t("authDevHint")}
                 </p>
-                <div className="flex items-center gap-3 mt-4 mb-1">
-                  <div className="flex-1 h-px bg-[var(--border)]" />
-                  <span className="text-xs text-muted-foreground">או התחבר רגיל</span>
-                  <div className="flex-1 h-px bg-[var(--border)]" />
+                <div className="mt-4 mb-1 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-[var(--border)]" />
+                  <span className="text-xs text-muted-foreground">{t("authOrNormalLogin")}</span>
+                  <div className="h-px flex-1 bg-[var(--border)]" />
                 </div>
               </div>
             )}
