@@ -253,15 +253,20 @@ export default function DashboardSidebar({
           sidebarCollapsed ? "w-[88px] p-3" : "w-64 p-6"
         } border-[var(--border)]`}
       >
-        <div className={`flex items-center mb-8 ${sidebarCollapsed ? "flex-col gap-3 items-center" : "justify-between gap-3"}`}>
+        {/* Expanded: the logo is centred and the collapse button is taken out of
+            flow (absolute) so it cannot pull the logo off-centre. */}
+        <div className={`relative flex items-center mb-8 ${sidebarCollapsed ? "flex-col gap-3 justify-center" : "justify-center"}`}>
           {sidebarCollapsed ? (
-            <Image src="/logo_clean.png" alt="The Kibbutz" width={52} height={52} className="rounded-lg object-cover mx-auto" />
+            <Image src="/logo_clean.png" alt="The Kibbutz" width={52} height={52} className="rounded-lg object-cover" />
           ) : (
             <Image src="/logo.jpg" alt="The Kibbutz" width={100} height={34} className="rounded-md object-contain" />
           )}
           <button
             onClick={onToggleCollapsed}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer"
+            className={`p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all cursor-pointer ${
+              sidebarCollapsed ? "" : "absolute top-1/2 -translate-y-1/2"
+            }`}
+            style={sidebarCollapsed ? undefined : { insetInlineEnd: 0 }}
             title={sidebarCollapsed ? "הרחב" : "כווץ"}
           >
             <ChevronDown
