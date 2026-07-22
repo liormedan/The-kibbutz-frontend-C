@@ -187,7 +187,8 @@ export default function ProjectRequestsView() {
       )}
 
       {/* Body */}
-      <div className="flex overflow-hidden rounded-2xl border border-[var(--border)]" style={{ height: 'calc(100vh - 19rem)', minHeight: '24rem' }}>
+      {/* 19rem of page chrome above this pane, plus AppTopBar's 4rem. */}
+      <div className="flex overflow-hidden rounded-2xl border border-[var(--border)]" style={{ height: 'calc(100vh - 23rem)', minHeight: '24rem' }}>
         {/* Sidebar */}
         <aside className="w-56 border-l border-[var(--border)] bg-[var(--background)] flex-shrink-0 overflow-y-auto">
           <div className="p-3">

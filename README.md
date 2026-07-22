@@ -181,16 +181,54 @@ Each domain has a service that maps DTOs to the UI. The client calls:
 | `NEXT_PUBLIC_ADMIN_URL` | External admin app | `http://localhost:3001` |
 | `NEXT_PUBLIC_DEV_BYPASS` | Fake dev login button (leave `false` when a real backend is up) | `false` |
 
+## מצב פיתוח (demo data)
+
+Several domains have no backend endpoints yet, so their pages render an empty
+state and the design can't be judged. Those pages carry a **מצב פיתוח** button
+that swaps in sample data:
+
+`/feed` · `/friends` · `/my-projects` · `/my-projects/teams` · `/my-portfolio`
+· `/portfolios` · `/profile` · `/matches`
+
+- The button appears **only when the page has nothing real to show**, and only
+  in development builds (`NODE_ENV=development` or `NEXT_PUBLIC_DEV_BYPASS=true`).
+  A production build ships neither the button nor the sample data on screen.
+- Real data always wins — demo data stands in only while the API returns empty.
+- The choice is per page and persisted (`kibbutz-demo:<page>` in localStorage),
+  so a reload keeps whatever you were looking at.
+
+Fixtures live in `src/lib/dev/fixtures.ts`, typed against the real DTOs so they
+break the build if a shape changes. The toggle itself is
+`src/components/DevDataToggle.tsx` + `src/lib/dev/demoMode.ts`.
+
 ## Testing & QA
 
 There's no Swagger here (that's the backend) - the "interface" is the running
-app in your browser. For automated checks there are two Playwright sweeps:
+app in your browser. For automated checks there are Playwright sweeps:
 
 ```bash
 npm run qa      # visits every route, catches render/console errors (backend optional)
 node qa/qa-e2e.mjs   # real end-to-end: registers a user, posts, likes, chats (needs the backend up)
 ```
 Reports land in `qa/QA_REPORT.md` and `qa/E2E_REPORT.md`.
+
+UI sweeps (run against `next start` on :3001 unless noted):
+
+```bash
+node qa/deep-check.mjs      # clicks the nav and top bar, English/LTR, mobile, collapsed rail
+node qa/ui-walkthrough.mjs  # every route in light + dark: console, overflow, i18n, theme mixing
+node qa/viewport-fit.mjs    # no route scrolls with nothing to scroll to
+node qa/topbar.mjs          # the top-bar cluster is present and sticky everywhere
+node qa/sidebar-fit.mjs     # the rail fits without scrolling down to 560px tall
+```
+
+`qa/demo-mode.mjs` covers the מצב פיתוח toggle and needs the **dev** server,
+because the toggle is development-only:
+
+```bash
+npx next dev -p 3002
+QA_BASE=http://localhost:3002 node qa/demo-mode.mjs
+```
 
 ## Common Issues
 

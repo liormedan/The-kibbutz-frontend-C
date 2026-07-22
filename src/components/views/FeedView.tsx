@@ -12,6 +12,9 @@ import {
   unlikePost,
 } from "@/services/post.service";
 import type { PostDto } from "@/lib/api/types";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { DEMO_POSTS } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function initials(name: string): string {
@@ -41,6 +44,7 @@ function Avatar({ url, name }: { url?: string | null; name: string }) {
 
 export default function FeedView() {
   const { t, dir } = useI18n();
+  const [demo, toggleDemo] = useDemoMode("feed");
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,8 +100,20 @@ export default function FeedView() {
     }
   };
 
+  // Demo data replaces the list only while the real feed has nothing to show.
+  const shownPosts = demo && posts.length === 0 ? DEMO_POSTS : posts;
+
   return (
     <div dir={dir} className="mx-auto w-full max-w-3xl">
+      {/* Header — every other page has one; the feed was the odd one out. */}
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("socialFeedTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("socialFeedSub")}</p>
+        </div>
+        <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={posts.length > 0} />
+      </div>
+
       {/* Composer */}
       <div className="mb-6 rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
         <textarea
@@ -131,13 +147,13 @@ export default function FeedView() {
         <div className="flex justify-center py-16 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
-      ) : posts.length === 0 ? (
+      ) : shownPosts.length === 0 ? (
         <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
           {t("socialFeedEmpty")}
         </div>
       ) : (
         <ul className="space-y-4">
-          {posts.map((post) => (
+          {shownPosts.map((post) => (
             <li key={post.postId} className="rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
               <div className="flex items-center gap-3">
                 <Avatar url={post.author.profilePictureUrl} name={post.author.fullName} />

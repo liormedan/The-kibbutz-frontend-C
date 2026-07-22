@@ -124,7 +124,8 @@ function MessagesContent() {
 
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6" dir={dir}>
-      <div className="glass-card mx-auto flex h-[calc(100vh-2rem)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--border)] md:h-[calc(100vh-3rem)]">
+      {/* 4rem of the viewport belongs to AppTopBar, on top of this page's padding. */}
+      <div className="glass-card mx-auto flex h-[calc(100vh-6rem)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--border)] md:h-[calc(100vh-7rem)]">
         {showDemo ? <MessagesDemo /> : <>
         <aside className="hidden w-[280px] shrink-0 border-l border-[var(--border)] p-4 md:block overflow-y-auto">
           <div className="mb-5 flex items-center gap-2">

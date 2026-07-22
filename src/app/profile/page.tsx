@@ -17,6 +17,9 @@ import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 import { fetchBadges, fetchCurrentUser, fetchMyProjects, updateProfile as updateProfileService } from "@/services/user.service";
 import { useUserStore } from "@/store/useUserStore";
 import type { SuccessBadge, UserProfile, UserProject } from "@/store/useUserStore";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { DEMO_BADGES, DEMO_USER_PROJECTS, demoProfile } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpLevel = "1-2" | "3-5" | "5+";
@@ -45,6 +48,7 @@ export default function ProfilePage() {
   const isLoadingProfile = useUserStore(state => state.isLoadingProfile);
   const setProjects = useUserStore(state => state.setProjects);
   const setLoadingProjects = useUserStore(state => state.setLoadingProjects);
+  const [demo, toggleDemo] = useDemoMode("profile");
 
   useEffect(() => {
     void fetchCurrentUser();
@@ -79,17 +83,44 @@ export default function ProfilePage() {
     return <ProfileSkeleton />;
   }
 
-  return <ProfileContent profile={profile} badges={badges} projects={projects} />;
+  // A profile with no bio, role, skills, badges or projects renders an almost
+  // blank page, so demo mode fills it in to review the layout. The key remounts
+  // ProfileContent on toggle — its form state is seeded from these props.
+  const bare = profileIsBare(profile, badges, projects);
+  const useDemo = demo && bare;
+  return (
+    <ProfileContent
+      key={useDemo ? "demo" : "real"}
+      profile={useDemo ? demoProfile(profile) : profile}
+      badges={useDemo ? DEMO_BADGES : badges}
+      projects={useDemo ? DEMO_USER_PROJECTS : projects}
+      demo={demo}
+      onToggleDemo={toggleDemo}
+      bare={bare}
+    />
+  );
+}
+
+/** True when the profile carries none of the content the page is built to show. */
+function profileIsBare(p: UserProfile, badges: SuccessBadge[], projects: UserProject[]) {
+  return !p.bio?.trim() && !p.role?.trim() && p.skills.length === 0
+    && badges.length === 0 && projects.length === 0;
 }
 
 function ProfileContent({
   profile,
   badges,
   projects,
+  demo,
+  onToggleDemo,
+  bare,
 }: {
   profile: UserProfile;
   badges: SuccessBadge[];
   projects: UserProject[];
+  demo: boolean;
+  onToggleDemo: () => void;
+  bare: boolean;
 }) {
   const router = useRouter();
   const { t, dir } = useI18n();
@@ -108,6 +139,10 @@ function ProfileContent({
   );
   const [skillInput, setSkillInput] = useState("");
   const [skillLevel, setSkillLevel] = useState<ExpLevel>("1-2");
+
+  // A profile with no name would render a blank heading over a blank avatar,
+  // which reads as a broken card rather than as missing data.
+  const shownName = name.trim() || t("guest");
 
   const addSkill = () => {
     const n = skillInput.trim();
@@ -138,10 +173,13 @@ function ProfileContent({
       <div className="max-w-2xl mx-auto">
 
         {/* Back */}
-        <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 cursor-pointer transition-colors">
-          <ChevronRight className="w-4 h-4" />
-          {t("profileBack")}
-        </button>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+            <ChevronRight className="w-4 h-4" />
+            {t("profileBack")}
+          </button>
+          <DevDataToggle enabled={demo} onToggle={onToggleDemo} hasRealData={!bare} />
+        </div>
 
         {/* Profile Card */}
         <div className="glass-panel rounded-2xl p-6 border border-[var(--border)] mb-5"
@@ -151,14 +189,14 @@ function ProfileContent({
           <div className="flex items-start justify-between mb-5">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center text-2xl font-bold text-primary">
-                {name.charAt(0)}
+                {shownName.charAt(0)}
               </div>
               <div>
                 {editing ? (
                   <input value={name} onChange={e => setName(e.target.value)}
                     className="text-xl font-bold bg-transparent border-b border-primary focus:outline-none text-foreground mb-1 w-48" />
                 ) : (
-                  <h1 className="text-xl font-bold text-foreground">{name}</h1>
+                  <h1 className="text-xl font-bold text-foreground">{shownName}</h1>
                 )}
                 {editing ? (
                   <input value={role} onChange={e => setRole(e.target.value)}

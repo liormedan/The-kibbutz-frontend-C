@@ -9,11 +9,16 @@ import EmptyState from "@/components/EmptyState";
 import { fetchMyProjects } from "@/services/user.service";
 import type { Project } from "@/types/project.types";
 import { useAuthStore } from "@/store/useAuthStore";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { demoJoinedProjects, demoOwnedProjects } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function MyTeamsView() {
   const { t, dir } = useI18n();
   const router = useRouter();
+  const [demo, toggleDemo] = useDemoMode("my-teams");
+  const me = useAuthStore((s) => s.user);
   const currentUserId = useAuthStore((s) => s.user?.id ?? "");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,14 +42,21 @@ export default function MyTeamsView() {
       ? t("projPermOwner")
       : p.memberRoles?.[currentUserId] || t("projTeamMember");
 
+  const shown = demo && projects.length === 0
+    ? [...demoOwnedProjects(me?.id ?? "me", me?.name ?? ""), ...demoJoinedProjects(me?.id ?? "me")]
+    : projects;
+
   return (
     <div dir={dir}>
+      <div className="mb-4 flex justify-end">
+        <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={projects.length > 0} />
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {[0, 1].map((i) => <div key={i} className="glass-card h-32 animate-pulse rounded-2xl" />)}
         </div>
-      ) : projects.length === 0 ? (
+      ) : shown.length === 0 ? (
         <EmptyState
           icon={<Users className="h-8 w-8 text-primary" />}
           title={t("myTeamsEmpty")}
@@ -52,7 +64,7 @@ export default function MyTeamsView() {
         />
       ) : (
         <div className="space-y-3">
-          {projects.map((p) => {
+          {shown.map((p) => {
             return (
               <div key={p.id} className="glass-card rounded-2xl p-5">
                 <div className="flex items-start justify-between gap-3">

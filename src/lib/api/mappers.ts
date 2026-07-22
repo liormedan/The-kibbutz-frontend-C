@@ -34,8 +34,14 @@ export function mapRole(role: BeUserRole): FeUserRole {
   return role === BeUserRole.Administrator ? "admin" : "participant";
 }
 
+/** Join only the parts that exist. `${a} ${b}` with both undefined yields the
+ *  string "undefined undefined", which is truthy — so the username fallback
+ *  would never run and the UI would render it verbatim. */
+export const joinName = (first?: string | null, last?: string | null): string =>
+  [first, last].filter(Boolean).join(" ").trim();
+
 const displayName = (u: UserProfileDto): string =>
-  u.fullName?.trim() || `${u.firstName} ${u.lastName}`.trim() || u.username;
+  u.fullName?.trim() || joinName(u.firstName, u.lastName) || u.username || "";
 
 export function mapAuthUser(u: UserProfileDto): AuthUser {
   return {
@@ -101,7 +107,7 @@ export function meToUserProfileDto(e: MeEntity): UserProfileDto {
     userId: e.userId,
     firstName: e.firstName,
     lastName: e.lastName,
-    fullName: `${e.firstName} ${e.lastName}`.trim(),
+    fullName: joinName(e.firstName, e.lastName),
     username: e.username,
     email: e.email,
     profilePictureUrl: e.profilePictureUrl,
@@ -169,7 +175,7 @@ export function mapConversation(c: ConversationDto): Conversation {
     participants: participants.map((p) => p.userId),
     participantsInfo: participants.map((p) => ({
       id: p.userId,
-      name: p.fullName || `${p.firstName} ${p.lastName}`.trim() || p.username,
+      name: p.fullName || joinName(p.firstName, p.lastName) || p.username || "",
       avatar: p.profilePictureUrl ?? undefined,
     })),
     title: c.name ?? undefined,

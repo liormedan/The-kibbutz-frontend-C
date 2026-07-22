@@ -26,6 +26,7 @@ export default function AppTopBar() {
     >
       <button
         type="button"
+        data-testid="topbar-create"
         onClick={() => router.push("/projects/create")}
         className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-secondary to-gold px-4 py-2 text-sm font-semibold text-foreground shadow-md transition-transform hover:-translate-y-0.5 cursor-pointer"
       >
@@ -37,6 +38,7 @@ export default function AppTopBar() {
 
       <button
         type="button"
+        data-testid="topbar-avatar"
         onClick={() => router.push("/profile")}
         title={user?.name || t("profile")}
         aria-label={t("profile")}

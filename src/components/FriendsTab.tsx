@@ -25,6 +25,12 @@ import {
 import { searchUsers } from '@/services/user.service';
 import type { UserSummary, ConnectionRequest } from '@/types/user.types';
 import { useAuthStore } from '@/store/useAuthStore';
+import {
+  DEMO_CONNECTIONS,
+  DEMO_FOLLOWERS,
+  DEMO_FOLLOWING,
+  demoConnectionRequests,
+} from '@/lib/dev/fixtures';
 import { useI18n } from '@/lib/i18n/LanguageProvider';
 
 type FriendsSubTab = 'connections' | 'following' | 'followers';
@@ -32,9 +38,13 @@ type FriendsSubTab = 'connections' | 'following' | 'followers';
 interface Props {
   t: Record<string, string>;
   onStartChat: (userId: string) => void;
+  /** Dev-only: render sample lists while the real ones come back empty. */
+  demo?: boolean;
+  /** Called with true when every list is empty, so the page can show its toggle. */
+  onEmptyChange?: (isEmpty: boolean) => void;
 }
 
-export default function FriendsTab({ t, onStartChat }: Props) {
+export default function FriendsTab({ t, onStartChat, demo = false, onEmptyChange }: Props) {
   const { t: tr, dir } = useI18n();
   const router = useRouter();
   const currentUser = useAuthStore(s => s.user);
@@ -147,9 +157,24 @@ export default function FriendsTab({ t, onStartChat }: Props) {
     }
   };
 
-  const currentList = subTab === 'connections' ? connections
-    : subTab === 'following' ? following
-    : followers;
+  // Nothing came back from any list — the page offers demo data in that case.
+  const isEmpty = !loading
+    && connections.length === 0 && following.length === 0
+    && followers.length === 0 && requests.length === 0;
+
+  useEffect(() => { onEmptyChange?.(isEmpty); }, [isEmpty, onEmptyChange]);
+
+  const useDemo = demo && isEmpty;
+  const shownConnections = useDemo ? DEMO_CONNECTIONS : connections;
+  const shownFollowing   = useDemo ? DEMO_FOLLOWING   : following;
+  const shownFollowers   = useDemo ? DEMO_FOLLOWERS   : followers;
+  const shownRequests    = useDemo
+    ? demoConnectionRequests(currentUser?.id ?? '', currentUser?.name ?? '')
+    : requests;
+
+  const currentList = subTab === 'connections' ? shownConnections
+    : subTab === 'following' ? shownFollowing
+    : shownFollowers;
 
   const filteredList = useMemo(() =>
     searchQuery.trim()
@@ -160,14 +185,14 @@ export default function FriendsTab({ t, onStartChat }: Props) {
 
   // Incoming pending requests directed to the current user
   const pendingRequests = useMemo(() =>
-    requests.filter(req => req.status === "PENDING" && req.to.id === currentUser?.id),
-    [requests, currentUser]
+    shownRequests.filter(req => req.status === "PENDING" && req.to.id === currentUser?.id),
+    [shownRequests, currentUser]
   );
 
   const subTabs: { id: FriendsSubTab; label: string; count: number }[] = [
-    { id: 'connections', label: t.friendsConnections || 'קשרים מפרויקטים', count: connections.length },
-    { id: 'following',   label: t.friendsFollowing   || 'עוקב אחרי',        count: following.length  },
-    { id: 'followers',   label: t.friendsFollowers   || 'עוקבים',           count: followers.length  },
+    { id: 'connections', label: t.friendsConnections || 'קשרים מפרויקטים', count: shownConnections.length },
+    { id: 'following',   label: t.friendsFollowing   || 'עוקב אחרי',        count: shownFollowing.length  },
+    { id: 'followers',   label: t.friendsFollowers   || 'עוקבים',           count: shownFollowers.length  },
   ];
 
   if (loading) {

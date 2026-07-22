@@ -7,10 +7,14 @@ import Link from "next/link";
 import { Heart, Eye, Plus, Loader2 } from "lucide-react";
 import { fetchPortfolios } from "@/services/portfolio.service";
 import type { PortfolioDto } from "@/lib/api/types";
+import DevDataToggle from "@/components/DevDataToggle";
+import { useDemoMode } from "@/lib/dev/demoMode";
+import { DEMO_PORTFOLIOS } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function PortfoliosView() {
   const { t, dir } = useI18n();
+  const [demo, toggleDemo] = useDemoMode("portfolios");
   const [portfolios, setPortfolios] = useState<PortfolioDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,17 +36,22 @@ export default function PortfoliosView() {
     void load();
   }, [load]);
 
+  const shown = demo && portfolios.length === 0 ? DEMO_PORTFOLIOS : portfolios;
+
   return (
     <div dir={dir} className="mx-auto w-full max-w-3xl">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-foreground">{t("socialPortfoliosTitle")}</h1>
-        <Link
-          href="/portfolios/create"
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
-        >
-          <Plus className="h-4 w-4" />
-          {t("socialCreatePortfolio")}
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={portfolios.length > 0} />
+          <Link
+            href="/portfolios/create"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+          >
+            <Plus className="h-4 w-4" />
+            {t("socialCreatePortfolio")}
+          </Link>
+        </div>
       </div>
 
       {error && (
@@ -55,13 +64,13 @@ export default function PortfoliosView() {
         <div className="flex justify-center py-16 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
-      ) : portfolios.length === 0 ? (
+      ) : shown.length === 0 ? (
         <div className="rounded-2xl bg-card p-10 text-center text-muted-foreground border border-[var(--border)]">
           {t("socialPortfoliosEmpty")}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {portfolios.map((portfolio) => (
+          {shown.map((portfolio) => (
             <Link
               key={portfolio.portfolioId}
               href={`/portfolios/${portfolio.portfolioId}`}

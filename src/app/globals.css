@@ -296,6 +296,20 @@ body {
 .text-slate-400      { color: #80664d !important; }
 .text-slate-500      { color: #a08060 !important; }
 
+/* ── Inside the app shell, "screen" means the area below the top bar ──────
+   AppShell's scroller is 100vh and AppTopBar takes 4rem of it, so a page
+   sized with min-h-screen / h-screen would be exactly one bar too tall and
+   every route would scroll with nothing to scroll to. Standalone pages
+   (landing, login, onboarding) are outside .app-content and keep 100vh.
+   The bar is in flow inside the scroller, so the page gets what is LEFT of it
+   — a plain 100% would still overflow by exactly one bar. */
+.app-content               { --app-topbar-h: 4rem; }
+.app-content .min-h-screen { min-height: calc(100% - var(--app-topbar-h)); }
+.app-content .h-screen     { height: calc(100% - var(--app-topbar-h)); }
+/* Direct child only: a page root that asks for the full height means the full
+   page area. Nested h-full inside the page keeps its normal meaning. */
+.app-content > .h-full     { height: calc(100% - var(--app-topbar-h)); }
+
 /* Background overrides */
 .bg-slate-950,
 .bg-\[\#090d16\],
