@@ -87,6 +87,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     friends: t("friends"),
     profile: t("profile"),
     settings: t("settings"),
+    sidebarExpand: t("sidebarExpand"),
+    sidebarCollapse: t("sidebarCollapse"),
   };
 
   return (

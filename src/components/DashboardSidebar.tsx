@@ -257,7 +257,8 @@ export default function DashboardSidebar({
               sidebarCollapsed ? "" : "absolute top-1/2 -translate-y-1/2"
             }`}
             style={sidebarCollapsed ? undefined : { insetInlineEnd: 0 }}
-            title={sidebarCollapsed ? "הרחב" : "כווץ"}
+            title={sidebarCollapsed ? t.sidebarExpand : t.sidebarCollapse}
+            aria-label={sidebarCollapsed ? t.sidebarExpand : t.sidebarCollapse}
           >
             <ChevronDown
               className={`w-4 h-4 transition-transform duration-300 ${

@@ -119,6 +119,7 @@ export default function NotificationCenter() {
     <div ref={containerRef} className="relative">
       {/* Bell button */}
       <button
+        data-testid="topbar-bell"
         onClick={() => setIsOpen(!isOpen)}
         className="relative w-9 h-9 rounded-xl hover:bg-primary/8 flex items-center justify-center text-foreground transition-colors"
         aria-label={t('notifTitle')}

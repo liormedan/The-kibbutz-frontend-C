@@ -7,6 +7,13 @@ export const social = {
     socialTimeHoursAgo: "לפני {count} שע'",
     socialTimeDaysAgo: "לפני {count} ימים",
     // feed
+    // portfolio categories (label only — the stored value stays Hebrew)
+    socialCatDesign: "עיצוב",
+    socialCatDevelopment: "פיתוח",
+    socialCatArt: "אמנות",
+    socialCatPhotography: "צילום",
+    socialCatOther: "אחר",
+
     socialFeedTitle: "פיד הקהילה",
     socialFeedSub: "מה חדש אצל חברי הקיבוץ.",
     socialFeedLoadError: "טעינת הפיד נכשלה",
@@ -51,6 +58,12 @@ export const social = {
     socialTimeHoursAgo: "{count}h ago",
     socialTimeDaysAgo: "{count}d ago",
     // feed
+    socialCatDesign: "Design",
+    socialCatDevelopment: "Development",
+    socialCatArt: "Art",
+    socialCatPhotography: "Photography",
+    socialCatOther: "Other",
+
     socialFeedTitle: "Community feed",
     socialFeedSub: "What's new with your fellow members.",
     socialFeedLoadError: "Failed to load the feed",

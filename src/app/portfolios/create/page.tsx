@@ -8,14 +8,22 @@ import { ChevronRight, Loader2, Send } from "lucide-react";
 import { createPortfolio } from "@/services/portfolio.service";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-const CATEGORIES = ["עיצוב", "פיתוח", "אמנות", "צילום", "אחר"];
+// The value is what the backend stores, so it stays fixed; only the label is
+// translated — otherwise the English UI shows Hebrew options.
+const CATEGORIES = [
+  { value: "עיצוב", labelKey: "socialCatDesign" },
+  { value: "פיתוח", labelKey: "socialCatDevelopment" },
+  { value: "אמנות", labelKey: "socialCatArt" },
+  { value: "צילום", labelKey: "socialCatPhotography" },
+  { value: "אחר", labelKey: "socialCatOther" },
+] as const;
 
 export default function CreatePortfolioPage() {
   const router = useRouter();
   const { t, dir } = useI18n();
 
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState<string>(CATEGORIES[0].value);
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState("");
@@ -102,8 +110,8 @@ export default function CreatePortfolioPage() {
               className="w-full rounded-xl bg-background-subtle p-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+                <option key={c.value} value={c.value}>
+                  {t(c.labelKey)}
                 </option>
               ))}
             </select>

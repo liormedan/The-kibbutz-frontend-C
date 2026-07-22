@@ -17,6 +17,8 @@ const core = {
     // ── Sidebar / navigation ──
     sidebarTitle: "הקיבוץ",
     sidebarSub: "שיתוף פעולה קהילתי",
+    sidebarExpand: "הרחבת התפריט",
+    sidebarCollapse: "כיווץ התפריט",
     navGroupCommunity: "קהילה",
     navGroupManage: "איזור ניהול",
     explore: "גלה פרויקטים",
@@ -114,6 +116,8 @@ const core = {
     // ── Sidebar / navigation ──
     sidebarTitle: "The Kibbutz",
     sidebarSub: "COMMUNITY COLLABORATION",
+    sidebarExpand: "Expand menu",
+    sidebarCollapse: "Collapse menu",
     navGroupCommunity: "Community",
     navGroupManage: "Manage",
     explore: "Explore Projects",
