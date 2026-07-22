@@ -71,13 +71,13 @@ export default function AccountMenu() {
           data-testid="account-menu-panel"
           className="glass-panel absolute end-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-[var(--border)] py-1 shadow-lg"
         >
-          {/* Identity header */}
-          <div className="flex items-center gap-3 px-3 py-3">
+          {/* Identity header — centred within the card */}
+          <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={user?.avatar || "/logo_clean.png"}
               alt={name}
-              className="h-10 w-10 shrink-0 rounded-xl border border-[var(--border)] object-cover"
+              className="h-12 w-12 shrink-0 rounded-xl border border-[var(--border)] object-cover"
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">{name}</p>
@@ -92,7 +92,7 @@ export default function AccountMenu() {
             role="menuitem"
             data-testid="account-profile"
             onClick={() => go("/profile")}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-start text-sm text-foreground transition-colors hover:bg-primary/8"
+            className="flex w-full items-center justify-center gap-2.5 px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-primary/8"
           >
             <User className="h-4 w-4" />
             {t("profile")}
@@ -103,7 +103,7 @@ export default function AccountMenu() {
             role="menuitem"
             data-testid="account-settings"
             onClick={() => go("/settings")}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-start text-sm text-foreground transition-colors hover:bg-primary/8"
+            className="flex w-full items-center justify-center gap-2.5 px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-primary/8"
           >
             <SlidersHorizontal className="h-4 w-4" />
             {t("settings")}
@@ -116,7 +116,7 @@ export default function AccountMenu() {
             role="menuitem"
             data-testid="account-logout"
             onClick={() => void handleLogout()}
-            className="flex w-full items-center gap-2.5 px-3 py-2.5 text-start text-sm text-[var(--danger)] transition-colors hover:bg-[var(--danger-soft)]"
+            className="flex w-full items-center justify-center gap-2.5 px-3 py-2.5 text-sm text-[var(--danger)] transition-colors hover:bg-[var(--danger-soft)]"
           >
             <LogOut className="h-4 w-4" />
             {t("settingsLogout")}
