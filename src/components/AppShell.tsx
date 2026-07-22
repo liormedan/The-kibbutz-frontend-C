@@ -37,7 +37,9 @@ const TAB_ROUTES: Record<DashboardTab, string> = {
   explore: "/projects",
   feed: "/feed",
   portfolios: "/portfolios",
+  "my-portfolio": "/my-portfolio",
   "my-projects": "/my-projects",
+  applications: "/applications",
   "my-applications": "/my-applications",
   teams: "/teams",
   messages: "/messages",
@@ -48,11 +50,13 @@ const TAB_ROUTES: Record<DashboardTab, string> = {
 
 function activeFromPath(pathname: string): DashboardTab {
   if (pathname.startsWith("/feed")) return "feed";
+  if (pathname.startsWith("/my-portfolio")) return "my-portfolio";
   if (pathname.startsWith("/portfolios")) return "portfolios";
   if (pathname.startsWith("/messages")) return "messages";
   if (pathname.startsWith("/profile")) return "profile";
   if (pathname.startsWith("/my-projects")) return "my-projects";
   if (pathname.startsWith("/my-applications")) return "my-applications";
+  if (pathname.startsWith("/applications")) return "applications";
   if (pathname.startsWith("/teams")) return "teams";
   if (pathname.startsWith("/friends")) return "friends";
   if (pathname.startsWith("/settings")) return "settings";
@@ -72,10 +76,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // Sidebar labels, keyed the way DashboardSidebar expects them.
   const sidebarT: Record<string, string> = {
+    navGroupCommunity: t("navGroupCommunity"),
+    navGroupManage: t("navGroupManage"),
     explore: t("explore"),
     feed: t("feed"),
     portfolios: t("portfolios"),
+    myPortfolio: t("myPortfolio"),
     myProjects: t("myProjects"),
+    applicationsReceived: t("applicationsReceived"),
     myApplications: t("myApplications"),
     teams: t("teams"),
     messages: t("messages"),
