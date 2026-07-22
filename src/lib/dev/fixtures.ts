@@ -220,6 +220,12 @@ export const demoProfile = (base: UserProfile): UserProfile => ({
   role: "מפתח פולסטאק",
   bio: "בונה כלים לקהילות. אוהב פרויקטים שמתחילים קטן ומשנים משהו אמיתי.",
   links: "github.com/example",
+  profileLinks: [
+    { url: "https://liormedan.dev", label: "אתר אישי" },
+    { url: "https://github.com/example", label: "GitHub" },
+    { url: "https://linkedin.com/in/example", label: "LinkedIn" },
+  ],
+  preferredPayment: "bit",
   successCount: 3,
   skills: [
     { name: "React", level: "3-5" },

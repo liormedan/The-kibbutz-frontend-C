@@ -8,6 +8,16 @@ export interface Skill {
   level: ExpLevel;
 }
 
+/** A personal site or public profile the user chooses to display. */
+export interface ProfileLink {
+  url: string;
+  label?: string;
+}
+
+/** Preferred payment method — a label only, never card/account numbers. Used
+ *  for the (upcoming) paid NDA flow; actual charging will go through a provider. */
+export type PaymentMethod = "" | "bit" | "paypal" | "card";
+
 export interface SuccessBadge {
   id: string;
   projectId: string;
@@ -34,7 +44,9 @@ export interface UserProfile {
   bio: string;
   role: string;           // free-text title e.g. "מפתח פולסטאק"
   avatar: string;
-  links: string;
+  links: string;          // legacy single link — superseded by profileLinks
+  profileLinks: ProfileLink[];
+  preferredPayment: PaymentMethod;
   skills: Skill[];
   canCreateProjects: boolean;
   canJoinProjects: boolean;

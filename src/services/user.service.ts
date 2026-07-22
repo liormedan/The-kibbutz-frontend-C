@@ -30,6 +30,8 @@ function profileFromAuthStore(): UserProfile | null {
     role: "",
     avatar: user.avatar ?? "",
     links: "",
+    profileLinks: [],
+    preferredPayment: "",
     skills: [],
     canCreateProjects: user.canCreateProjects,
     canJoinProjects: user.canJoinProjects,
@@ -40,17 +42,36 @@ function profileFromAuthStore(): UserProfile | null {
   };
 }
 
+// Fields /api/auth/me does NOT serve — they are edited on the client and kept
+// in the persisted store. Re-fetching must not wipe them, or a reload would
+// discard the user's edits. See BACKEND_GAPS.md (profile update).
+function keepLocalEdits(fetched: UserProfile): UserProfile {
+  const prev = useUserStore.getState().profile;
+  if (!prev) return fetched;
+  return {
+    ...fetched,
+    bio: prev.bio || fetched.bio,
+    role: prev.role || fetched.role,
+    links: prev.links || fetched.links,
+    profileLinks: prev.profileLinks?.length ? prev.profileLinks : fetched.profileLinks,
+    preferredPayment: prev.preferredPayment || fetched.preferredPayment,
+    skills: prev.skills?.length ? prev.skills : fetched.skills,
+  };
+}
+
 export async function fetchCurrentUser(): Promise<UserProfile | null> {
   const { setProfile, setLoadingProfile } = useUserStore.getState();
   setLoadingProfile(true);
   try {
     const me = await api.get<MeEntity>("/api/auth/me");
-    const profile = mapUserProfile(meToUserProfileDto(me));
+    const profile = keepLocalEdits(mapUserProfile(meToUserProfileDto(me)));
     setProfile(profile);
     return profile;
   } catch {
-    // Fall back to the auth-store user so /profile renders instead of hanging.
-    const fallback = profileFromAuthStore();
+    // Fall back to the auth-store user so /profile renders instead of hanging,
+    // keeping any locally-edited pending fields.
+    const base = profileFromAuthStore();
+    const fallback = base ? keepLocalEdits(base) : null;
     if (fallback) setProfile(fallback);
     return fallback;
   } finally {
@@ -106,6 +127,8 @@ export async function fetchUserById(id: string): Promise<UserProfile> {
     role: "",
     avatar: "",
     links: "",
+    profileLinks: [],
+    preferredPayment: "",
     skills: [],
     canCreateProjects: false,
     canJoinProjects: false,

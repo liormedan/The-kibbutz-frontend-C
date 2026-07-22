@@ -12,18 +12,29 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Edit2, Check, X, Plus, Award, Briefcase, Users, Link as LinkIcon, Loader2 } from "lucide-react";
+import { ChevronRight, Edit2, Check, X, Plus, Award, Briefcase, Users, Link as LinkIcon, Loader2, Globe, ExternalLink, Trash2, Wallet, Smartphone, CreditCard } from "lucide-react";
 import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 import { fetchBadges, fetchCurrentUser, fetchMyProjects, updateProfile as updateProfileService } from "@/services/user.service";
 import { useUserStore } from "@/store/useUserStore";
-import type { SuccessBadge, UserProfile, UserProject } from "@/store/useUserStore";
+import type { PaymentMethod, ProfileLink, SuccessBadge, UserProfile, UserProject } from "@/store/useUserStore";
 import DevDataToggle from "@/components/DevDataToggle";
 import { useDemoMode } from "@/lib/dev/demoMode";
 import { DEMO_BADGES, DEMO_USER_PROJECTS, demoProfile } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpLevel = "1-2" | "3-5" | "5+";
-type ProfileTab = "skills" | "projects" | "badges";
+type ProfileTab = "skills" | "projects" | "badges" | "payment";
+
+// Show a link without its scheme, so the UI stays clean.
+function prettyUrl(url: string) {
+  return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+}
+
+function withScheme(url: string) {
+  const u = url.trim();
+  if (!u) return u;
+  return /^https?:\/\//i.test(u) ? u : `https://${u}`;
+}
 interface Skill { name: string; level: ExpLevel; }
 
 const EXP_LABELS: Record<ExpLevel, string> = { "1-2": "1–2 שנ'", "3-5": "3–5 שנ'", "5+": "5+ שנ'" };
@@ -164,12 +175,22 @@ function ProfileContent({
   const [name, setName] = useState(profile.name);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [role, setRole] = useState(profile.role ?? "");
-  const [links, setLinks] = useState(profile.links ?? "");
+  // Personal sites & public profiles. Seed from the legacy single `links` when
+  // the new list is empty, so nothing already saved is lost.
+  const [profileLinks, setProfileLinks] = useState<ProfileLink[]>(
+    profile.profileLinks?.length
+      ? profile.profileLinks
+      : profile.links?.trim()
+        ? [{ url: profile.links.trim() }]
+        : [],
+  );
   const [skills, setSkills] = useState<Skill[]>(
     profile.skills.map(skill => ({ ...skill, level: normalizeExpLevel(skill.level) }))
   );
   const [skillInput, setSkillInput] = useState("");
   const [skillLevel, setSkillLevel] = useState<ExpLevel>("1-2");
+  // Preferred payment method (label only). Saved on its own tab, immediately.
+  const [preferredPayment, setPreferredPayment] = useState<PaymentMethod>(profile.preferredPayment ?? "");
 
   // A profile with no name would render a blank heading over a blank avatar,
   // which reads as a broken card rather than as missing data.
@@ -182,13 +203,38 @@ function ProfileContent({
     setSkillInput("");
   };
 
+  const addLink = () => setProfileLinks((p) => [...p, { url: "", label: "" }]);
+  const updateLink = (i: number, field: "url" | "label", value: string) =>
+    setProfileLinks((p) => p.map((l, j) => (j === i ? { ...l, [field]: value } : l)));
+  const removeLink = (i: number) => setProfileLinks((p) => p.filter((_, j) => j !== i));
+
+  // Payment preference is non-sensitive (a label, no numbers), so it saves
+  // immediately on selection rather than behind the global edit mode.
+  const [paymentSaved, setPaymentSaved] = useState(false);
+  const choosePayment = (method: PaymentMethod) => {
+    const next = preferredPayment === method ? "" : method;
+    setPreferredPayment(next);
+    void updateProfileService({ preferredPayment: next });
+    setPaymentSaved(true);
+    setTimeout(() => setPaymentSaved(false), 2000);
+  };
+
   // item 16 – feedback after save: success toast + specific error message
   async function handleSave() {
     setSaving(true);
     setSaveError("");
     setSaveSuccess(false);
     try {
-      await updateProfileService({ name, bio, role, links, skills });
+      // Keep only links that have a URL, normalised with a scheme.
+      const cleanedLinks = profileLinks
+        .map((l) => ({ url: withScheme(l.url), label: l.label?.trim() || undefined }))
+        .filter((l) => l.url.length > 0);
+      setProfileLinks(cleanedLinks);
+      await updateProfileService({
+        name, bio, role, skills,
+        links: cleanedLinks[0]?.url ?? "", // keep legacy field in sync
+        profileLinks: cleanedLinks,
+      });
       setEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -276,17 +322,55 @@ function ProfileContent({
             )}
           </div>
 
-          {/* Links */}
-          {(links || editing) && (
-            <div className="flex items-center gap-2">
-              <LinkIcon className="w-3.5 h-3.5 text-primary" />
-              {editing ? (
-                <input value={links} onChange={e => setLinks(e.target.value)}
-                  className="flex-1 text-sm bg-transparent border-b border-border focus:outline-none text-primary" dir="ltr" placeholder="https://..." />
-              ) : (
-                <a href={links} target="_blank" rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline truncate" dir="ltr">{links}</a>
-              )}
+          {/* Personal sites & public profiles */}
+          {editing ? (
+            <div className="space-y-2">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                {t("profileLinksTitle")}
+              </p>
+              {profileLinks.map((link, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    value={link.label ?? ""}
+                    onChange={e => updateLink(i, "label", e.target.value)}
+                    placeholder={t("profileLinkLabelPlaceholder")}
+                    className="w-28 shrink-0 rounded-lg border border-[var(--border)] bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    value={link.url}
+                    onChange={e => updateLink(i, "url", e.target.value)}
+                    placeholder="https://..."
+                    dir="ltr"
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-background px-2.5 py-1.5 text-xs text-primary focus:border-primary focus:outline-none"
+                  />
+                  <button type="button" onClick={() => removeLink(i)}
+                    className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:text-red-400 cursor-pointer">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addLink}
+                className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline cursor-pointer">
+                <Plus className="h-3.5 w-3.5" />
+                {t("profileAddLink")}
+              </button>
+            </div>
+          ) : profileLinks.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {profileLinks.map((link, i) => (
+                <a
+                  key={i}
+                  href={withScheme(link.url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-background/60 px-2.5 py-1.5 text-xs text-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Globe className="h-3.5 w-3.5 text-primary" />
+                  <span className="max-w-[180px] truncate" dir="ltr">{link.label?.trim() || prettyUrl(link.url)}</span>
+                  <ExternalLink className="h-3 w-3 opacity-50" />
+                </a>
+              ))}
             </div>
           )}
 
@@ -308,7 +392,7 @@ function ProfileContent({
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
-          {[["skills", t("profileSkillsTab")], ["projects", t("profileProjectsTab")], ["badges", t("profileBadgesTab")]] .map(([id, label]) => (
+          {[["skills", t("profileSkillsTab")], ["projects", t("profileProjectsTab")], ["badges", t("profileBadgesTab")], ["payment", t("profilePaymentTab")]] .map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
               className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}
@@ -409,6 +493,57 @@ function ProfileContent({
                 <p className="text-sm text-muted-foreground">{t("profileNoBadges")}</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Payment Tab ── */}
+        {activeTab === "payment" && (
+          <div className="glass-panel rounded-2xl p-6 border border-[var(--border)]">
+            <div className="mb-4">
+              <p className="text-sm font-semibold text-foreground">{t("profilePaymentTitle")}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("profilePaymentIntro")}</p>
+            </div>
+
+            <div className="space-y-2">
+              {([
+                { id: "bit", label: t("profilePayBit"), icon: <Smartphone className="h-4 w-4" /> },
+                { id: "paypal", label: t("profilePayPaypal"), icon: <Wallet className="h-4 w-4" /> },
+                { id: "card", label: t("profilePayCard"), icon: <CreditCard className="h-4 w-4" /> },
+              ] as { id: PaymentMethod; label: string; icon: React.ReactNode }[]).map((opt) => {
+                const active = preferredPayment === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => choosePayment(opt.id)}
+                    aria-pressed={active}
+                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors cursor-pointer ${
+                      active
+                        ? "border-primary bg-primary/10 text-primary font-semibold"
+                        : "border-[var(--border)] text-foreground hover:border-primary"
+                    }`}
+                  >
+                    <span className={active ? "text-primary" : "text-muted-foreground"}>{opt.icon}</span>
+                    {opt.label}
+                    {active && <Check className="ms-auto h-4 w-4 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {paymentSaved && (
+              <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-secondary">
+                <Check className="h-3.5 w-3.5" />
+                {t("profilePaymentSaved")}
+              </p>
+            )}
+
+            {/* No card/account numbers are collected here — real charging will run
+                through a provider once one is chosen. */}
+            <div className="mt-5 flex items-start gap-2 rounded-xl border border-[var(--border)] bg-background/60 px-4 py-3">
+              <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              <p className="text-xs leading-relaxed text-muted-foreground">{t("profilePaymentNote")}</p>
+            </div>
           </div>
         )}
       </div>

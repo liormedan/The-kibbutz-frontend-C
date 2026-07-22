@@ -59,6 +59,21 @@
 ❌ `GET /api/users/search?q=` — user search
 ❌ `POST /api/users/me/onboarding` — onboarding completion
 
+The `PUT /api/users/me` payload must also carry the fields the profile page now
+edits but the backend has no columns for:
+
+❌ `ProfileLinks` — a list of personal sites / public profiles, each `{ url,
+   label? }` (the User entity has no links at all)
+❌ `PreferredPayment` — a label-only enum (`bit | paypal | card | ""`) for the
+   upcoming paid-NDA flow. **Never a card/account number** — actual charging
+   goes through the payment provider, not this field.
+
+**Frontend status:** both are edited on `/profile` and kept in the persisted
+store only. `fetchCurrentUser()` merges the `/me` response over locally-edited
+pending fields so a reload does not wipe them
+(`keepLocalEdits` in `src/services/user.service.ts`); once `PUT /api/users/me`
+returns these fields, that merge can be dropped.
+
 ### Follow — Friendships Exists, Follow Does Not
 
 ❌ `POST /api/users/{id}/follow`
