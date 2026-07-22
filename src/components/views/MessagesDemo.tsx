@@ -66,11 +66,6 @@ export default function MessagesDemo() {
       </aside>
 
       <section className="flex min-w-0 flex-1 flex-col">
-        {/* Demo notice */}
-        <div className="border-b border-amber-300/60 bg-amber-50 px-4 py-2 text-center text-xs text-amber-800">
-          {t("msgDemoBanner")}
-        </div>
-
         <header className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3 md:px-6">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
             ג

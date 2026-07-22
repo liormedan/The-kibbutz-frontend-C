@@ -17,7 +17,6 @@ import {
   SlidersHorizontal,
 } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
-import ComingSoonBanner from '@/components/ComingSoonBanner'
 import { useI18n } from '@/lib/i18n/LanguageProvider'
 
 interface Application {
@@ -240,7 +239,6 @@ export default function ProjectRequestsView() {
 
         {/* Main content */}
         <main className="flex-1 p-6 overflow-y-auto">
-          <ComingSoonBanner feature={t('miscAppsFeature')} className="mb-4" />
           {/* Search bar */}
           <div className="relative mb-4">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-foreground)]" />

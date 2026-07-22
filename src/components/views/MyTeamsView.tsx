@@ -1,13 +1,11 @@
 "use client";
 // הקיבוץ – My teams (tab 4 of the /my-projects hub)
-// The team of every project the user belongs to, with their own role. Distinct
-// from /teams, which browses community teams.
+// The team of every project the user belongs to, with their own role.
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Users } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { fetchMyProjects } from "@/services/user.service";
 import type { Project } from "@/types/project.types";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -41,7 +39,6 @@ export default function MyTeamsView() {
 
   return (
     <div dir={dir}>
-      <ComingSoonBanner feature={t("hubTabTeams")} className="mb-4" />
 
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

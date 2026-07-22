@@ -1,12 +1,11 @@
 "use client";
 // הקיבוץ – Explore / Discover projects (the /projects home)
-// Brand-styled, self-contained discovery grid. Projects are an orphan domain
-// (no backend yet) so a "coming soon" banner sits over mock data.
+// Brand-styled, self-contained discovery grid. The projects domain has no REST
+// endpoints yet (see BACKEND_GAPS.md), so the grid renders local sample data.
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Cpu, Database, Globe, Leaf, Plus, Search, UserPlus, Users } from "lucide-react";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import EmptyState from "@/components/EmptyState";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
@@ -66,7 +65,6 @@ export default function ExploreView() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 md:p-6" dir={dir}>
-      <ComingSoonBanner feature={t("explore")} className="mb-4" />
 
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-3">

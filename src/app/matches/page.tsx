@@ -21,7 +21,6 @@ import { fetchMatchingProjects, fetchMatchingUsers, type MatchedUser } from "@/s
 import { fetchMyProjects } from "@/services/user.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Project, ProjectIconType } from "@/types/project.types";
-import ComingSoonBanner from "@/components/ComingSoonBanner";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type ExpFilter = "all" | "1-2" | "3-5" | "5+";
@@ -133,7 +132,6 @@ export default function MatchesPage() {
   return (
     <>
       <div className="mx-auto max-w-5xl p-4 md:p-6">
-        <ComingSoonBanner feature={t("miscMatchesTitle")} className="mb-4" />
         <div className="mb-6 flex items-center gap-3">
           <Sparkles className="h-7 w-7 text-[var(--primary)]" />
           <div>

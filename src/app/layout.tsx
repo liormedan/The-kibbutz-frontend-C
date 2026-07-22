@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { connectSignalR } from "@/services/notification.service";
-import PendingBackendToast from "@/components/PendingBackendToast";
 import { LanguageProvider } from "@/lib/i18n/LanguageProvider";
 
 export default function RootLayout({
@@ -59,10 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <LanguageProvider>
-          {children}
-          <PendingBackendToast />
-        </LanguageProvider>
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

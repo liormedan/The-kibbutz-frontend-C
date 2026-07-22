@@ -35,7 +35,6 @@ const core = {
     guest: "אורח",
     communityMember: "חבר קהילה",
     admin: "מנהל",
-    comingSoon: "בקרוב",
 
     // ── Explore / home ──
     exploreTitle: "גלה פרויקטים",
@@ -110,9 +109,6 @@ const core = {
     settingsAboutTerms: "תנאי שימוש",
     settingsAboutContact: "צור קשר",
     settingsLogout: "התנתקות",
-
-    // ── Coming-soon banner ──
-    comingSoonBanner: "{feature} — הפיצ'ר הזה עדיין לא מחובר לשרת. התצוגה להמחשה בלבד.",
   },
   en: {
     // ── Sidebar / navigation ──
@@ -136,7 +132,6 @@ const core = {
     guest: "Guest",
     communityMember: "Community member",
     admin: "Admin",
-    comingSoon: "Soon",
 
     // ── Explore / home ──
     exploreTitle: "Explore Projects",
@@ -211,9 +206,6 @@ const core = {
     settingsAboutTerms: "Terms of use",
     settingsAboutContact: "Contact us",
     settingsLogout: "Log out",
-
-    // ── Coming-soon banner ──
-    comingSoonBanner: "{feature} — this feature isn't connected to the server yet. Preview only.",
   },
 } as const;
 

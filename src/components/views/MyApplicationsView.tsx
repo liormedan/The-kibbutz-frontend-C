@@ -17,7 +17,6 @@ import {
   X,
 } from 'lucide-react'
 import EmptyState from '@/components/EmptyState'
-import ComingSoonBanner from '@/components/ComingSoonBanner'
 import { useI18n } from '@/lib/i18n/LanguageProvider'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -117,7 +116,6 @@ export default function MyApplicationsView() {
     <div dir={dir}>
       <div className="space-y-8">
 
-        <ComingSoonBanner feature={t('miscMyAppsFeature')} className="mb-4" />
 
         {pendingActionCount > 0 && (
           <div className="-mt-2 flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
