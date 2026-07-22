@@ -109,6 +109,10 @@ function ProfileContent({
   const [skillInput, setSkillInput] = useState("");
   const [skillLevel, setSkillLevel] = useState<ExpLevel>("1-2");
 
+  // A profile with no name would render a blank heading over a blank avatar,
+  // which reads as a broken card rather than as missing data.
+  const shownName = name.trim() || t("guest");
+
   const addSkill = () => {
     const n = skillInput.trim();
     if (!n || skills.find(s => s.name === n)) return;
@@ -151,14 +155,14 @@ function ProfileContent({
           <div className="flex items-start justify-between mb-5">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center text-2xl font-bold text-primary">
-                {name.charAt(0)}
+                {shownName.charAt(0)}
               </div>
               <div>
                 {editing ? (
                   <input value={name} onChange={e => setName(e.target.value)}
                     className="text-xl font-bold bg-transparent border-b border-primary focus:outline-none text-foreground mb-1 w-48" />
                 ) : (
-                  <h1 className="text-xl font-bold text-foreground">{name}</h1>
+                  <h1 className="text-xl font-bold text-foreground">{shownName}</h1>
                 )}
                 {editing ? (
                   <input value={role} onChange={e => setRole(e.target.value)}

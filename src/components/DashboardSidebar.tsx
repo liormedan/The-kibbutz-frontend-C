@@ -92,11 +92,15 @@ export default function DashboardSidebar({
         sidebarCollapsed ? "justify-center" : (lang === "he" ? "text-right" : "text-left")
       } ${
         activeTab === tab.id
-          ? "bg-primary/10 text-primary font-semibold " +
-            (!sidebarCollapsed ? (lang === "he" ? "border-r-4 border-primary" : "border-l-4 border-primary") : "")
+          ? "bg-primary/10 text-primary font-semibold"
           : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
       }`}
     >
+      {/* Active marker as its own bar. A border-4 on a rounded-xl box follows
+          the corner radius and reads as a crescent sticking out of the pill. */}
+      {activeTab === tab.id && !sidebarCollapsed && (
+        <span className="pointer-events-none absolute inset-y-1.5 start-0 w-1 rounded-full bg-primary" />
+      )}
       {tab.icon}
       {!sidebarCollapsed && <span className="text-sm font-medium">{tab.label}</span>}
       {!sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (

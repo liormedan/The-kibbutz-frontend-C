@@ -98,6 +98,12 @@ export default function FeedView() {
 
   return (
     <div dir={dir} className="mx-auto w-full max-w-3xl">
+      {/* Header — every other page has one; the feed was the odd one out. */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("socialFeedTitle")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("socialFeedSub")}</p>
+      </div>
+
       {/* Composer */}
       <div className="mb-6 rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
         <textarea

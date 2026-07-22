@@ -7,6 +7,8 @@ export const social = {
     socialTimeHoursAgo: "לפני {count} שע'",
     socialTimeDaysAgo: "לפני {count} ימים",
     // feed
+    socialFeedTitle: "פיד הקהילה",
+    socialFeedSub: "מה חדש אצל חברי הקיבוץ.",
     socialFeedLoadError: "טעינת הפיד נכשלה",
     socialPostCreateError: "פרסום הפוסט נכשל",
     socialComposerPlaceholder: "מה חדש בקיבוץ?",
@@ -49,6 +51,8 @@ export const social = {
     socialTimeHoursAgo: "{count}h ago",
     socialTimeDaysAgo: "{count}d ago",
     // feed
+    socialFeedTitle: "Community feed",
+    socialFeedSub: "What's new with your fellow members.",
     socialFeedLoadError: "Failed to load the feed",
     socialPostCreateError: "Failed to publish the post",
     socialComposerPlaceholder: "What's new in the kibbutz?",
