@@ -63,7 +63,7 @@
   --background-subtle:  #faf7f0;
   --foreground:         #47331f;
   --card:               #f7f4ed;
-  --card-border:        rgba(89, 64, 38, 0.12);
+  --card-border:        rgba(89, 64, 38, 0.16);
   --card-hover-border:  rgba(210, 100, 45, 0.35);
   --primary:            #d2642d;
   --primary-hover:      #a34e29;
@@ -73,6 +73,11 @@
   --muted:              #e4ddcd;
   --muted-foreground:   #80664d;
   --border:             #d9ccbf;
+  /* Surface scale — page (--background) < panels/cards (--surface) < inputs
+     (--input-bg). Keeps a readable hierarchy instead of one flat tan mass. */
+  --surface:            rgba(253, 251, 247, 0.88);
+  --surface-hover:      rgba(255, 255, 255, 0.96);
+  --input-bg:           #fffefb;
   --font-sans:          'Segoe UI', 'Arial', system-ui, -apple-system, sans-serif;
 }
 
@@ -91,26 +96,30 @@ body {
    GLASS COMPONENTS (warm brand)
    ============================================ */
 
+/* Panels and cards sit ABOVE the page: lighter fill + a visible edge + a soft
+   shadow. Light-on-light contrast ratios are inherently ~1.1:1, so the
+   separation has to come from the border and the shadow, not the fill alone. */
 .glass-panel {
-  background: rgba(244, 238, 225, 0.75);
+  background: var(--surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(89, 64, 38, 0.08);
-  box-shadow: 0 4px 20px -4px rgba(89, 64, 38, 0.08);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 6px 24px -8px rgba(89, 64, 38, 0.14), 0 1px 2px rgba(89, 64, 38, 0.05);
 }
 
 .glass-card {
-  background: rgba(247, 244, 237, 0.7);
+  background: var(--surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--card-border);
+  box-shadow: 0 3px 12px -4px rgba(89, 64, 38, 0.10), 0 1px 2px rgba(89, 64, 38, 0.04);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  background: rgba(247, 244, 237, 0.95);
+  background: var(--surface-hover);
   border-color: var(--card-hover-border);
-  box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.15), 0 4px 12px -5px rgba(210, 100, 45, 0.15);
+  box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.18), 0 4px 12px -5px rgba(210, 100, 45, 0.15);
   transform: translateY(-2px);
 }
 
@@ -171,6 +180,11 @@ body {
   --border:             #3d2210;
   --border-subtle:      rgba(210, 100, 45, 0.1);
   --border-medium:      rgba(210, 100, 45, 0.18);
+
+  /* Surface scale (dark) — panels sit above the page, inputs above panels. */
+  --surface:            rgba(42, 26, 14, 0.85);
+  --surface-hover:      rgba(52, 33, 18, 0.95);
+  --input-bg:           rgba(255, 255, 255, 0.06);
 }
 
 .dark-theme,
@@ -304,17 +318,18 @@ body {
 .text-teal-400,
 .text-emerald-400    { color: var(--secondary) !important; }
 
-/* Input elements */
-input, textarea {
-  background-color: rgba(89, 64, 38, 0.04);
+/* Input elements — the brightest surface in the scale, never a brown wash. */
+input, textarea, select {
+  background-color: var(--input-bg);
   color: var(--foreground);
   border-color: var(--border);
 }
 input::placeholder, textarea::placeholder { color: var(--muted-foreground); }
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   border-color: var(--primary);
-  background-color: var(--background-subtle);
+  background-color: var(--input-bg);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(210, 100, 45, 0.12);
 }
 
 /* Gradient text – h1 with bg-gradient-to-r */
@@ -345,7 +360,7 @@ input:focus, textarea:focus {
   --background-subtle:  #faf7f0;
   --foreground:         #47331f;
   --card:               #f7f4ed;
-  --card-border:        rgba(89, 64, 38, 0.12);
+  --card-border:        rgba(89, 64, 38, 0.16);
   --card-hover-border:  rgba(210, 100, 45, 0.35);
   --primary:            #d2642d;
   --primary-hover:      #a34e29;
@@ -355,6 +370,9 @@ input:focus, textarea:focus {
   --muted:              #e4ddcd;
   --muted-foreground:   #80664d;
   --border:             #d9ccbf;
+  --surface:            rgba(253, 251, 247, 0.88);
+  --surface-hover:      rgba(255, 255, 255, 0.96);
+  --input-bg:           #fffefb;
 }
 
 html.dark-theme .force-light,
@@ -364,18 +382,28 @@ html.dark-theme .force-light .min-h-screen {
 }
 
 html.dark-theme .force-light .glass-panel {
-  background: rgba(244, 238, 225, 0.75) !important;
-  border-color: rgba(89, 64, 38, 0.08) !important;
-  box-shadow: 0 4px 20px -4px rgba(89, 64, 38, 0.08) !important;
+  background: var(--surface) !important;
+  border-color: var(--card-border) !important;
+  box-shadow: 0 6px 24px -8px rgba(89, 64, 38, 0.14) !important;
 }
 
 html.dark-theme .force-light .glass-card {
-  background: rgba(247, 244, 237, 0.7) !important;
+  background: var(--surface) !important;
   border-color: var(--card-border) !important;
 }
 
+/* Form controls inside a force-light subtree must stay light too — the
+   .dark-theme input rule would otherwise win on specificity. */
+html.dark-theme .force-light input,
+html.dark-theme .force-light textarea,
+html.dark-theme .force-light select {
+  background-color: var(--input-bg) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
 html.dark-theme .force-light .glass-card:hover {
-  background: rgba(247, 244, 237, 0.95) !important;
+  background: var(--surface-hover) !important;
   border-color: var(--card-hover-border) !important;
   box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.15), 0 4px 12px -5px rgba(210, 100, 45, 0.15) !important;
 }
