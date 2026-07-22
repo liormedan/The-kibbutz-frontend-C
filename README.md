@@ -222,12 +222,14 @@ node qa/topbar.mjs          # the top-bar cluster is present and sticky everywhe
 node qa/sidebar-fit.mjs     # the rail fits without scrolling down to 560px tall
 ```
 
-`qa/demo-mode.mjs` covers the מצב פיתוח toggle and needs the **dev** server,
-because the toggle is development-only:
+`qa/demo-mode.mjs` and `qa/card-menu.mjs` need the **dev** server — the first
+because the toggle is development-only, the second because it drives the feed
+with demo data:
 
 ```bash
 npx next dev -p 3002
 QA_BASE=http://localhost:3002 node qa/demo-mode.mjs
+QA_BASE=http://localhost:3002 node qa/card-menu.mjs
 ```
 
 ## Common Issues

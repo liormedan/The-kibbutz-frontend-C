@@ -4,17 +4,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, MessageCircle, Loader2, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Heart, MessageCircle, Loader2, Send, Link2, Flag, Trash2, FileText } from "lucide-react";
 import {
   fetchFeed,
   createPost,
   likePost,
   unlikePost,
+  deletePost,
 } from "@/services/post.service";
 import type { PostDto } from "@/lib/api/types";
+import CardMenu, { type CardMenuItem } from "@/components/CardMenu";
+import ReportModal from "@/components/ReportModal";
+import { useAuthStore } from "@/store/useAuthStore";
 import DevDataToggle from "@/components/DevDataToggle";
 import { useDemoMode } from "@/lib/dev/demoMode";
-import { DEMO_POSTS } from "@/lib/dev/fixtures";
+import { demoPosts } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 function initials(name: string): string {
@@ -44,12 +49,18 @@ function Avatar({ url, name }: { url?: string | null; name: string }) {
 
 export default function FeedView() {
   const { t, dir } = useI18n();
+  const router = useRouter();
   const [demo, toggleDemo] = useDemoMode("feed");
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
+  const meId = useAuthStore((s) => s.user?.id);
+  const meName = useAuthStore((s) => s.user?.name);
+  const [flash, setFlash] = useState("");
+  const [reporting, setReporting] = useState<{ id: string; name: string } | null>(null);
+  const [locallyRemoved, setLocallyRemoved] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -101,7 +112,76 @@ export default function FeedView() {
   };
 
   // Demo data replaces the list only while the real feed has nothing to show.
-  const shownPosts = demo && posts.length === 0 ? DEMO_POSTS : posts;
+  const shownPosts = (demo && posts.length === 0 ? demoPosts(meId ?? "", meName ?? "") : posts)
+    .filter((p) => !locallyRemoved.includes(p.postId));
+
+  const showFlash = (message: string) => {
+    setFlash(message);
+    setTimeout(() => setFlash(""), 2000);
+  };
+
+  const copyLink = async (postId: string) => {
+    const url = `${window.location.origin}/feed/${postId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showFlash(t("socialPostLinkCopied"));
+    } catch {
+      // Clipboard needs a secure context; fall back to showing the URL.
+      window.prompt(t("socialPostCopyLink"), url);
+    }
+  };
+
+  const removePost = async (post: PostDto) => {
+    if (!window.confirm(t("socialPostConfirmDelete"))) return;
+    // Demo posts never existed on the server — drop them locally only.
+    if (demo && posts.length === 0) {
+      setLocallyRemoved((prev) => [...prev, post.postId]);
+      return;
+    }
+    const before = posts;
+    setPosts((prev) => prev.filter((p) => p.postId !== post.postId));
+    try {
+      await deletePost(post.postId);
+    } catch (e) {
+      setPosts(before);
+      setError(e instanceof Error ? e.message : t("socialPostDeleteError"));
+    }
+  };
+
+  const menuItems = (post: PostDto): CardMenuItem[] => {
+    const isMine = !!meId && post.author.userId === meId;
+    const items: CardMenuItem[] = [
+      {
+        key: "open",
+        label: t("socialPostOpen"),
+        icon: <FileText className="h-4 w-4" />,
+        onSelect: () => router.push(`/feed/${post.postId}`),
+      },
+      {
+        key: "copy",
+        label: t("socialPostCopyLink"),
+        icon: <Link2 className="h-4 w-4" />,
+        onSelect: () => void copyLink(post.postId),
+      },
+    ];
+    if (isMine) {
+      items.push({
+        key: "delete",
+        label: t("socialPostDelete"),
+        icon: <Trash2 className="h-4 w-4" />,
+        danger: true,
+        onSelect: () => void removePost(post),
+      });
+    } else {
+      items.push({
+        key: "report",
+        label: t("socialPostReport"),
+        icon: <Flag className="h-4 w-4" />,
+        onSelect: () => setReporting({ id: post.author.userId, name: post.author.fullName }),
+      });
+    }
+    return items;
+  };
 
   return (
     <div dir={dir} className="mx-auto w-full max-w-3xl">
@@ -111,7 +191,17 @@ export default function FeedView() {
           <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("socialFeedTitle")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("socialFeedSub")}</p>
         </div>
-        <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={posts.length > 0} />
+        <div className="flex shrink-0 items-center gap-2">
+          {flash && (
+            <span
+              role="status"
+              className="rounded-full bg-secondary/15 px-3 py-1.5 text-xs font-medium text-secondary"
+            >
+              {flash}
+            </span>
+          )}
+          <DevDataToggle enabled={demo} onToggle={toggleDemo} hasRealData={posts.length > 0} />
+        </div>
       </div>
 
       {/* Composer */}
@@ -157,10 +247,15 @@ export default function FeedView() {
             <li key={post.postId} className="rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
               <div className="flex items-center gap-3">
                 <Avatar url={post.author.profilePictureUrl} name={post.author.fullName} />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{post.author.fullName}</p>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">{post.author.fullName}</p>
                   <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt, t)}</p>
                 </div>
+                <CardMenu
+                  className="ms-auto"
+                  label={t("socialPostMenuLabel", { name: post.author.fullName })}
+                  items={menuItems(post)}
+                />
               </div>
 
               <Link href={`/feed/${post.postId}`} className="mt-3 block">
@@ -183,6 +278,15 @@ export default function FeedView() {
             </li>
           ))}
         </ul>
+      )}
+
+      {reporting && (
+        <ReportModal
+          isOpen
+          reportedUserId={reporting.id}
+          reportedName={reporting.name}
+          onClose={() => setReporting(null)}
+        />
       )}
     </div>
   );

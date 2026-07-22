@@ -49,7 +49,7 @@ const DANIEL = person("u-3", "דניאל", "כהן", "danielc", "מפתח פול
 const SHIRA = person("u-4", "שירה", "מנדל", "shiram", "מנהלת קהילה ומורה");
 
 // ── Feed ────────────────────────────────────────────────────────────────────
-export const DEMO_POSTS: PostDto[] = [
+const OTHERS_POSTS: PostDto[] = [
   {
     postId: "p-1", author: GUY, type: PostType.Text,
     content: "סיימנו את אב הטיפוס הראשון של מערכת ניטור המים! מחפשים עוד מפתח/ת שרת שיצטרף לצוות. מי בעניין?",
@@ -71,6 +71,28 @@ export const DEMO_POSTS: PostDto[] = [
     likesCount: 17, commentsCount: 3, sharesCount: 1,
     isLikedByCurrentUser: false, createdAt: ago(2), updatedAt: null,
   },
+];
+
+/** The first post is authored by the viewer, so the "my post" card — and its
+ *  delete option in the ⋯ menu — is visible too, not only other people's. */
+export const demoPosts = (meId: string, meName: string): PostDto[] => [
+  {
+    postId: "p-me",
+    author: {
+      ...GUY,
+      userId: meId || "me",
+      firstName: meName || "אני",
+      lastName: "",
+      fullName: meName || "אני",
+      username: "me",
+    },
+    type: PostType.Text,
+    content: "מחפש שותפים לפרויקט חדש של לוח מידע קהילתי. מי שרוצה להצטרף — שיכתוב לי.",
+    mediaUrls: null, tags: ["קהילה"],
+    likesCount: 8, commentsCount: 2, sharesCount: 0,
+    isLikedByCurrentUser: false, createdAt: ago(0.4), updatedAt: null,
+  },
+  ...OTHERS_POSTS,
 ];
 
 // ── Portfolios ──────────────────────────────────────────────────────────────
