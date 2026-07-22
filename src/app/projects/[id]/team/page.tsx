@@ -8,6 +8,7 @@ import { fetchTeam, updateTeamStatus } from "@/services/team.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useProjectStore } from "@/store/useProjectStore";
 import { useTeamStore } from "@/store/useTeamStore";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 import type { PermissionLevel, TeamStatus } from "@/types/project.types";
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
 export default function ProjectTeamPage({ params }: Props) {
   const { id: projectId } = use(params);
   const router = useRouter();
+  const { t, dir } = useI18n();
 
   // Stores
   const currentUser = useAuthStore((s) => s.user);
@@ -42,7 +44,7 @@ export default function ProjectTeamPage({ params }: Props) {
           fetchTeam(projectId).catch(() => console.warn("Failed to fetch team")),
         ]);
       })
-      .catch(() => setError("שגיאה בטעינת נתוני הצוות"));
+      .catch(() => setError(t("projTeamLoadError")));
   }, [projectId, isDevBypass, token]);
 
   // Simulated fallback project if in dev bypass or failed to fetch
@@ -93,11 +95,11 @@ export default function ProjectTeamPage({ params }: Props) {
       "user-3": "רוני לביא",
       "user-4": "אלון שטיין",
     };
-    return mockNames[userId] || `משתמש (${userId.substring(0, 5)})`;
+    return mockNames[userId] || t("projUserFallback", { id: userId.substring(0, 5) });
   };
 
   const getMemberRoleName = (userId: string) => {
-    return (displayProject.memberRoles as Record<string, string>)[userId] ?? "חבר צוות";
+    return (displayProject.memberRoles as Record<string, string>)[userId] ?? t("projTeamMember");
   };
 
   // Actions
@@ -106,10 +108,10 @@ export default function ProjectTeamPage({ params }: Props) {
     setSuccessMsg("");
     try {
       await updateTeamStatus(displayTeam.id, status);
-      setSuccessMsg("סטטוס הצוות עודכן בהצלחה");
+      setSuccessMsg(t("projTeamStatusUpdated"));
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
-      setError("שגיאה בעדכון סטטוס הצוות");
+      setError(t("projTeamStatusUpdateError"));
     }
   };
 
@@ -133,10 +135,10 @@ export default function ProjectTeamPage({ params }: Props) {
         });
       }
       
-      setSuccessMsg("הרשאת חבר הצוות עודכנה בהצלחה");
+      setSuccessMsg(t("projMemberPermUpdated"));
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
-      setError("שגיאה בעדכון הרשאות חבר הצוות");
+      setError(t("projMemberPermUpdateError"));
     } finally {
       setUpdatingMemberId(null);
     }
@@ -145,26 +147,26 @@ export default function ProjectTeamPage({ params }: Props) {
   const getPermissionBadge = (level: PermissionLevel) => {
     switch (level) {
       case "owner":
-        return { label: "בעלים", className: "bg-primary/10 text-primary border-primary/20", icon: Shield };
+        return { label: t("projPermOwner"), className: "bg-primary/10 text-primary border-primary/20", icon: Shield };
       case "admin":
-        return { label: "מנהל", className: "bg-secondary/10 text-secondary border-secondary/20", icon: Shield };
+        return { label: t("projPermAdmin"), className: "bg-secondary/10 text-secondary border-secondary/20", icon: Shield };
       case "member":
-        return { label: "חבר צוות", className: "bg-accent/10 text-accent-dark border-accent/20", icon: Shield };
+        return { label: t("projTeamMember"), className: "bg-accent/10 text-accent-dark border-accent/20", icon: Shield };
       default:
-        return { label: "צופה", className: "bg-muted text-muted-foreground border-muted", icon: User };
+        return { label: t("projPermViewer"), className: "bg-muted text-muted-foreground border-muted", icon: User };
     }
   };
 
   const getTeamStatusLabel = (status: TeamStatus) => {
     switch (status) {
       case "forming":
-        return { label: "בהקמה", className: "bg-amber-100 text-amber-700 border-amber-200" };
+        return { label: t("projTeamForming"), className: "bg-amber-100 text-amber-700 border-amber-200" };
       case "active":
-        return { label: "פעיל", className: "bg-green-100 text-green-700 border-green-200" };
+        return { label: t("projTeamActive"), className: "bg-green-100 text-green-700 border-green-200" };
       case "inactive":
-        return { label: "לא פעיל", className: "bg-red-100 text-red-600 border-red-200" };
+        return { label: t("projTeamInactive"), className: "bg-red-100 text-red-600 border-red-200" };
       case "completed":
-        return { label: "הושלם בהצלחה", className: "bg-blue-100 text-blue-700 border-blue-200" };
+        return { label: t("projTeamCompleted"), className: "bg-blue-100 text-blue-700 border-blue-200" };
     }
   };
 
@@ -172,17 +174,17 @@ export default function ProjectTeamPage({ params }: Props) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-background flex items-center justify-center" dir={dir}>
         <div className="text-center">
           <Loader2 className="w-10 h-10 border-primary animate-spin text-primary mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">טוען את נתוני צוות הפרויקט...</p>
+          <p className="text-sm text-muted-foreground">{t("projTeamLoading")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background p-4 pb-10 md:p-6" dir="rtl">
+    <main className="min-h-screen bg-background p-4 pb-10 md:p-6" dir={dir}>
       <div className="mx-auto max-w-3xl">
         {/* Back link */}
         <button
@@ -191,7 +193,7 @@ export default function ProjectTeamPage({ params }: Props) {
           className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
         >
           <ChevronRight className="h-4 w-4" />
-          <span>חזרה לפרויקט</span>
+          <span>{t("projBackToProjectShort")}</span>
         </button>
 
         {/* Header card */}
@@ -202,14 +204,14 @@ export default function ProjectTeamPage({ params }: Props) {
                 <Users className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">ניהול צוות פרויקט</h1>
+                <h1 className="text-xl font-bold text-foreground">{t("projTeamManageTitle")}</h1>
                 <p className="text-xs text-muted-foreground mt-0.5">{displayProject.title}</p>
               </div>
             </div>
 
             {/* Team status badge */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground font-semibold">סטטוס צוות:</span>
+              <span className="text-xs text-muted-foreground font-semibold">{t("projTeamStatus")}</span>
               <span className={`text-xs px-2.5 py-1 rounded-lg border font-bold ${getTeamStatusLabel(displayTeam.teamStatus).className}`}>
                 {getTeamStatusLabel(displayTeam.teamStatus).label}
               </span>
@@ -225,10 +227,10 @@ export default function ProjectTeamPage({ params }: Props) {
           <div className="glass-card mb-6 rounded-2xl border border-border p-5">
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-bold text-foreground">עדכון סטטוס צוות</h2>
+              <h2 className="text-sm font-bold text-foreground">{t("projUpdateTeamStatus")}</h2>
             </div>
             <p className="text-xs text-muted-foreground mb-4">
-              עדכנו את הסטטוס הנוכחי של התקדמות הצוות. סטטוס זה משפיע על ניהול המועמדויות וגיוס חברים נוספים.
+              {t("projUpdateTeamStatusDesc")}
             </p>
             <div className="flex gap-2 flex-wrap">
               {(["forming", "active", "inactive", "completed"] as TeamStatus[]).map((status) => (
@@ -252,7 +254,7 @@ export default function ProjectTeamPage({ params }: Props) {
         {/* Members list */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 mb-1 px-1">
-            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">חברי הצוות ({displayTeam.members.length})</h2>
+            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{t("projTeamMembers", { count: displayTeam.members.length })}</h2>
           </div>
 
           <div className="space-y-3">
@@ -291,9 +293,9 @@ export default function ProjectTeamPage({ params }: Props) {
                             onChange={(e) => handlePermissionChange(member.id, e.target.value as PermissionLevel)}
                             className="text-xs rounded-xl border border-[var(--border)] bg-background text-foreground px-3 py-1.5 focus:outline-none focus:border-primary transition-colors cursor-pointer"
                           >
-                            <option value="admin">מנהל (Admin)</option>
-                            <option value="member">חבר צוות (Member)</option>
-                            <option value="viewer">צופה (Viewer)</option>
+                            <option value="admin">{t("projPermAdminOption")}</option>
+                            <option value="member">{t("projPermMemberOption")}</option>
+                            <option value="viewer">{t("projPermViewerOption")}</option>
                           </select>
                         )}
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${BadgeConfig.className} inline-flex items-center gap-1`}>

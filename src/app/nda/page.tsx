@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { FileText, Send, ChevronRight, Check, Loader2, Shield, AlertCircle, Lock, CreditCard } from "lucide-react";
 import NdaTemplate from "@/components/NdaTemplate";
 import ComingSoonBanner from "@/components/ComingSoonBanner";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 type Step = "form" | "payment" | "preview" | "sent";
 
@@ -23,6 +24,7 @@ const CONFIDENTIALITY_PERIODS = ["6 חודשים", "12 חודשים", "24 חוד
 
 export default function NdaPage() {
   const router = useRouter();
+  const { t, dir } = useI18n();
   const [step, setStep] = useState<Step>("form");
   const [loading, setLoading] = useState(false);
 
@@ -44,8 +46,8 @@ export default function NdaPage() {
     projectName:      "",
     date:             new Date().toISOString().split("T")[0],
     confidentialityPeriod: "12 חודשים",
-    intellectualProperty: "כל הקניין הרוחני שנוצר במסגרת הפרויקט שייך ליזם.",
-    responsibilities: "המשתתף מתחייב לא לחשוף מידע סודי לצדדים שלישיים.",
+    intellectualProperty: t("ndaDefaultIP"),
+    responsibilities: t("ndaDefaultResp"),
     contactEmail: "",
   });
 
@@ -62,7 +64,7 @@ export default function NdaPage() {
     setPayError("");
     const raw = cardNumber.replace(/\s/g, "");
     if (raw.length < 16 || !cardExpiry.includes("/") || cardCvc.length < 3 || !cardName.trim()) {
-      setPayError("אנא מלא את כל פרטי כרטיס האשראי.");
+      setPayError(t("ndaPayError"));
       return;
     }
     setLoading(true);
@@ -87,11 +89,19 @@ export default function NdaPage() {
   const inputClass = "w-full px-4 py-3 rounded-xl border border-[var(--border)] bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors";
   const labelClass = "block text-xs font-semibold text-muted-foreground mb-1.5 text-right";
 
+  const periodLabels: Record<string, string> = {
+    "6 חודשים": t("ndaPeriod6Months"),
+    "12 חודשים": t("ndaPeriod12Months"),
+    "24 חודשים": t("ndaPeriod24Months"),
+    "36 חודשים": t("ndaPeriod36Months"),
+    "ללא הגבלה": t("ndaPeriodUnlimited"),
+  };
+
   return (
-    <div className="min-h-screen bg-background p-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir={dir}>
       <div className="max-w-2xl mx-auto">
 
-        <ComingSoonBanner feature="חוזי סודיות (NDA)" className="mb-4" />
+        <ComingSoonBanner feature={t("ndaFeature")} className="mb-4" />
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -100,14 +110,14 @@ export default function NdaPage() {
           </button>
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">יצירת הסכם סודיות (NDA)</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("ndaCreateTitle")}</h1>
           </div>
         </div>
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-8 text-xs font-semibold">
           {(["form", "payment", "preview", "sent"] as Step[]).map((s, i) => {
-            const labels: Record<Step, string> = { form: "פרטים", payment: "תשלום", preview: "תצוגה מקדימה", sent: "נשלח" };
+            const labels: Record<Step, string> = { form: t("ndaStepForm"), payment: t("ndaStepPayment"), preview: t("ndaStepPreview"), sent: t("ndaStepSent") };
             const stepIdx = ["form", "payment", "preview", "sent"].indexOf(step);
             const done = i < stepIdx;
             const active = s === step;
@@ -132,71 +142,70 @@ export default function NdaPage() {
           style={{ background: "rgba(210,100,45,0.07)", border: "1px solid rgba(210,100,45,0.2)" }}>
           <AlertCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
           <p className="text-xs text-muted-foreground leading-relaxed">
-            מסמך זה הוא הסכם סודיות סטנדרטי. לתוקף משפטי מלא מומלץ לפנות לעורך דין.
-            הפלטפורמה אינה אחראית לתוקפו המשפטי של המסמך.
+            {t("ndaDisclaimer")}
           </p>
         </div>
 
         {/* ── FORM ── */}
         {step === "form" && (
           <div className="glass-panel rounded-2xl p-8 border border-[var(--border)] space-y-5">
-            <h2 className="text-lg font-bold text-foreground mb-4">פרטי החוזה</h2>
+            <h2 className="text-lg font-bold text-foreground mb-4">{t("ndaContractDetails")}</h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>שם היזם *</label>
+                <label className={labelClass}>{t("ndaEntrepreneurName")}</label>
                 <input type="text" value={form.entrepreneurName}
                   onChange={e => update("entrepreneurName", e.target.value)}
-                  placeholder="שם מלא" className={inputClass} />
+                  placeholder={t("ndaFullName")} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>שם המשתתף *</label>
+                <label className={labelClass}>{t("ndaParticipantName")}</label>
                 <input type="text" value={form.participantName}
                   onChange={e => update("participantName", e.target.value)}
-                  placeholder="שם מלא" className={inputClass} />
+                  placeholder={t("ndaFullName")} className={inputClass} />
               </div>
             </div>
 
             <div>
-              <label className={labelClass}>שם הפרויקט *</label>
+              <label className={labelClass}>{t("ndaProjectName")}</label>
               <input type="text" value={form.projectName}
                 onChange={e => update("projectName", e.target.value)}
-                placeholder="שם הפרויקט/הרעיון" className={inputClass} />
+                placeholder={t("ndaProjectNamePlaceholder")} className={inputClass} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>תאריך</label>
+                <label className={labelClass}>{t("ndaDate")}</label>
                 <input type="date" value={form.date}
                   onChange={e => update("date", e.target.value)}
                   className={inputClass} dir="ltr" />
               </div>
               <div>
-                <label className={labelClass}>תקופת סודיות</label>
+                <label className={labelClass}>{t("ndaConfidentialityPeriod")}</label>
                 <select value={form.confidentialityPeriod}
                   onChange={e => update("confidentialityPeriod", e.target.value)}
                   className={inputClass + " cursor-pointer"}>
-                  {CONFIDENTIALITY_PERIODS.map(p => <option key={p} value={p}>{p}</option>)}
+                  {CONFIDENTIALITY_PERIODS.map(p => <option key={p} value={p}>{periodLabels[p] ?? p}</option>)}
                 </select>
               </div>
             </div>
 
             <div>
-              <label className={labelClass}>קניין רוחני</label>
+              <label className={labelClass}>{t("ndaIntellectualProperty")}</label>
               <textarea value={form.intellectualProperty}
                 onChange={e => update("intellectualProperty", e.target.value)}
                 rows={2} className={inputClass + " resize-none"} />
             </div>
 
             <div>
-              <label className={labelClass}>תחומי אחריות וסודיות</label>
+              <label className={labelClass}>{t("ndaResponsibilities")}</label>
               <textarea value={form.responsibilities}
                 onChange={e => update("responsibilities", e.target.value)}
                 rows={2} className={inputClass + " resize-none"} />
             </div>
 
             <div>
-              <label className={labelClass}>אימייל ליצירת קשר *</label>
+              <label className={labelClass}>{t("ndaContactEmail")}</label>
               <input type="email" value={form.contactEmail}
                 onChange={e => update("contactEmail", e.target.value)}
                 placeholder="email@example.com" className={inputClass} dir="ltr" />
@@ -206,7 +215,7 @@ export default function NdaPage() {
               className="w-full py-3 rounded-xl text-white font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
               style={{ background: "linear-gradient(135deg, #d2642d, #e8753d)", boxShadow: "0 6px 20px -6px rgba(210,100,45,0.4)" }}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              {loading ? "מייצר חוזה..." : "צור חוזה PDF"}
+              {loading ? t("ndaGenerating") : t("ndaGeneratePdf")}
             </button>
           </div>
         )}

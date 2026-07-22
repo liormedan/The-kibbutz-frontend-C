@@ -64,7 +64,9 @@ function GuestPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground" dir={dir}>
+    // force-light: the public landing page always renders in the light brand
+    // palette, even when the visitor has dark mode enabled.
+    <div className="force-light min-h-screen bg-background text-foreground" dir={dir}>
 
       {/* ─── Header ─────────────────────────────────────── */}
       <header className="sticky top-0 z-30 glass-panel border-b border-[var(--border)]">

@@ -26,6 +26,7 @@ import { fetchApplications, fetchProject, respondToApplication } from "@/service
 import { useAuthStore } from "@/store/useAuthStore";
 import { useProjectStore } from "@/store/useProjectStore";
 import type { Project } from "@/types/project.types";
+import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 const MOCK_PROJECT: Project = {
   id: "mock-project",

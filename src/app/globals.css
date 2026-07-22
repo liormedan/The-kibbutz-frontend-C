@@ -331,3 +331,51 @@ input:focus, textarea:focus {
     background: white !important;
   }
 }
+
+/* ============================================
+   FORCE LIGHT
+   Subtrees that must always render in the light brand palette,
+   even when the user has dark mode on (e.g. the public landing page).
+   Re-declares the light tokens and beats the .dark-theme !important rules.
+   ============================================ */
+
+.force-light {
+  color-scheme: light;
+  --background:         #f4eee1;
+  --background-subtle:  #faf7f0;
+  --foreground:         #47331f;
+  --card:               #f7f4ed;
+  --card-border:        rgba(89, 64, 38, 0.12);
+  --card-hover-border:  rgba(210, 100, 45, 0.35);
+  --primary:            #d2642d;
+  --primary-hover:      #a34e29;
+  --secondary:          #799b4b;
+  --accent:             #d19847;
+  --accent-hover:       #b8832e;
+  --muted:              #e4ddcd;
+  --muted-foreground:   #80664d;
+  --border:             #d9ccbf;
+}
+
+html.dark-theme .force-light,
+html.dark-theme .force-light .min-h-screen {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+html.dark-theme .force-light .glass-panel {
+  background: rgba(244, 238, 225, 0.75) !important;
+  border-color: rgba(89, 64, 38, 0.08) !important;
+  box-shadow: 0 4px 20px -4px rgba(89, 64, 38, 0.08) !important;
+}
+
+html.dark-theme .force-light .glass-card {
+  background: rgba(247, 244, 237, 0.7) !important;
+  border-color: var(--card-border) !important;
+}
+
+html.dark-theme .force-light .glass-card:hover {
+  background: rgba(247, 244, 237, 0.95) !important;
+  border-color: var(--card-hover-border) !important;
+  box-shadow: 0 12px 30px -10px rgba(89, 64, 38, 0.15), 0 4px 12px -5px rgba(210, 100, 45, 0.15) !important;
+}

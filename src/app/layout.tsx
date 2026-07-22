@@ -41,13 +41,20 @@ export default function RootLayout({
   }, [isAuthenticated, user, pathname, router]);
 
   return (
-    <html lang="he" className="h-full antialiased">
+    // suppressHydrationWarning: the inline script below intentionally mutates
+    // <html> (class + dir/lang) before React hydrates, so the server markup
+    // won't match. Suppression applies to this element's own attributes only.
+    <html lang="he" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        {/* Apply the saved theme before first paint to avoid a flash. */}
+        {/* Apply the saved theme + language before first paint (no flash). */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('new-kibbutz-theme')==='dark')document.documentElement.classList.add('dark-theme')}catch(e){}",
+              "try{var e=document.documentElement;" +
+              "if(localStorage.getItem('new-kibbutz-theme')==='dark')e.classList.add('dark-theme');" +
+              "var l=localStorage.getItem('new-kibbutz-lang');" +
+              "if(l==='en'||l==='he'){e.lang=l;e.dir=l==='he'?'rtl':'ltr'}" +
+              "}catch(e){}",
           }}
         />
       </head>
