@@ -82,6 +82,44 @@ looks empty. Please add `GET /api/portfolios/me` (paginated, same
 `PaginatedResponse<PortfolioDto>` envelope as the browse endpoint) and the
 workaround gets deleted.
 
+### Portfolios — No Links Field
+
+A portfolio item is somebody's work, so it needs to point at that work: a live
+site, a repo, a Behance/Figma page, an article. There is nowhere to put any of
+them today, and it should hold **several** links, not one.
+
+Checked against `Models/Entities.cs` and `Models/DTOs.cs` — the `Portfolio`
+entity has `Title`, `Description`, `Category`, `ImageUrl`, `ThumbnailUrl`,
+`CreatedAt`, `UpdatedAt`, and tags via the separate `PortfolioTag` table. There
+is no links column, and `CreatePortfolioDto` has no links field either.
+
+❌ `Links` on the portfolio — a list, each with a URL and an optional label
+
+Suggested shape, matching how `Tags` is already handled (own table, returned
+inline on `PortfolioDto`):
+
+```csharp
+public class PortfolioLink {
+    [Key] public Guid LinkId { get; set; }
+    public Guid PortfolioId { get; set; }
+    [Required] public string Url { get; set; } = string.Empty;
+    [StringLength(80)] public string? Label { get; set; }   // "אתר חי", "GitHub"
+    public int SortOrder { get; set; }
+}
+```
+and on both `CreatePortfolioDto` and `PortfolioDto`:
+```csharp
+public List<PortfolioLinkDto>? Links { get; set; }
+```
+
+**Frontend status:** not built. `/portfolios/create` deliberately does not offer
+a links field, because anything typed into it would be dropped on save. The form
+gets the field the same day the DTO does.
+
+**Related:** `ImageUrl` is single-valued too, so a portfolio cannot show a
+gallery. Not requested yet — noting it so both can be added in one pass if you
+touch this entity.
+
 ## 3️⃣ Authentication — Missing Features
 
 ❌ OAuth: `/api/auth/oauth/{provider}` (Google / GitHub / LinkedIn)
