@@ -1,0 +1,14 @@
+import { chromium } from "playwright";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+const __dirname=dirname(fileURLToPath(import.meta.url));
+const BASE="http://localhost:3000";
+const b=await chromium.launch();
+const ctx=await b.newContext({viewport:{width:1440,height:900}});
+await ctx.addInitScript(()=>{try{localStorage.setItem("new-kibbutz-theme","dark")}catch{}});
+await ctx.addCookies([{name:"kibbutz-session",value:"1",url:BASE},{name:"kibbutz-role",value:"participant",url:BASE}]);
+const p=await ctx.newPage();
+await p.goto(BASE+"/projects",{waitUntil:"load"});await p.waitForTimeout(1600);
+await p.screenshot({path:join(__dirname,"full-dark.png")});
+console.log("done");
+await b.close();

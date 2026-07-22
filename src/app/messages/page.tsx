@@ -14,6 +14,7 @@ import {
 } from "@/services/conversation.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useConversationStore } from "@/store/useConversationStore";
+import MessagesDemo from "@/components/views/MessagesDemo";
 import type { Message, Conversation, ParticipantInfo } from "@/types/message.types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
@@ -117,9 +118,14 @@ function MessagesContent() {
 
   const headerOther = otherParticipant(activeConversation, currentUserId);
 
+  // No conversations yet → show the demo structure instead of a bare line, so
+  // the messaging layout is visible while the feature has no data.
+  const showDemo = !isLoading && conversations.length === 0;
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6" dir={dir}>
       <div className="glass-card mx-auto flex h-[calc(100vh-2rem)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--border)] md:h-[calc(100vh-3rem)]">
+        {showDemo ? <MessagesDemo /> : <>
         <aside className="hidden w-[280px] shrink-0 border-l border-[var(--border)] p-4 md:block overflow-y-auto">
           <div className="mb-5 flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-[#d2642d]" />
@@ -255,6 +261,7 @@ function MessagesContent() {
             </>
           )}
         </section>
+        </>}
       </div>
     </main>
   );

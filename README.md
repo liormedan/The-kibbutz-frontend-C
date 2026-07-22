@@ -81,23 +81,30 @@ Adding a new in-app page: create the route, drop in a `layout.tsx` that wraps
 
 There is **no `/dashboard`** — the home is `/projects` ("discover projects").
 
-**Inside the shell** (fixed sidebar):
+The sidebar is grouped: **קהילה** (public / social) and **איזור ניהול** (the
+user's own things), with profile + settings pinned at the bottom so they stay
+reachable on short windows.
 
-| Route | Shows | Sidebar item |
-|---|---|---|
-| `/projects` | **Discover projects (home)** | גלה פרויקטים |
-| `/feed` | Feed | פיד |
-| `/portfolios` | Portfolios | תיקי עבודות |
-| `/my-projects` | My projects (owned + joined) | הפרויקטים שלי |
-| `/my-applications` | My applications | המועמדויות שלי |
-| `/teams` | Teams *(coming soon)* | צוותים |
-| `/messages` | Direct messages | הודעות |
-| `/friends` | Friends / connections | חברים |
-| `/profile` | My profile | פרופיל אישי |
-| `/settings` | Settings | הגדרות |
-| `/matches` | Matching *(coming soon)* | — |
-| `/nda`, `/nda/inbox` | NDA *(coming soon)* | — |
-| `/applications` | Applications management (project owner) | — |
+| Route | Shows | Sidebar item | Group |
+|---|---|---|---|
+| `/projects` | **Discover projects (home)** | גלה פרויקטים | קהילה |
+| `/feed` | Feed | פיד | קהילה |
+| `/messages` | Direct messages | הודעות | קהילה |
+| `/friends` | Friends / connections | חברים | קהילה |
+| `/portfolios` | Browse everyone's portfolios | תיקי עבודות | קהילה |
+| `/my-projects` | My projects (owned + joined) | הפרויקטים שלי | ניהול |
+| `/applications` | Join requests for my projects | בקשות לפרויקטים שלי | ניהול |
+| `/my-applications` | Applications I sent | המועמדויות שלי | ניהול |
+| `/my-portfolio` | My own portfolio items | תיק העבודות שלי | ניהול |
+| `/teams` | Teams *(coming soon)* | צוותים | ניהול |
+| `/profile` | My profile | פרופיל אישי | pinned |
+| `/settings` | Settings (theme + language) | הגדרות | pinned |
+| `/matches` | Matching *(coming soon)* | — | — |
+| `/nda`, `/nda/inbox` | NDA *(coming soon)* | — | — |
+
+> `/messages` shows a demo conversation + thread while the user has no real
+> conversations, so the layout is visible during development. It is inert and
+> clearly labelled; real conversations replace it automatically.
 
 **Dynamic pages** (also inside the shell): `/projects/[id]`, `/projects/[id]/manage`,
 `/projects/[id]/team`, `/projects/create`, `/feed/[id]`, `/portfolios/[id]`,

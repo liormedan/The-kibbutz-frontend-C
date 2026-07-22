@@ -75,6 +75,23 @@ async function refreshAccessToken(): Promise<boolean> {
   return result;
 }
 
+// ─── Dead session cleanup ──────────────────────────────────────
+// The refresh failed, so the token is unrecoverable (expired, revoked, or the
+// offline dev-login mock token being sent to a real backend). Clear BOTH the
+// store and the cookies proxy.ts gates on — otherwise the user keeps looking
+// logged in, every page refires the same request, and the console fills with
+// "session expired". Redirect once so they can sign in again.
+let endingSession = false;
+
+function endDeadSession(): void {
+  useAuthStore.getState().logout();
+  if (typeof document === "undefined" || endingSession) return;
+  endingSession = true;
+  document.cookie = "kibbutz-session=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = "kibbutz-role=; path=/; max-age=0; SameSite=Lax";
+  if (window.location.pathname !== "/") window.location.replace("/");
+}
+
 // ─── Core request ──────────────────────────────────────────────
 
 export async function apiFetch<T>(
@@ -105,7 +122,7 @@ export async function apiFetch<T>(
   if (res.status === 401 && auth && !_retry) {
     const refreshed = await refreshAccessToken();
     if (refreshed) return apiFetch<T>(path, { ...opts, _retry: true });
-    useAuthStore.getState().logout();
+    endDeadSession();
     throw new ApiError("פג תוקף ההתחברות", 401);
   }
 

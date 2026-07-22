@@ -17,10 +17,14 @@ const core = {
     // ── Sidebar / navigation ──
     sidebarTitle: "הקיבוץ",
     sidebarSub: "שיתוף פעולה קהילתי",
+    navGroupCommunity: "קהילה",
+    navGroupManage: "איזור ניהול",
     explore: "גלה פרויקטים",
     feed: "פיד",
     portfolios: "תיקי עבודות",
+    myPortfolio: "תיק העבודות שלי",
     myProjects: "הפרויקטים שלי",
+    applicationsReceived: "בקשות לפרויקטים שלי",
     myApplications: "המועמדויות שלי",
     teams: "צוותים",
     messages: "הודעות",
@@ -50,6 +54,9 @@ const core = {
     fullTeam: "מלא",
 
     // ── My projects ──
+    myPortfolioSub: "פריטי תיק העבודות שפרסמת.",
+    myPortfolioEmpty: "עדיין אין לך פריטים בתיק",
+    myPortfolioEmptySub: "צור פריט חדש כדי להציג את העבודות שלך לקהילה.",
     myProjectsSub: "הפרויקטים שיצרת ואלה שהצטרפת אליהם.",
     myProjectsCreated: "יצרתי ({count})",
     myProjectsJoined: "הצטרפתי ({count})",
@@ -102,10 +109,14 @@ const core = {
     // ── Sidebar / navigation ──
     sidebarTitle: "The Kibbutz",
     sidebarSub: "COMMUNITY COLLABORATION",
+    navGroupCommunity: "Community",
+    navGroupManage: "Manage",
     explore: "Explore Projects",
     feed: "Feed",
     portfolios: "Portfolios",
+    myPortfolio: "My Portfolio",
     myProjects: "My Projects",
+    applicationsReceived: "Requests to my projects",
     myApplications: "My Applications",
     teams: "Teams",
     messages: "Messages",
@@ -135,6 +146,9 @@ const core = {
     fullTeam: "Full",
 
     // ── My projects ──
+    myPortfolioSub: "The portfolio items you published.",
+    myPortfolioEmpty: "No portfolio items yet",
+    myPortfolioEmptySub: "Create one to show your work to the community.",
     myProjectsSub: "Projects you created and ones you joined.",
     myProjectsCreated: "Created ({count})",
     myProjectsJoined: "Joined ({count})",

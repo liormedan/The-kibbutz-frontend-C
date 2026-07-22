@@ -66,6 +66,22 @@
 ❌ `GET /api/users/me/followers`
 ❌ `GET /api/users/me/following`
 
+### Portfolios — Browsing Works, "Mine" Does Not
+
+`GET /api/portfolios` (browse) and `POST /api/portfolios` (create) both work.
+What is missing is a way to ask for **the current user's own** portfolio items.
+
+❌ `GET /api/portfolios/me` — the signed-in user's portfolio items
+❌ `GET /api/users/{id}/portfolios` — a given user's items (for `profile/[id]`)
+
+**Current frontend workaround:** `/my-portfolio` fetches the first 50 of the
+public list and filters client-side by `owner.userId`
+(`src/components/views/MyPortfolioView.tsx`). This is wrong past the first
+page — once a user's items fall outside those 50, their own portfolio silently
+looks empty. Please add `GET /api/portfolios/me` (paginated, same
+`PaginatedResponse<PortfolioDto>` envelope as the browse endpoint) and the
+workaround gets deleted.
+
 ## 3️⃣ Authentication — Missing Features
 
 ❌ OAuth: `/api/auth/oauth/{provider}` (Google / GitHub / LinkedIn)

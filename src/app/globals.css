@@ -6,31 +6,36 @@
    Migrated to V2 (liormedan/innovate)
    ============================================ */
 
-/* Tailwind v4 custom theme tokens */
-@theme {
-  --color-background:        #f4eee1;
-  --color-background-subtle: #faf7f0;
-  --color-surface:           #f7f4ed;
-  --color-card:              #f7f4ed;
+/* Tailwind v4 custom theme tokens.
+   `inline` matters: without it Tailwind copies the RESOLVED value into every
+   utility, so bg-background / text-foreground / bg-card / border-border froze
+   at their light values and ignored .dark-theme — light utilities on dark
+   panels, i.e. the two themes mixed. With `inline` the utilities reference the
+   runtime variables below, so every utility follows the active theme. */
+@theme inline {
+  --color-background:        var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-surface:           var(--surface);
+  --color-card:              var(--card);
 
-  --color-primary:           #d2642d;
-  --color-primary-dark:      #a34e29;
+  --color-primary:           var(--primary);
+  --color-primary-dark:      var(--primary-hover);
   --color-primary-subtle:    rgb(210 100 45 / 0.1);
 
-  --color-secondary:         #799b4b;
+  --color-secondary:         var(--secondary);
   --color-secondary-light:   #a0c270;
 
-  --color-accent:            #d19847;
-  --color-accent-dark:       #b8832e;
+  --color-accent:            var(--accent);
+  --color-accent-dark:       var(--accent-hover);
 
-  --color-foreground:        #47331f;
-  --color-foreground-muted:  #594026;
-  --color-muted:             #e4ddcd;
-  --color-muted-foreground:  #80664d;
+  --color-foreground:        var(--foreground);
+  --color-foreground-muted:  var(--foreground-muted);
+  --color-muted:             var(--muted);
+  --color-muted-foreground:  var(--muted-foreground);
 
-  --color-border:            #d9ccbf;
-  --color-input:             #e4ddcd;
-  --color-ring:              #d2642d;
+  --color-border:            var(--border);
+  --color-input:             var(--input-bg);
+  --color-ring:              var(--primary);
 
   /* Brand named colors (used in brand site) */
   --color-cream:             #f4eee1;
@@ -62,6 +67,7 @@
   --background:         #f4eee1;
   --background-subtle:  #faf7f0;
   --foreground:         #47331f;
+  --foreground-muted:   #594026;
   --card:               #f7f4ed;
   --card-border:        rgba(89, 64, 38, 0.16);
   --card-hover-border:  rgba(210, 100, 45, 0.35);
@@ -369,6 +375,7 @@ input:focus, textarea:focus, select:focus {
   --background:         #f4eee1;
   --background-subtle:  #faf7f0;
   --foreground:         #47331f;
+  --foreground-muted:   #594026;
   --card:               #f7f4ed;
   --card-border:        rgba(89, 64, 38, 0.16);
   --card-hover-border:  rgba(210, 100, 45, 0.35);

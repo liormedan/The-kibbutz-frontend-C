@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import {
+  Briefcase,
   ChevronDown,
   Compass,
   FileText,
   FolderGit2,
+  UserPlus,
   LayoutGrid,
   LogOut,
   MessageSquare,
@@ -25,7 +27,9 @@ export type DashboardTab =
   | "feed"
   | "portfolios"
   | "my-projects"
+  | "applications"
   | "my-applications"
+  | "my-portfolio"
   | "teams"
   | "messages"
   | "friends"
@@ -62,18 +66,65 @@ export default function DashboardSidebar({
   const iconCls = sidebarCollapsed ? "w-7 h-7" : "w-5 h-5";
   // Every item has its own top-level route, so the sidebar always navigates
   // (consistent across the whole app — no page-local tab state).
-  const tabs: { id: DashboardTab; label: string; icon: ReactNode; route: string }[] = [
-    { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/projects" },
-    { id: "feed", label: t.feed, icon: <Newspaper className={iconCls} />, route: "/feed" },
-    { id: "portfolios", label: t.portfolios, icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
-    { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
-    { id: "my-applications", label: t.myApplications ?? "המועמדויות שלי", icon: <FileText className={iconCls} />, route: "/my-applications" },
-    { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
-    { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
-    { id: "friends", label: t.friends, icon: <Users className={iconCls} />, route: "/friends" },
+  // Grouped: "community" is public/social browsing, "manage" is the user's own
+  // stuff. Profile + settings live in the bottom block so they stay reachable.
+  type NavItem = { id: DashboardTab; label: string; icon: ReactNode; route: string };
+  const navGroups: { label: string; items: NavItem[] }[] = [
+    {
+      label: t.navGroupCommunity,
+      items: [
+        { id: "explore", label: t.explore, icon: <Compass className={iconCls} />, route: "/projects" },
+        { id: "feed", label: t.feed, icon: <Newspaper className={iconCls} />, route: "/feed" },
+        { id: "messages", label: t.messages, icon: <MessageSquare className={iconCls} />, route: "/messages" },
+        { id: "friends", label: t.friends, icon: <Users className={iconCls} />, route: "/friends" },
+        { id: "portfolios", label: t.portfolios, icon: <LayoutGrid className={iconCls} />, route: "/portfolios" },
+      ],
+    },
+    {
+      label: t.navGroupManage,
+      items: [
+        { id: "my-projects", label: t.myProjects, icon: <FolderGit2 className={iconCls} />, route: "/my-projects" },
+        { id: "applications", label: t.applicationsReceived, icon: <UserPlus className={iconCls} />, route: "/applications" },
+        { id: "my-applications", label: t.myApplications, icon: <FileText className={iconCls} />, route: "/my-applications" },
+        { id: "my-portfolio", label: t.myPortfolio, icon: <Briefcase className={iconCls} />, route: "/my-portfolio" },
+        { id: "teams", label: t.teams, icon: <Users className={iconCls} />, route: "/teams" },
+      ],
+    },
+  ];
+  const bottomTabs: NavItem[] = [
     { id: "profile", label: t.profile, icon: <User className={iconCls} />, route: "/profile" },
     { id: "settings", label: t.settings, icon: <SlidersHorizontal className={iconCls} />, route: "/settings" },
   ];
+
+  const renderNavButton = (tab: NavItem) => (
+    <button
+      key={tab.id}
+      data-testid={`sidebar-${tab.id}`}
+      onClick={() => router.push(tab.route)}
+      title={sidebarCollapsed ? tab.label : undefined}
+      className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
+        sidebarCollapsed ? "justify-center" : (lang === "he" ? "text-right" : "text-left")
+      } ${
+        activeTab === tab.id
+          ? "bg-primary/10 text-primary font-semibold " +
+            (!sidebarCollapsed ? (lang === "he" ? "border-r-4 border-primary" : "border-l-4 border-primary") : "")
+          : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
+      }`}
+    >
+      {tab.icon}
+      {!sidebarCollapsed && <span className="text-sm font-medium">{tab.label}</span>}
+      {!sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (
+        <span className={`${lang === "he" ? "mr-auto" : "ml-auto"} min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center text-[10px] text-white`}>
+          {unreadCount}
+        </span>
+      )}
+      {sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (
+        <span className="absolute right-0 top-0 min-w-4 rounded-full bg-primary px-1 text-center text-[9px] text-white">
+          {unreadCount}
+        </span>
+      )}
+    </button>
+  );
 
   const MOBILE_TABS: { id: DashboardTab; label: string; route?: string; badge?: number; icon: (active: boolean) => React.ReactNode }[] = [
     {
@@ -223,37 +274,28 @@ export default function DashboardSidebar({
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              data-testid={`sidebar-${tab.id}`}
-              onClick={() => tab.route ? router.push(tab.route) : onSelectTab(tab.id)}
-              title={sidebarCollapsed ? tab.label : undefined}
-              className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all cursor-pointer ${
-                sidebarCollapsed ? "justify-center" : (lang === "he" ? "text-right" : "text-left")
-              } ${
-                activeTab === tab.id
-                  ? "bg-primary/10 text-primary font-semibold " +
-                    (!sidebarCollapsed ? (lang === "he" ? "border-r-4 border-primary" : "border-l-4 border-primary") : "")
-                  : "text-muted-foreground hover:text-foreground hover:bg-primary/5"
-              }`}
-            >
-              {tab.icon}
-              {!sidebarCollapsed && <span className="text-sm font-medium">{tab.label}</span>}
-              {!sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (
-                <span className={`${lang === "he" ? "mr-auto" : "ml-auto"} min-w-5 rounded-full bg-primary px-1.5 py-0.5 text-center text-[10px] text-white`}>
-                  {unreadCount}
-                </span>
+        {/* overflow-y-auto: without it the last items are unreachable on a
+            short window or at high browser zoom. */}
+        <nav className="flex-1 min-h-0 overflow-y-auto space-y-1">
+          {navGroups.map((group, gi) => (
+            <div key={group.label} className={gi > 0 ? "pt-3" : ""}>
+              {!sidebarCollapsed && (
+                <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                  {group.label}
+                </p>
               )}
-              {sidebarCollapsed && tab.id === "messages" && unreadCount > 0 && (
-                <span className="absolute right-0 top-0 min-w-4 rounded-full bg-primary px-1 text-center text-[9px] text-white">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+              {sidebarCollapsed && gi > 0 && <div className="mx-2 mb-2 border-t border-[var(--border)]" />}
+              <div className="space-y-1">
+                {group.items.map((tab) => renderNavButton(tab))}
+              </div>
+            </div>
           ))}
         </nav>
+
+        {/* Profile + settings: pinned so they are always reachable. */}
+        <div className="mt-2 space-y-1 border-t border-[var(--border)] pt-2">
+          {bottomTabs.map((tab) => renderNavButton(tab))}
+        </div>
 
         <div className="my-4">
           <button
