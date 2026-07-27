@@ -29,6 +29,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AppTopBar from "@/components/AppTopBar";
+import MobileNav from "@/components/MobileNav";
 import DashboardSidebar, { type DashboardTab } from "@/components/DashboardSidebar";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
@@ -115,6 +116,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <AppTopBar />
         {children}
       </div>
+
+      {/* Below md the sidebar is hidden and this takes over. See MOBILE_SPEC.md. */}
+      <MobileNav />
     </div>
   );
 }

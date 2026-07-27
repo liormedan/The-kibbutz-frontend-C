@@ -24,10 +24,20 @@ out of scope.
 
 Measured across 10 routes at 390px:
 
-1. **7px horizontal overflow on every screen.** The page scrolls sideways a
-   little everywhere. Root cause is the bottom nav: five items with the full
-   sidebar labels ("גלה פרויקטים", "פרופיל אישי", …) don't fit 390px, so the
-   labels are clipped and push past the viewport. **Bug — must be zero.**
+1. ~~**7px horizontal overflow on every screen.**~~ **RETRACTED — this was a
+   measurement error, not a defect.** `scrollWidth − clientWidth` read 7 on
+   every route, and the first draft of this spec blamed the bottom-nav labels.
+   Both parts were wrong. Under Chromium's mobile emulation `innerWidth` is 7px
+   wider than `clientWidth` because a classic scrollbar is reserved; a
+   full-bleed `fixed inset-x-0` bar correctly sizes to that initial containing
+   block, so the 7px appears on a perfectly healthy page. Verified: a plain
+   390px context reports `scrollWidth == clientWidth == 390`, and in **every**
+   mode — plain, `isMobile`, iPhone 13 — the page **cannot be scrolled
+   sideways** (`window.scrollX` will not move). Real phones use overlay
+   scrollbars and never reserve the gutter.
+   The lesson is baked into `qa/mobile.mjs`: it asserts the page cannot scroll
+   horizontally and that no in-flow content exceeds the layout viewport, rather
+   than trusting a raw `scrollWidth` delta.
 
 2. **Bottom nav is on the old IA.** It still shows
    *גלה פרויקטים · הפרויקטים שלי · הודעות · צוותים · פרופיל אישי*, where
@@ -127,13 +137,17 @@ sprint's share of "mobile is done" — they sum to 100%.
 
 | # | Sprint | Weight | Tasks | Closes |
 |---|---|---:|---|---|
-| **S1** | **שלד המובייל** — the base; without it every screen inherits the bugs | 35% | zero horizontal overflow (360/390/430) · new bottom nav (גילוי · פיד · הודעות · הפרויקטים · עוד) · the "עוד" sheet (friends / portfolio / settings / logout) · round `+` in the top bar | findings 1, 2, 3 |
+| **S1** ✅ | **שלד המובייל** — the base; without it every screen inherits the bugs | 35% | ~~zero horizontal overflow~~ (finding 1 retracted — see §2) · new bottom nav (גילוי · פיד · הודעות · הפרויקטים · עוד) · the "עוד" sheet (friends / portfolio / settings / logout) · round `+` in the top bar | findings 2, 3 |
 | **S2** | **הודעות — list ↔ chat** | 20% | conversation list full-width by default · tap through to chat with a back arrow · drop the two-pane below `md` | finding 4 |
 | **S3** | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
 | **S4** | **Overlays ופוליש** | 15% | `min(92vw)` cap on account + notification panels · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
 | **S5** | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · regression across the 5 existing sweeps | — |
 
 Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
+
+**S1 is done** (`qa/mobile.mjs`, 29/29). The bottom nav is `src/components/MobileNav.tsx`
+— split out of `DashboardSidebar.tsx`, which despite its name was rendering it;
+that file is now genuinely desktop-only.
 
 S1 first is deliberate: the overflow and the stale nav are shell-level, so every
 other screen is measured against a broken baseline until they're fixed. S5 last
