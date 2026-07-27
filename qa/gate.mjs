@@ -9,7 +9,7 @@
 // every suite the same QA_BASE, and fails if any suite exits non-zero. A suite
 // that merely *logs* a failure is invisible here — that is why every file in
 // SUITES ends with process.exit(fail ? 1 : 0).
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const PORT = Number(process.env.QA_PORT || 3001);
@@ -34,10 +34,16 @@ function run(cmd, opts = {}) {
   return spawn(cmd, { shell: true, stdio: "inherit", ...opts });
 }
 
-/** A shell-spawned server is a cmd.exe with next underneath — kill the tree. */
+/**
+ * A shell-spawned server is a cmd.exe with next underneath — kill the tree.
+ * spawnSync, not spawn: this runs from an `exit` handler, and process.exit
+ * tears the loop down before an async spawn ever reaches taskkill. That left
+ * `next start` orphaned on the port, which then tripped the guard below on the
+ * next run and looked like a stale server the user had left behind.
+ */
 function killTree(child) {
   if (!child || child.exitCode !== null) return;
-  if (isWin) spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" });
+  if (isWin) spawnSync("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" });
   else child.kill("SIGTERM");
 }
 
