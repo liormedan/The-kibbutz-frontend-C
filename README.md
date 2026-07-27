@@ -227,6 +227,7 @@ Eight suites run in the gate:
 
 | Suite | What it holds |
 |---|---|
+| `endpoint-audit` | static: every call in `src/services` matches a verified backend endpoint, and every caller handles `ApiError` — see [`qa/BACKEND_READINESS.md`](./qa/BACKEND_READINESS.md) |
 | `all-routes` | every route under `src/app` — authed and unauthed, desktop and mobile: renders, no console errors, no overflow, no i18n leaks, no `undefined` |
 | `mobile` | 360/390/430px — the `MOBILE_SPEC.md` acceptance bar: no horizontal scroll, bottom nav, list↔chat, ≥44px targets, ≥16px inputs |
 | `deep-check` | nav and top bar clicks, English/LTR, mobile, collapsed rail |
