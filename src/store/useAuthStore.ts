@@ -2,11 +2,14 @@
  * הקיבוץ – Auth Store
  * מנהל: מצב אימות, token, סוג משתמש
  *
- * TODO backend:
- *   login()  → קרא ל-POST /auth/login ושמור token
- *   logout() → קרא ל-POST /auth/logout (אופציונלי) + נקה state
- *   Token נשמר ב-httpOnly cookie — לא ב-localStorage
- *   אימות ב-layout.tsx: בדוק token תקף בכל טעינה
+ * איפה נשמר מה (מדויק נכון להיום — ראה BACKEND_CONTRACT.md):
+ *   • ה-JWT נשמר כאן, ב-sessionStorage תחת המפתח `kibbutz-auth`.
+ *     הוא **לא** ב-httpOnly cookie. המשמעות: הוא נמחק בסגירת הטאב, אבל
+ *     JavaScript שרץ בדף יכול לקרוא אותו — כלומר XSS חושף אותו. מעבר ל-
+ *     httpOnly cookie ידרוש שהבקאנד יגיש Set-Cookie ויקבל אימות מהעוגייה.
+ *   • העוגיות `kibbutz-session` / `kibbutz-role` הן דגלוני ניווט בלבד
+ *     ("1" ותפקיד), נכתבות ב-document.cookie ואינן httpOnly. src/proxy.ts
+ *     קורא אותן כדי להחליט על הפניות — הן לא מאמתות מול השרת.
  */
 
 import { create } from "zustand";
