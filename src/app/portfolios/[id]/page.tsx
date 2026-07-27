@@ -12,8 +12,10 @@ import {
 import type { PortfolioDto } from "@/lib/api/types";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
-function initials(name: string): string {
-  return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
+// Tolerates a missing name: the DTO says it's required, but one absent field
+// should not take the whole page down with a TypeError.
+function initials(name?: string | null): string {
+  return (name ?? "").trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("");
 }
 
 export default function PortfolioDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -100,7 +102,7 @@ export default function PortfolioDetailPage({ params }: { params: Promise<{ id: 
               />
             ) : (
               <div className="flex h-56 w-full items-center justify-center bg-primary/10 text-6xl font-bold text-primary">
-                {portfolio.title.trim().charAt(0)}
+                {(portfolio.title ?? "").trim().charAt(0)}
               </div>
             )}
 

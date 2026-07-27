@@ -84,8 +84,12 @@ export default function ExploreView() {
         />
       </div>
 
-      {/* Domain filter */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      {/* Domain filter. The count is outside the wrapping group: when it sat
+          inside with ms-auto, a wrapped row left it stranded alone opposite a
+          single chip. Below md it gets its own line; from md it rejoins the
+          row's end. */}
+      <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-center">
+        <div className="flex flex-wrap gap-2">
         {DOMAINS.map((d) => (
           <button
             key={d.value}
@@ -99,7 +103,8 @@ export default function ExploreView() {
             {t(d.labelKey)}
           </button>
         ))}
-        <span className="ms-auto self-center text-xs text-muted-foreground">{t("projectsCount", { count: filtered.length })}</span>
+        </div>
+        <span className="shrink-0 text-xs text-muted-foreground md:ms-auto">{t("projectsCount", { count: filtered.length })}</span>
       </div>
 
       {/* Grid */}

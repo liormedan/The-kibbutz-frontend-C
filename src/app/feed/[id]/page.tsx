@@ -159,10 +159,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
             {/* Post */}
             <div className="rounded-2xl bg-card p-4 shadow-sm border border-[var(--border)]">
               <div className="flex items-center gap-3">
-                <Avatar url={post.author.profilePictureUrl} name={post.author.fullName} />
+                <Avatar url={post.author?.profilePictureUrl} name={post.author?.fullName ?? ''} />
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    {post.author.fullName}
+                    {post.author?.fullName}
                   </p>
                   <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt, t)}</p>
                 </div>
@@ -229,12 +229,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
                   >
                     <div className="flex items-center gap-3">
                       <Avatar
-                        url={comment.author.profilePictureUrl}
-                        name={comment.author.fullName}
+                        url={comment.author?.profilePictureUrl}
+                        name={comment.author?.fullName ?? ''}
                       />
                       <div>
                         <p className="text-sm font-semibold text-foreground">
-                          {comment.author.fullName}
+                          {comment.author?.fullName}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {timeAgo(comment.createdAt, t)}

@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { FolderGit2 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useScrollFade } from "@/lib/useScrollFade";
 
 const TABS = [
   { href: "/my-projects", key: "hubTabProjects", exact: true },
@@ -22,6 +23,7 @@ export default function MyProjectsLayout({ children }: { children: React.ReactNo
   const { t, dir } = useI18n();
   const pathname = usePathname();
   const activeTabRef = useRef<HTMLAnchorElement>(null);
+  const tabsFade = useScrollFade<HTMLElement>();
 
   // `nearest` keeps the page from jumping vertically — we only want the strip
   // to scroll horizontally to reveal the current tab.
@@ -46,6 +48,7 @@ export default function MyProjectsLayout({ children }: { children: React.ReactNo
             active one is scrolled into view on mount — otherwise landing on a
             later tab shows a bar that looks like nothing is selected. */}
         <nav
+          {...tabsFade}
           data-testid="hub-tabs"
           className="mb-6 flex gap-1 overflow-x-auto border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >

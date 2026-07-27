@@ -18,6 +18,7 @@ const BUILD = process.argv.includes("--build");
 const isWin = process.platform === "win32";
 
 const SUITES = [
+  ["all-routes", "כל 34 המסלולים — מחובר/לא מחובר, דסקטופ/מובייל"],
   ["mobile", "מובייל — 360/390/430, קבלת MOBILE_SPEC"],
   ["deep-check", "בדיקת עומק — ניווט, שפה, ערכות נושא"],
   ["ui-walkthrough", "סריקת UI — כל המסלולים, בהיר וכהה"],

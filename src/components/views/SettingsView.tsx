@@ -8,6 +8,7 @@ import { Bell, ChevronDown, Info, LogOut, Sparkles, SlidersHorizontal } from "lu
 import { useAuthStore } from "@/store/useAuthStore";
 import { applyTheme, getTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useScrollFade } from "@/lib/useScrollFade";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
 
 type SettingsTab = "appearance" | "notifications" | "privacy" | "about";
@@ -16,6 +17,7 @@ export default function SettingsView() {
   const logout = useAuthStore((s) => s.logout);
   const { t, lang, setLang, dir } = useI18n();
 
+  const navFade = useScrollFade<HTMLElement>();
   const [settingsTab, setSettingsTab] = useState<SettingsTab>("appearance");
   const [isDark, setIsDark] = useState(false);
   const [notifMessages, setNotifMessages] = useState(true);
@@ -50,6 +52,7 @@ export default function SettingsView() {
       >
         {/* ── Nav ── */}
         <nav
+          {...navFade}
           data-testid="settings-nav"
           className="flex shrink-0 overflow-x-auto border-b border-[var(--border)] bg-[var(--background-subtle)] md:flex-col md:overflow-x-visible md:border-b-0 md:border-e md:py-4"
         >
