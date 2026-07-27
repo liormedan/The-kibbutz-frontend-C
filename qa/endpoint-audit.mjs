@@ -13,7 +13,15 @@ import { join } from "node:path";
 const SERVICES = "src/services";
 const METHODS = { get: "GET", post: "POST", put: "PUT", patch: "PATCH", del: "DELETE" };
 
-// ── what the backend actually answers (verified live, qa/API_COVERAGE.md) ──
+// ── what the backend actually answers ─────────────────────────────────────
+// Source of truth: the seven controllers in Controllers/Controllers.cs of
+// github.com/the-kibbutz/KibbutzBackend @ 832540b. Cross-checked against the
+// live run in qa/API_COVERAGE.md.
+//
+// There is NO UsersController. An earlier version of this list carried four
+// invented /api/users/* rows, which made the audit report them as "the backend
+// serves this, the frontend just isn't wired" — the opposite of the truth.
+// Every row below is a real [Http*] attribute; see BACKEND_CONTRACT.md.
 const VERIFIED = `
 POST /api/auth/register
 POST /api/auth/login
@@ -51,10 +59,6 @@ GET /api/friendships/requests
 PUT /api/friendships/requests/{id}/accept
 GET /api/friendships
 PUT /api/friendships/requests/{id}/reject
-GET /api/users/search
-GET /api/users/{id}
-PUT /api/users/me
-GET /api/users/{id}/posts
 `.trim().split("\n").map((l) => l.trim());
 
 /** `/api/posts/${postId}/like` → `/api/posts/{id}/like` */
