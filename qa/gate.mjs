@@ -26,6 +26,7 @@ const SUITES = [
   ["sidebar-fit", "סרגל צד — נכנס בלי גלילה"],
   ["account-menu", "תפריט חשבון — פתיחה, ניווט, התנתקות"],
   ["profile-details", "פרופיל — פרטים, קישורים, טאב תשלום"],
+  ["nda-payment", "NDA — שלב התשלום לא מבקש פרטי אשראי"],
 ];
 
 /** Spawn through a shell so .cmd shims resolve on Windows. */
@@ -72,15 +73,28 @@ if (BUILD) {
 
 // A server already on this port would make `next start` fail to bind while the
 // gate happily tests whatever is there — usually a stale build. Refuse instead.
-try {
-  await fetch(BASE, { redirect: "manual", signal: AbortSignal.timeout(2000) });
+// The abort timer is cleared explicitly: an AbortSignal.timeout still pending
+// when process.exit runs trips a libuv assertion on Windows, so the guard would
+// crash with 127 instead of failing cleanly with 1.
+let occupied = false;
+{
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 2000);
+  try {
+    await fetch(BASE, { redirect: "manual", signal: ac.signal });
+    occupied = true;
+  } catch {
+    /* nothing listening — good */
+  } finally {
+    clearTimeout(timer);
+  }
+}
+if (occupied) {
   console.error(
     `✘ פורט ${PORT} כבר תפוס. השער חייב להריץ את השרת בעצמו, אחרת ייבדק בילד ישן.\n` +
     `  סגור את השרת הקיים או הרץ עם QA_PORT אחר.`,
   );
   process.exit(1);
-} catch {
-  /* nothing listening — good */
 }
 
 console.log(`▸ next start -p ${PORT}\n`);

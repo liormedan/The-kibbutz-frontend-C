@@ -235,6 +235,7 @@ Eight suites run in the gate:
 | `sidebar-fit` | the rail fits without scrolling down to 560px tall |
 | `account-menu` | avatar menu opens, navigates, and logs out (cookies included) |
 | `profile-details` | profile fields, personal links, public profiles, payment tab |
+| `nda-payment` | the `/nda` payment step asks for nothing and claims nothing |
 
 Each suite also runs standalone against a server you started yourself:
 
@@ -260,6 +261,15 @@ Text that is user/backend data, or is deliberately not Hebrew (a language named
 in its own language), carries `data-qa-zone="content"`. `ui-walkthrough` skips it
 when hunting untranslated strings — otherwise every mock project title reads as
 an i18n leak.
+
+### Payments
+
+**No page in this app collects card numbers, CVVs or bank details.** Until a
+provider is chosen, `/nda`'s payment step states that plainly and charges
+nothing; the profile payment tab stores a preferred-method *label* only. When a
+provider is wired, the handoff goes to its hosted checkout and the details are
+entered there — never in our own fields. `qa/nda-payment.mjs` and
+`qa/profile-details.mjs` both assert this, so a card form can't quietly return.
 
 `qa/demo-mode.mjs` and `qa/card-menu.mjs` need the **dev** server — the first
 because the toggle is development-only, the second because it drives the feed
