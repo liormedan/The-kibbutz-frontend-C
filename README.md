@@ -227,6 +227,7 @@ Eight suites run in the gate:
 
 | Suite | What it holds |
 |---|---|
+| `all-routes` | every route under `src/app` — authed and unauthed, desktop and mobile: renders, no console errors, no overflow, no i18n leaks, no `undefined` |
 | `mobile` | 360/390/430px — the `MOBILE_SPEC.md` acceptance bar: no horizontal scroll, bottom nav, list↔chat, ≥44px targets, ≥16px inputs |
 | `deep-check` | nav and top bar clicks, English/LTR, mobile, collapsed rail |
 | `ui-walkthrough` | every route in light + dark: console errors, overflow, i18n leaks, theme mixing |
@@ -256,6 +257,13 @@ Three rules if you add or change a suite:
 
 Don't pipe the gate through `tail`/`head` — the shell reports the *pipe's* exit
 code, so failures look green. Redirect to a file instead.
+
+**Stub the shape the contract promises.** A list endpoint returns
+`PaginatedResponse`; a detail endpoint returns the item. `all-routes` originally
+served the paginated envelope for everything, which handed the detail pages an
+object with no `author` and no `title` — both non-optional in the DTO — and
+reported two crashes no real backend could cause. If a suite fakes the API, its
+fakes have to obey `src/lib/api/types.ts`.
 
 Text that is user/backend data, or is deliberately not Hebrew (a language named
 in its own language), carries `data-qa-zone="content"`. `ui-walkthrough` skips it

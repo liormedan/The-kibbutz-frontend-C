@@ -21,6 +21,7 @@ import DevDataToggle from "@/components/DevDataToggle";
 import { useDemoMode } from "@/lib/dev/demoMode";
 import { DEMO_BADGES, DEMO_USER_PROJECTS, demoProfile } from "@/lib/dev/fixtures";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
+import { useScrollFade } from "@/lib/useScrollFade";
 
 type ExpLevel = "1-2" | "3-5" | "5+";
 type ProfileTab = "skills" | "projects" | "badges" | "payment";
@@ -171,6 +172,7 @@ function ProfileContent({
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<ProfileTab>("skills");
+  const tabsFade = useScrollFade<HTMLDivElement>();
 
   const [name, setName] = useState(profile.name);
   const [bio, setBio] = useState(profile.bio ?? "");
@@ -384,7 +386,9 @@ function ProfileContent({
               <div key={i} className="text-center p-3 rounded-xl" style={{ background: "rgba(210,100,45,0.06)" }}>
                 <div className="flex justify-center text-primary mb-1">{stat.icon}</div>
                 <div className="text-xl font-bold text-foreground">{stat.value}</div>
-                <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+                {/* Reserve two lines: one label wraps and the others don't, so
+                    without this the three tiles read as different sizes. */}
+                <div className="min-h-[2.5em] text-[10px] leading-tight text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -394,6 +398,7 @@ function ProfileContent({
         {/* Four Hebrew labels fit a 390px phone with nothing to spare, so the
             strip scrolls rather than squeezing the text at narrower widths. */}
         <div
+          {...tabsFade}
           data-testid="profile-tabs"
           className="mb-5 flex gap-1 overflow-x-auto rounded-xl p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ background: "var(--muted)" }}

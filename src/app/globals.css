@@ -319,6 +319,29 @@ body {
    page area. Nested h-full inside the page keeps its normal meaning. */
 .app-content > .h-full     { height: calc(100% - var(--app-topbar-h)); }
 
+/* ── Scrollable tab strips fade at the edge they can still scroll toward ──
+   Without it a tab cut in half at the strip's edge reads as a rendering bug
+   rather than "there is more this way". Driven by useScrollFade(), which sets
+   the attribute from the live scroll position, so the fade disappears once you
+   reach that end instead of permanently dimming the last tab.
+   The physical direction of the inline axis flips with dir, so the two edges
+   are named here once and used below. */
+:root      { --fade-inline-start: right; --fade-inline-end: left; }
+[dir="ltr"] { --fade-inline-start: left; --fade-inline-end: right; }
+
+@media (max-width: 767px) {
+  [data-scroll-fade="end"] {
+    mask-image: linear-gradient(to var(--fade-inline-end), transparent 0, #000 2rem);
+  }
+  [data-scroll-fade="start"] {
+    mask-image: linear-gradient(to var(--fade-inline-start), transparent 0, #000 2rem);
+  }
+  [data-scroll-fade="both"] {
+    mask-image: linear-gradient(
+      to right, transparent 0, #000 2rem, #000 calc(100% - 2rem), transparent 100%);
+  }
+}
+
 /* Background overrides */
 .bg-slate-950,
 .bg-\[\#090d16\],
