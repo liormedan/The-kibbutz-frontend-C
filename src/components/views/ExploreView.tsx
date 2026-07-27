@@ -130,12 +130,14 @@ export default function ExploreView() {
                   </span>
                 </div>
 
-                <h2 className="mb-1 truncate text-base font-bold text-foreground">{proj.title}</h2>
+                {/* data-qa-zone="content": user/backend text, not UI chrome —
+                    qa/ui-walkthrough.mjs must not flag it as an untranslated string. */}
+                <h2 data-qa-zone="content" className="mb-1 truncate text-base font-bold text-foreground">{proj.title}</h2>
                 <p className="mb-3 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">{proj.description}</p>
 
                 <div className="mb-4 flex flex-wrap gap-1.5">
                   {proj.tags.map((tag) => (
-                    <span key={tag} className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{tag}</span>
+                    <span key={tag} data-qa-zone="content" className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{tag}</span>
                   ))}
                 </div>
 

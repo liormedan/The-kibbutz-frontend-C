@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "qa": "node qa/qa-nav.mjs"
+    "qa": "node qa/qa-nav.mjs",
+    "qa:gate": "node qa/gate.mjs",
+    "qa:mobile": "node qa/mobile.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",

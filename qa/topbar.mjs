@@ -100,7 +100,11 @@ await page.evaluate(() => localStorage.setItem("new-kibbutz-lang", "en"));
 await page.reload({ waitUntil: "networkidle" });
 const en = await probe();
 const barRight = await page.evaluate(() => Math.round(document.querySelector("header.sticky").getBoundingClientRect().right));
-console.log(`English → cluster right edge ${en.groupRight} vs bar right ${barRight} ${barRight - en.groupRight < 40 ? "✔ mirrored" : "✘ not mirrored"}`);
+const mirrored = barRight - en.groupRight < 40;
+console.log(`English → cluster right edge ${en.groupRight} vs bar right ${barRight} ${mirrored ? "✔ mirrored" : "✘ not mirrored"}`);
+if (!mirrored) fails++;
 
 console.log(fails === 0 ? "\nALL PASS" : `\n${fails} FAILURES`);
 await browser.close();
+// Exit code is the contract with qa/gate.mjs — logging a failure isn't enough.
+process.exit(fails ? 1 : 0);

@@ -92,7 +92,9 @@ export default function SettingsView() {
                   <p className="text-sm font-semibold text-foreground">{t("settingsLang")}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{t("settingsLangSub")}</p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                {/* Each language is labelled in its own language on purpose, so
+                    "English" here is correct — not an untranslated string. */}
+                <div data-qa-zone="content" className="flex shrink-0 gap-2">
                   <button onClick={() => setLang("he")}
                     className={`min-h-11 md:min-h-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "he" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
                   >עברית</button>

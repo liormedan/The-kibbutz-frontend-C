@@ -141,11 +141,13 @@ sprint's share of "mobile is done" — they sum to 100%.
 | **S2** ✅ | **הודעות — list ↔ chat** | 20% | conversation list full-width by default · tap through to chat with a back arrow · drop the two-pane below `md` | finding 4 |
 | **S3** ✅ | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
 | **S4** ✅ | **Overlays ופוליש** | 15% | notification panel spans the bar below `md` · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
-| **S5** | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · regression across the 5 existing sweeps | — |
+| **S5** ✅ | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · one gate (`npm run qa:gate`) running all 8 sweeps · documented in the README | — |
 
 Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
 
-**S1–S4 are done** (`qa/mobile.mjs`, 60/60 — cumulative **90%**).
+**S1–S5 are done — cumulative 100%.** `npm run qa:gate -- --build` is green:
+mobile 60/60 · deep-check 30/30 · ui-walkthrough no findings · topbar ✔ ·
+viewport-fit 0/17 · sidebar-fit ✔ · account-menu 14/14 · profile-details 13/13.
 
 - S1: the bottom nav is `src/components/MobileNav.tsx`, split out of
   `DashboardSidebar.tsx`, which despite its name was rendering it; that file is
@@ -171,6 +173,22 @@ Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
   join, edit, publish, filter and language controls are now ≥44px on mobile via
   `min-h-11 md:min-h-0`, leaving the desktop scale untouched.
 
+- S5: the sweeps already existed; what was missing was a *gate*. Four of them
+  (`topbar`, `viewport-fit`, `sidebar-fit`, `ui-walkthrough`) printed "✘" and
+  still exited 0, so a failure was invisible to any runner. They now exit
+  non-zero, and `qa/gate.mjs` builds, starts one server, runs all eight, and
+  returns a single code. Two things the gate immediately exposed, neither of
+  them a mobile bug:
+  - `ui-walkthrough` flagged 10 "untranslated" strings that were mock project
+    titles, tech tags and the "English" language button. Those are data, not
+    chrome; they now carry `data-qa-zone="content"` and the sweep skips them.
+  - `viewport-fit` flagged `/nda` for 167px of overflow. Measured: `min-h-screen`
+    correctly resolves to `calc(100% - 64px)`, and the page is tall because its
+    form content is 955px. The suite's premise — empty data means nothing to
+    scroll — never held for a static form. It now flags only the actual defect
+    (a viewport-sized box whose *content* would have fit), and ends by injecting
+    that bug to prove the narrowed check can still fail.
+
 S1 first is deliberate: the overflow and the stale nav are shell-level, so every
 other screen is measured against a broken baseline until they're fixed. S5 last
 but not optional — what isn't measured breaks again on the next change.
@@ -180,8 +198,18 @@ artifact (tick tasks to watch the curve move).
 
 ---
 
-## 8. Verification (to build alongside)
+## 8. Verification
 
-A `qa/mobile.mjs` Playwright sweep at 360/390/430px asserting: no horizontal
-overflow on any route, bottom nav present with the agreed items and no clipped
-labels, messages list↔chat works, and no overlay exceeds 92vw.
+`qa/mobile.mjs` sweeps 360/390/430px asserting: the page cannot scroll
+horizontally on any route, bottom nav present with the agreed items and no
+clipped labels, messages list↔chat works, no overlay exceeds 92vw, every input
+is ≥16px, and every control is ≥44px tall.
+
+It runs inside the gate, which is the single command to run before merging:
+
+```bash
+npm run qa:gate -- --build
+```
+
+See the README's *Testing & QA* section for the suite table and the rules for
+adding one.
