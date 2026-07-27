@@ -39,6 +39,31 @@ yarn-error.log*
 .idea/
 .vscode/
 
-# qa screenshots (generated)
-qa/*.png
-qa/shots-mobile/
+# ── qa/ — allowlist ───────────────────────────────────────────────────────
+# Only the gate suites and the tools the README documents are tracked. Every
+# other file here is a one-off probe, a screenshot or a generated report from
+# building the app — it stays on disk and out of the repo. Adding a new suite
+# means adding it below on purpose, so scratch files can't drift in.
+qa/*
+!qa/gate.mjs
+!qa/endpoint-audit.mjs
+!qa/all-routes.mjs
+!qa/mobile.mjs
+!qa/deep-check.mjs
+!qa/ui-walkthrough.mjs
+!qa/topbar.mjs
+!qa/viewport-fit.mjs
+!qa/sidebar-fit.mjs
+!qa/account-menu.mjs
+!qa/profile-details.mjs
+!qa/nda-payment.mjs
+!qa/card-menu.mjs
+!qa/demo-mode.mjs
+!qa/api-coverage.mjs
+!qa/qa-nav.mjs
+!qa/qa-e2e.mjs
+!qa/API_COVERAGE.md
+!qa/BACKEND_READINESS.md
+
+# Planning and build-time docs — local only.
+MOBILE_SPEC.md

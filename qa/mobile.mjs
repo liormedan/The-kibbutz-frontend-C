@@ -1,4 +1,4 @@
-// QA: the mobile shell — MOBILE_SPEC.md acceptance for Sprint 1.
+// QA: the mobile shell — the acceptance bar for mobile.
 //
 //   npx next start -p 3001
 //   QA_BASE=http://localhost:3001 node qa/mobile.mjs
@@ -60,7 +60,8 @@ async function ctxAt(width) {
 // scrollWidth-clientWidth reads 7 on a perfectly healthy page. Real phones use
 // overlay scrollbars. So assert what the user can actually do — scroll the page
 // sideways — and separately catch content that genuinely exceeds the layout
-// viewport. See MOBILE_SPEC.md §2 finding 1.
+// viewport. Do not "simplify" this back to a scrollWidth delta — that reported
+// a 7px overflow on every route for a page that cannot scroll sideways at all.
 console.log("גלישה אופקית");
 for (const width of WIDTHS) {
   const { ctx, page } = await ctxAt(width);

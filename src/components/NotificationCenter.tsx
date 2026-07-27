@@ -140,7 +140,7 @@ export default function NotificationCenter() {
           // Capping the width isn't enough: anchored to the bell (~72px in) a
           // 20rem panel still ends past a 390px screen. Below md it spans the
           // bar with a small margin instead; desktop keeps the anchored
-          // dropdown. See MOBILE_SPEC.md §5.
+          // dropdown.
           className="glass-panel fixed inset-x-2 top-16 z-50 overflow-hidden rounded-2xl shadow-2xl md:absolute md:inset-x-auto md:end-0 md:top-full md:mt-2 md:w-80"
           dir={dir}
         >

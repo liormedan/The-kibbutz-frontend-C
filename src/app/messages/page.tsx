@@ -125,7 +125,7 @@ function MessagesContent() {
   // Below md this is a list↔chat flow, not two panes: the list fills the width
   // until a conversation is open, then the chat replaces it and a back button
   // returns. The open conversation already lives in the URL, so back/forward
-  // and refresh work for free. See MOBILE_SPEC.md §4.
+  // and refresh work for free.
   const hasActive = !!conversationId;
   const backToList = () => router.push("/messages");
 

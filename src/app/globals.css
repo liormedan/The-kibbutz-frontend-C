@@ -300,7 +300,7 @@ body {
    Several forms set text-sm (14px) on their inputs, which makes Safari zoom
    in on focus and leaves the user at the wrong scale. Force the minimum on
    touch-sized viewports only, so the desktop type scale is untouched.
-   See MOBILE_SPEC.md §5. */
+   qa/mobile.mjs asserts no visible input computes under 16px below 768px. */
 @media (max-width: 767px) {
   input, textarea, select { font-size: 16px; }
 }

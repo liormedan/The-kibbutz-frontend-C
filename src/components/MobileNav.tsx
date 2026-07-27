@@ -11,7 +11,7 @@
 // Profile is intentionally absent — it is reached from the avatar/account menu
 // in AppTopBar, so the bar keeps its five slots for navigation.
 //
-// See MOBILE_SPEC.md §3.2 / §6 [D1].
+// Max 5 slots; anything past the fourth destination lives in the "more" sheet.
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";

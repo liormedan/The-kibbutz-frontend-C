@@ -210,7 +210,10 @@ app in your browser. For automated checks there are Playwright sweeps:
 npm run qa      # visits every route, catches render/console errors (backend optional)
 node qa/qa-e2e.mjs   # real end-to-end: registers a user, posts, likes, chats (needs the backend up)
 ```
-Reports land in `qa/QA_REPORT.md` and `qa/E2E_REPORT.md`.
+Both write a report next to themselves; those reports are generated and stay out
+of the repo. The one report that *is* tracked is
+[`qa/API_COVERAGE.md`](./qa/API_COVERAGE.md) — the record of every backend
+endpoint answering in a live run, refreshed by `npm run qa:live`.
 
 ### The gate — one command before you merge
 
@@ -229,7 +232,7 @@ Eight suites run in the gate:
 |---|---|
 | `endpoint-audit` | static: every call in `src/services` matches a verified backend endpoint, and every caller handles `ApiError` — see [`qa/BACKEND_READINESS.md`](./qa/BACKEND_READINESS.md) |
 | `all-routes` | every route under `src/app` — authed and unauthed, desktop and mobile: renders, no console errors, no overflow, no i18n leaks, no `undefined` |
-| `mobile` | 360/390/430px — the `MOBILE_SPEC.md` acceptance bar: no horizontal scroll, bottom nav, list↔chat, ≥44px targets, ≥16px inputs |
+| `mobile` | 360/390/430px: no horizontal scroll, bottom nav, list↔chat, ≥44px targets, ≥16px inputs |
 | `deep-check` | nav and top bar clicks, English/LTR, mobile, collapsed rail |
 | `ui-walkthrough` | every route in light + dark: console errors, overflow, i18n leaks, theme mixing |
 | `topbar` | the top-bar cluster is present, sticky, and mirrors in LTR |

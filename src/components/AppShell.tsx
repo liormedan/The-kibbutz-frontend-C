@@ -117,7 +117,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      {/* Below md the sidebar is hidden and this takes over. See MOBILE_SPEC.md. */}
+      {/* Below md the sidebar is hidden and this takes over. */}
       <MobileNav />
     </div>
   );

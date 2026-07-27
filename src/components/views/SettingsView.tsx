@@ -45,7 +45,7 @@ export default function SettingsView() {
     <div className="h-full p-4 md:p-6" dir={dir}>
       {/* A 12rem rail beside the content leaves only ~164px for the content
           itself on a 390px phone, so below md this stacks: the rail becomes a
-          horizontal tab strip on top. See MOBILE_SPEC.md §4. */}
+          horizontal tab strip on top. */}
       <div
         data-testid="settings-shell"
         className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-subtle)] backdrop-blur-md md:grid md:grid-cols-[12rem_1fr]"
