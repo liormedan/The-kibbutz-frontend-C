@@ -1,5 +1,13 @@
 # Backend Domain Gaps — The Kibbutz
 
+What the frontend needs and the backend does not serve. For what the backend
+*does* serve — every route, enum, envelope and limit — see
+[`BACKEND_CONTRACT.md`](./BACKEND_CONTRACT.md). The two are complements: if an
+endpoint is in neither, it does not exist.
+
+`node qa/endpoint-audit.mjs` enforces this — it fails if the frontend calls
+anything not in the contract.
+
 ## 1️⃣ Orphaned Domains — ❌ No Endpoint at All
 
 ### Projects — Discover Projects, My Projects, `projects/[id]`
