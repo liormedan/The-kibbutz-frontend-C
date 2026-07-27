@@ -118,16 +118,33 @@ the top bar, replacing the full gradient button. Always visible, smallest change
 icon + short label unless you say otherwise. Short labels: גילוי · פיד ·
 הודעות · הפרויקטים · עוד (all already short, so no clipping at 360px).
 
-**[D4] Scope order.** Recommended build order:
-1) fix the 7px overflow + re-do the bottom nav (biggest, most visible),
-2) top-bar "new project" treatment,
-3) messages list↔chat,
-4) settings + hub/profile scrollable tab bars,
-5) overlay width caps + a mobile QA sweep (`qa/mobile.mjs`).
+---
+
+## 7. Sprints
+
+Five sprints, weighted by actual volume of work. The weight column is each
+sprint's share of "mobile is done" — they sum to 100%.
+
+| # | Sprint | Weight | Tasks | Closes |
+|---|---|---:|---|---|
+| **S1** | **שלד המובייל** — the base; without it every screen inherits the bugs | 35% | zero horizontal overflow (360/390/430) · new bottom nav (גילוי · פיד · הודעות · הפרויקטים · עוד) · the "עוד" sheet (friends / portfolio / settings / logout) · round `+` in the top bar | findings 1, 2, 3 |
+| **S2** | **הודעות — list ↔ chat** | 20% | conversation list full-width by default · tap through to chat with a back arrow · drop the two-pane below `md` | finding 4 |
+| **S3** | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
+| **S4** | **Overlays ופוליש** | 15% | `min(92vw)` cap on account + notification panels · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
+| **S5** | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · regression across the 5 existing sweeps | — |
+
+Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
+
+S1 first is deliberate: the overflow and the stale nav are shell-level, so every
+other screen is measured against a broken baseline until they're fixed. S5 last
+but not optional — what isn't measured breaks again on the next change.
+
+A live tracker with these sprints and progress charts is published as an
+artifact (tick tasks to watch the curve move).
 
 ---
 
-## 7. Verification (to build alongside)
+## 8. Verification (to build alongside)
 
 A `qa/mobile.mjs` Playwright sweep at 360/390/430px asserting: no horizontal
 overflow on any route, bottom nav present with the agreed items and no clipped
