@@ -251,7 +251,7 @@ function ProfileContent({
 
         {/* Back */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+          <button onClick={() => router.back()} className="-ms-2 flex min-h-11 items-center gap-1.5 px-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors md:min-h-0 md:ms-0 md:px-0">
             <ChevronRight className="w-4 h-4" />
             {t("profileBack")}
           </button>
@@ -301,7 +301,7 @@ function ProfileContent({
               </span>
             ) : (
               <button onClick={() => setEditing(true)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--border)] text-sm text-muted-foreground hover:text-primary hover:border-primary cursor-pointer transition-all">
+                className="flex min-h-11 items-center gap-1.5 px-3 py-2 rounded-xl border border-[var(--border)] text-sm text-muted-foreground hover:text-primary hover:border-primary cursor-pointer transition-all md:min-h-0">
                 <Edit2 className="w-3.5 h-3.5" />
                 {t("profileEditBtn")}
               </button>

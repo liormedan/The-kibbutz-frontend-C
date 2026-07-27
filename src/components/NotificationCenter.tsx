@@ -121,7 +121,7 @@ export default function NotificationCenter() {
       <button
         data-testid="topbar-bell"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-9 h-9 rounded-xl hover:bg-primary/8 flex items-center justify-center text-foreground transition-colors"
+        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-primary/8 md:h-9 md:w-9"
         aria-label={t('notifTitle')}
       >
         <Bell className="w-5 h-5" />
@@ -136,7 +136,12 @@ export default function NotificationCenter() {
           in RTL, right in LTR), so anchoring there keeps the panel on screen. */}
       {isOpen && (
         <div
-          className="absolute end-0 top-full mt-2 w-80 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden"
+          data-testid="notif-panel"
+          // Capping the width isn't enough: anchored to the bell (~72px in) a
+          // 20rem panel still ends past a 390px screen. Below md it spans the
+          // bar with a small margin instead; desktop keeps the anchored
+          // dropdown. See MOBILE_SPEC.md §5.
+          className="glass-panel fixed inset-x-2 top-16 z-50 overflow-hidden rounded-2xl shadow-2xl md:absolute md:inset-x-auto md:end-0 md:top-full md:mt-2 md:w-80"
           dir={dir}
         >
           {/* Header */}

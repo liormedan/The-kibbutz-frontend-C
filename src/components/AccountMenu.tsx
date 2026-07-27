@@ -55,7 +55,7 @@ export default function AccountMenu() {
         aria-label={t("accountMenuLabel")}
         title={name}
         onClick={() => setOpen((v) => !v)}
-        className="block rounded-xl transition-opacity hover:opacity-80 cursor-pointer"
+        className="flex h-11 w-11 items-center justify-center rounded-xl transition-opacity hover:opacity-80 cursor-pointer md:h-9 md:w-9"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -69,7 +69,7 @@ export default function AccountMenu() {
         <div
           role="menu"
           data-testid="account-menu-panel"
-          className="glass-panel absolute end-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-[var(--border)] py-1 shadow-lg"
+          className="glass-panel absolute end-0 top-full z-30 mt-2 w-[min(14rem,92vw)] overflow-hidden rounded-2xl border border-[var(--border)] py-1 shadow-lg"
         >
           {/* Identity header — centred within the card */}
           <div className="flex flex-col items-center gap-2 px-3 py-4 text-center">

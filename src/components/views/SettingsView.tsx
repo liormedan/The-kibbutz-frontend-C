@@ -94,10 +94,10 @@ export default function SettingsView() {
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button onClick={() => setLang("he")}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "he" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
+                    className={`min-h-11 md:min-h-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "he" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
                   >עברית</button>
                   <button onClick={() => setLang("en")}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "en" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
+                    className={`min-h-11 md:min-h-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${lang === "en" ? "bg-primary text-white" : "border border-[var(--border)] text-muted-foreground hover:border-primary hover:text-primary"}`}
                   >English</button>
                 </div>
               </div>

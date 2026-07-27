@@ -90,7 +90,7 @@ export default function ExploreView() {
           <button
             key={d.value}
             onClick={() => setDomain(d.value)}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            className={`min-h-11 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all md:min-h-0 ${
               domain === d.value
                 ? "bg-primary text-white"
                 : "border border-[var(--border)] bg-[var(--card)] text-muted-foreground hover:border-primary hover:text-primary"
@@ -145,7 +145,7 @@ export default function ExploreView() {
                     type="button"
                     disabled={isFull}
                     onClick={(e) => { e.stopPropagation(); router.push(`/projects/${proj.id}`); }}
-                    className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    className={`flex min-h-11 items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all md:min-h-0 ${
                       isFull
                         ? "cursor-not-allowed bg-[var(--muted)] text-muted-foreground"
                         : "bg-primary text-white hover:opacity-90"

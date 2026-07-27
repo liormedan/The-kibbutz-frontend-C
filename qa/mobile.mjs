@@ -378,6 +378,82 @@ for (const width of [360, 390]) {
   await ctx.close();
 }
 
+// ── 7. overlays & polish (S4) ───────────────────────────────────────────────
+console.log("\nOverlays ופוליש");
+for (const width of WIDTHS) {
+  const { ctx, page } = await ctxAt(width);
+  await page.addInitScript(() => localStorage.setItem("kibbutz-demo:feed", "true"));
+  await page.goto(BASE + "/feed", { waitUntil: "networkidle" });
+  await page.waitForTimeout(600);
+
+  const box = (sel) => page.evaluate((s) => {
+    const e = document.querySelector(s);
+    if (!e) return null;
+    const b = e.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    return { w: Math.round(b.width), left: Math.round(b.left), right: Math.round(b.right), vw };
+  }, sel);
+  const within = (m) => m && m.left >= -0.5 && m.right <= m.vw + 0.5;
+
+  await page.click('[data-testid="topbar-bell"]');
+  await page.waitForTimeout(280);
+  const bell = await box('[data-testid="notif-panel"]');
+  ok(`${width}px — פאנל ההתראות בתוך המסך`, within(bell),
+     bell ? `w=${bell.w} left=${bell.left} right=${bell.right} vw=${bell.vw}` : "לא נמצא");
+  await page.keyboard.press("Escape"); await page.waitForTimeout(200);
+
+  await page.click('[data-testid="topbar-avatar"]');
+  await page.waitForTimeout(280);
+  const acct = await box('[data-testid="account-menu-panel"]');
+  ok(`${width}px — תפריט החשבון בתוך המסך`, within(acct),
+     acct ? `w=${acct.w} left=${acct.left} right=${acct.right}` : "לא נמצא");
+  await page.keyboard.press("Escape"); await page.waitForTimeout(200);
+
+  const trig = page.locator('[data-testid="card-menu-trigger"]');
+  if (await trig.count()) {
+    await trig.first().click();
+    await page.waitForTimeout(280);
+    const card = await box('[data-testid="card-menu-panel"]');
+    ok(`${width}px — תפריט הכרטיס בתוך המסך`, within(card),
+       card ? `w=${card.w} left=${card.left} right=${card.right}` : "");
+    await page.keyboard.press("Escape"); await page.waitForTimeout(180);
+  }
+
+  await ctx.close();
+}
+{
+  // iOS zooms a focused field under 16px — no visible field may be smaller
+  const { ctx, page } = await ctxAt(390);
+  const small = [];
+  for (const route of ["/projects/create", "/portfolios/create", "/feed", "/messages", "/settings", "/profile"]) {
+    await page.goto(BASE + route, { waitUntil: "networkidle" });
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() =>
+      [...document.querySelectorAll("input, textarea, select")]
+        .filter((e) => e.offsetParent !== null)
+        .map((e) => parseFloat(getComputedStyle(e).fontSize))
+        .filter((fs) => fs < 16).length);
+    if (r) small.push(`${route} (${r})`);
+  }
+  ok("אין שדה קלט מתחת ל-16px (מונע זום ב-iOS)", small.length === 0, small.join(", "));
+
+  // primary controls must be reachable by thumb
+  const tiny = [];
+  for (const route of ["/feed", "/projects", "/my-projects", "/profile", "/settings"]) {
+    await page.goto(BASE + route, { waitUntil: "networkidle" });
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() =>
+      [...document.querySelectorAll("button, a[href]")]
+        .filter((e) => { const b = e.getBoundingClientRect(); return b.width > 0 && b.height > 0; })
+        .map((e) => { const b = e.getBoundingClientRect();
+          return { t: (e.innerText || e.getAttribute("aria-label") || "?").trim().slice(0, 14),
+                   h: Math.round(b.height) }; })
+        .filter((x) => x.h < 44));
+    if (r.length) tiny.push(`${route}: ${r.map((x) => `${x.t} ${x.h}px`).join(", ")}`);
+  }
+  ok("כל הכפתורים והקישורים ≥44px גובה", tiny.length === 0, "\n     " + tiny.join("\n     "));
+  await ctx.close();
+}
+
 console.log(`\n${"═".repeat(60)}\n  ${pass} עברו · ${fail} נכשלו\n${"═".repeat(60)}`);
 await browser.close();
 process.exit(fail ? 1 : 0);

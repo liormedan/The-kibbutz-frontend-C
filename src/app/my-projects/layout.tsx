@@ -57,7 +57,7 @@ export default function MyProjectsLayout({ children }: { children: React.ReactNo
                 href={tab.href}
                 ref={active ? activeTabRef : undefined}
                 aria-current={active ? "page" : undefined}
-                className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`-mb-px flex min-h-11 shrink-0 items-center whitespace-nowrap border-b-2 px-4 text-sm font-medium transition-colors ${
                   active
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"

@@ -140,12 +140,12 @@ sprint's share of "mobile is done" — they sum to 100%.
 | **S1** ✅ | **שלד המובייל** — the base; without it every screen inherits the bugs | 35% | ~~zero horizontal overflow~~ (finding 1 retracted — see §2) · new bottom nav (גילוי · פיד · הודעות · הפרויקטים · עוד) · the "עוד" sheet (friends / portfolio / settings / logout) · round `+` in the top bar | findings 2, 3 |
 | **S2** ✅ | **הודעות — list ↔ chat** | 20% | conversation list full-width by default · tap through to chat with a back arrow · drop the two-pane below `md` | finding 4 |
 | **S3** ✅ | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
-| **S4** | **Overlays ופוליש** | 15% | `min(92vw)` cap on account + notification panels · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
+| **S4** ✅ | **Overlays ופוליש** | 15% | notification panel spans the bar below `md` · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
 | **S5** | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · regression across the 5 existing sweeps | — |
 
 Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
 
-**S1 + S2 + S3 are done** (`qa/mobile.mjs`, 52/52 — cumulative **75%**).
+**S1–S4 are done** (`qa/mobile.mjs`, 60/60 — cumulative **90%**).
 
 - S1: the bottom nav is `src/components/MobileNav.tsx`, split out of
   `DashboardSidebar.tsx`, which despite its name was rendering it; that file is
@@ -162,6 +162,14 @@ Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
   landing on a later tab looked like nothing was selected. Profile's four tabs
   fit 390px with nothing to spare, so that strip scrolls too rather than
   squeezing the labels at 360px.
+- S4: capping the notification panel's *width* was not enough — anchored to the
+  bell (~72px in), a 20rem panel still ended 24px past a 390px screen. Below md
+  it is `fixed inset-x-2` and spans the bar instead; desktop keeps the anchored
+  dropdown. Sub-16px inputs (which make iOS zoom on focus) are handled by one
+  `@media (max-width: 767px)` rule in globals.css rather than per-field edits.
+  Tap targets: the bell and avatar were 36×36 on **every** route; those plus the
+  join, edit, publish, filter and language controls are now ≥44px on mobile via
+  `min-h-11 md:min-h-0`, leaving the desktop scale untouched.
 
 S1 first is deliberate: the overflow and the stale nav are shell-level, so every
 other screen is measured against a broken baseline until they're fixed. S5 last

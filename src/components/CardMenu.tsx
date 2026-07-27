@@ -81,7 +81,7 @@ export default function CardMenu({
         aria-label={label || t("cardMenuLabel")}
         title={label || t("cardMenuLabel")}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/8 hover:text-foreground cursor-pointer"
+        className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/8 hover:text-foreground cursor-pointer md:h-8 md:w-8"
       >
         <MoreHorizontal className="h-4.5 w-4.5" />
       </button>
@@ -90,7 +90,7 @@ export default function CardMenu({
         <div
           role="menu"
           data-testid="card-menu-panel"
-          className="glass-panel absolute end-0 top-full z-30 mt-1 min-w-44 overflow-hidden rounded-xl border border-[var(--border)] py-1 shadow-lg"
+          className="glass-panel absolute end-0 top-full z-30 mt-1 min-w-44 max-w-[92vw] overflow-hidden rounded-xl border border-[var(--border)] py-1 shadow-lg"
         >
           {normal.map(renderItem)}
           {danger.length > 0 && normal.length > 0 && (

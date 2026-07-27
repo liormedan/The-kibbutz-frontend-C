@@ -92,7 +92,7 @@ section("B · הסרגל העליון — קליקים");
   await page.click('[data-testid="topbar-bell"]');
   await page.waitForTimeout(250);
   const panel = await page.evaluate(() => {
-    const p = document.querySelector("header.sticky .absolute");
+    const p = document.querySelector('[data-testid="notif-panel"]');
     if (!p) return null;
     const r = p.getBoundingClientRect();
     return { left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width),
@@ -105,7 +105,7 @@ section("B · הסרגל העליון — קליקים");
   // clicking outside closes it
   await page.mouse.click(700, 500);
   await page.waitForTimeout(250);
-  const closed = await page.evaluate(() => !document.querySelector("header.sticky .absolute"));
+  const closed = await page.evaluate(() => !document.querySelector('[data-testid="notif-panel"]'));
   ok("קליק בחוץ סוגר את הפאנל", closed);
 
   // avatar opens the account menu, and its profile item navigates
