@@ -137,7 +137,7 @@ The defaults already point at the local backend - just edit if yours differs.
 npm run dev
 ```
 
-The app runs on `http://localhost:3000`. Make sure that origin is listed in the
+The app runs on `http://localhost:3002`. Make sure that origin is listed in the
 backend's `Cors:AllowedOrigins`, or the browser will block the calls.
 
 > Tip: run the backend **http-only** (`--urls http://localhost:19653`) so its
@@ -299,7 +299,7 @@ QA_BASE=http://localhost:3002 node qa/card-menu.mjs
 - The backend probably isn't running, or it's on a different port than `NEXT_PUBLIC_API_URL`.
 
 **Calls are blocked in the browser (CORS)**
-- Add `http://localhost:3000` to `Cors:AllowedOrigins` in the backend's `appsettings.json`.
+- Add `http://localhost:3002` to `Cors:AllowedOrigins` in the backend's `appsettings.json`.
 
 **Logged out immediately / 401 loops**
 - You're using `NEXT_PUBLIC_DEV_BYPASS=true` against a real backend - the fake
