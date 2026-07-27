@@ -1,0 +1,134 @@
+# Mobile Spec — The Kibbutz frontend
+
+Status: **draft v0.1** — first pass, grounded in an audit of the current build
+at 390×844 (iPhone-class). Sections marked **[decision]** need Lior's sign-off
+before implementation. Nothing here is built yet.
+
+---
+
+## 1. Scope & breakpoints
+
+The app already uses Tailwind's `md` (768px) as the single divide: below it the
+sidebar is hidden and a bottom nav appears; at/above it the sidebar shows and
+the bottom nav hides. This spec keeps that one breakpoint.
+
+- **Mobile**: `< 768px` — bottom nav, no sidebar. Target 360–430px wide.
+- **Desktop**: `≥ 768px` — the current sidebar + top-bar layout, unchanged.
+
+Tablets (768–1024) get the desktop layout for now; a dedicated tablet pass is
+out of scope.
+
+---
+
+## 2. What the audit found (current state, to fix)
+
+Measured across 10 routes at 390px:
+
+1. **7px horizontal overflow on every screen.** The page scrolls sideways a
+   little everywhere. Root cause is the bottom nav: five items with the full
+   sidebar labels ("גלה פרויקטים", "פרופיל אישי", …) don't fit 390px, so the
+   labels are clipped and push past the viewport. **Bug — must be zero.**
+
+2. **Bottom nav is on the old IA.** It still shows
+   *גלה פרויקטים · הפרויקטים שלי · הודעות · צוותים · פרופיל אישי*, where
+   "צוותים" routes to `/teams` — which now just redirects into the
+   `/my-projects` hub. It predates the nav rework and needs re-picking.
+
+3. **Top bar is desktop-sized.** The full "+ פרויקט חדש" gradient button eats
+   most of the bar width on mobile, crowding the bell and avatar.
+
+4. **Messages is a dead end on mobile.** It's a two-pane layout where the
+   conversation list is `hidden md:block`. On a phone you land straight in a
+   chat with no list and no way back to it.
+
+5. **Dropdowns near the edge.** The account menu (`w-56`) and notifications
+   panel (`w-80` = 320px) anchor to the inline edge; at 390px the 320px panel
+   nearly spans the screen. Needs a max-width / inset check on small screens.
+
+Good news from the audit: the sidebar is correctly hidden, the top bar is a
+clean 64px, `dir=rtl` holds, and no console errors on any route.
+
+---
+
+## 3. App shell on mobile
+
+### 3.1 Top bar (44–56px)
+- Keep it sticky, keep logo + notifications bell + avatar (account menu).
+- **[decision] "New project" on mobile** — options in §6.
+- Bell and avatar stay as icon buttons (already fine).
+
+### 3.2 Bottom nav (56px + safe-area)
+- Fixed, `md:hidden`, one row, icon **above** a short label, active item marked
+  with the top accent line (already designed this way).
+- **Max 5 items.** Labels must be one short word each so nothing clips at 360px.
+- **[decision] which items** — see §6. Working proposal:
+  *גילוי · פיד · הודעות · הפרויקטים שלי · עוד*, where **עוד** opens a sheet with
+  everything that doesn't fit (חברים, תיק העבודות, הגדרות, התנתקות).
+- Short labels: "גלה פרויקטים" → **גילוי**, "הפרויקטים שלי" → **הפרויקטים**
+  (or an icon-only bar — §6).
+
+### 3.3 "More" sheet (if we adopt it)
+A bottom sheet triggered by the עוד tab, listing the secondary destinations as
+full-width rows. This is where חברים / תיק העבודות / הגדרות live so the bar
+stays at 5.
+
+---
+
+## 4. Per-screen behaviour
+
+| Screen | Mobile plan |
+|---|---|
+| **גילוי / פיד / חברים / תיקים** | Already single-column and fine — just fix the shell overflow. Filter chips wrap to 2 rows (acceptable). |
+| **הפרויקטים שלי (hub)** | The 4-tab bar must become horizontally scrollable (`overflow-x-auto`) so tabs never wrap or clip. |
+| **הודעות** | **Rework to list↔chat.** Default shows the conversation list full-width; tapping one slides to the chat with a back arrow in the chat header. No two-pane on mobile. |
+| **פרופיל** | Single column already. Tab bar (כישורים/פרויקטים/תגים/תשלום) → horizontally scrollable. |
+| **הגדרות** | Its own left-rail + content grid must stack to one column on mobile (nav becomes a top row or a select). |
+| **יצירת פרויקט / תיק** | Forms are already single-column; verify inputs are ≥16px font so iOS doesn't zoom on focus. |
+
+---
+
+## 5. Cross-cutting rules
+
+- **Zero horizontal overflow** at 360 / 390 / 430px on every route — this is the
+  acceptance bar for the whole spec.
+- **Tap targets ≥ 44×44px** (bottom-nav items, icon buttons, chips).
+- **Bottom-nav clearance**: scrollable content keeps its `pb-20` so the last row
+  isn't hidden behind the fixed nav (already present in AppShell).
+- **Safe area**: honour `env(safe-area-inset-bottom)` (already on the nav).
+- **Sticky elements**: top bar and bottom nav both fixed; page scrolls between.
+- **Overlays** (account menu, notifications, "more" sheet, any modal) cap at
+  `min(92vw, …)` so they never touch the screen edges.
+
+---
+
+## 6. Decisions
+
+**[D1 — decided] Bottom-nav items:** **גילוי · פיד · הודעות · הפרויקטים · עוד.**
+Four primary destinations plus **עוד**, which opens a bottom sheet with חברים /
+תיק העבודות / הגדרות (+ logout). Profile is not in the bar — it's reached from
+the avatar/account menu in the top bar.
+- Routes: גילוי → `/projects`, פיד → `/feed`, הודעות → `/messages`,
+  הפרויקטים → `/my-projects`, עוד → opens the sheet (no route).
+- The old "צוותים → /teams" tab is removed (it only redirected into the hub).
+
+**[D3 — decided] "New project" on mobile:** an **icon-only round `+` button** in
+the top bar, replacing the full gradient button. Always visible, smallest change.
+
+**[D2 — still open] Labels vs icon-only** in the bottom bar. Default to (a)
+icon + short label unless you say otherwise. Short labels: גילוי · פיד ·
+הודעות · הפרויקטים · עוד (all already short, so no clipping at 360px).
+
+**[D4] Scope order.** Recommended build order:
+1) fix the 7px overflow + re-do the bottom nav (biggest, most visible),
+2) top-bar "new project" treatment,
+3) messages list↔chat,
+4) settings + hub/profile scrollable tab bars,
+5) overlay width caps + a mobile QA sweep (`qa/mobile.mjs`).
+
+---
+
+## 7. Verification (to build alongside)
+
+A `qa/mobile.mjs` Playwright sweep at 360/390/430px asserting: no horizontal
+overflow on any route, bottom nav present with the agreed items and no clipped
+labels, messages list↔chat works, and no overlay exceeds 92vw.
