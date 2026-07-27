@@ -177,7 +177,7 @@ export default function MyApplicationsView() {
 
                       {/* Project info */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-[var(--foreground)] truncate">
+                        <p data-qa-zone="content" className="font-semibold text-sm text-[var(--foreground)] truncate">
                           {app.projectName}
                         </p>
                         <p className="text-xs text-[var(--muted-foreground)]">
@@ -204,7 +204,7 @@ export default function MyApplicationsView() {
                         <div className="grid grid-cols-2 gap-2 text-xs">
                           <div>
                             <span className="text-[var(--muted-foreground)]">{t('miscProjectLabel')}</span>
-                            <p className="font-medium text-[var(--foreground)]">{app.projectName}</p>
+                            <p data-qa-zone="content" className="font-medium text-[var(--foreground)]">{app.projectName}</p>
                           </div>
                           <div>
                             <span className="text-[var(--muted-foreground)]">{t('miscProjectOwnerLabel')}</span>

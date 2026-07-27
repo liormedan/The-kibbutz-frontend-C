@@ -90,7 +90,7 @@ export default function ExploreView() {
           <button
             key={d.value}
             onClick={() => setDomain(d.value)}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            className={`min-h-11 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all md:min-h-0 ${
               domain === d.value
                 ? "bg-primary text-white"
                 : "border border-[var(--border)] bg-[var(--card)] text-muted-foreground hover:border-primary hover:text-primary"
@@ -130,12 +130,14 @@ export default function ExploreView() {
                   </span>
                 </div>
 
-                <h2 className="mb-1 truncate text-base font-bold text-foreground">{proj.title}</h2>
+                {/* data-qa-zone="content": user/backend text, not UI chrome —
+                    qa/ui-walkthrough.mjs must not flag it as an untranslated string. */}
+                <h2 data-qa-zone="content" className="mb-1 truncate text-base font-bold text-foreground">{proj.title}</h2>
                 <p className="mb-3 line-clamp-2 flex-1 text-sm leading-relaxed text-muted-foreground">{proj.description}</p>
 
                 <div className="mb-4 flex flex-wrap gap-1.5">
                   {proj.tags.map((tag) => (
-                    <span key={tag} className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{tag}</span>
+                    <span key={tag} data-qa-zone="content" className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{tag}</span>
                   ))}
                 </div>
 
@@ -145,7 +147,7 @@ export default function ExploreView() {
                     type="button"
                     disabled={isFull}
                     onClick={(e) => { e.stopPropagation(); router.push(`/projects/${proj.id}`); }}
-                    className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    className={`flex min-h-11 items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all md:min-h-0 ${
                       isFull
                         ? "cursor-not-allowed bg-[var(--muted)] text-muted-foreground"
                         : "bg-primary text-white hover:opacity-90"

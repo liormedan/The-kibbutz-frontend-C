@@ -8,12 +8,14 @@
  *   POST /nda/create → { formData } → returns { pdfUrl, contractId }
  *   POST /nda/send   → { contractId, recipientUserId }
  *   GET  /nda/:id    → contract details
- * TODO payment: גבייה לפני יצירה — Stripe PaymentIntent
+ * TODO payment: no provider chosen yet. The payment step deliberately collects
+ *   NOTHING — when a provider is picked it hands off to that provider's hosted
+ *   checkout, which takes the card details. Do not re-add a card form here.
  */
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, Send, ChevronRight, Check, Loader2, Shield, AlertCircle, Lock, CreditCard } from "lucide-react";
+import { FileText, Send, ChevronRight, Check, Loader2, Shield, AlertCircle, Lock } from "lucide-react";
 import NdaTemplate from "@/components/NdaTemplate";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
@@ -26,18 +28,6 @@ export default function NdaPage() {
   const { t, dir } = useI18n();
   const [step, setStep] = useState<Step>("form");
   const [loading, setLoading] = useState(false);
-
-  // payment mock state
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [payError, setPayError] = useState("");
-
-  const formatCardNumber = (v: string) =>
-    v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-  const formatExpiry = (v: string) =>
-    v.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})(\d)/, "$1/$2");
 
   const [form, setForm] = useState({
     entrepreneurName: "",
@@ -59,19 +49,11 @@ export default function NdaPage() {
     setStep("payment");
   }
 
-  async function handlePay() {
-    setPayError("");
-    const raw = cardNumber.replace(/\s/g, "");
-    if (raw.length < 16 || !cardExpiry.includes("/") || cardCvc.length < 3 || !cardName.trim()) {
-      setPayError(t("ndaPayError"));
-      return;
-    }
-    setLoading(true);
-    try {
-      // TODO: Stripe PaymentIntent → POST /payments/nda-charge
-      await new Promise(r => setTimeout(r, 1400));
-      setStep("preview");
-    } finally { setLoading(false); }
+  // No charge happens here and no card details are collected. When a provider
+  // is chosen this step hands off to it (hosted checkout / redirect) and the
+  // provider — never this form — takes the payment details.
+  function handleContinueUnpaid() {
+    setStep("preview");
   }
 
   async function handleSend() {
@@ -239,109 +221,31 @@ export default function NdaPage() {
                 <span className="text-sm font-bold text-foreground">סה"כ לתשלום</span>
                 <span className="text-lg font-extrabold text-primary">₪57.33</span>
               </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">{t("ndaPricePending")}</p>
             </div>
 
-            {/* Card form */}
-            <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-4">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-primary" />
-                  פרטי כרטיס אשראי
-                </h2>
-                {/* Card brand logos mock */}
-                <div className="flex items-center gap-2 opacity-70">
-                  {["VISA", "MC", "AMEX"].map(b => (
-                    <span key={b} className="text-[9px] font-extrabold border border-white/20 px-1.5 py-0.5 rounded text-slate-400">{b}</span>
-                  ))}
-                </div>
+            {/* No card form here on purpose. Until a payment provider is chosen
+                this page must not look like a working checkout — a screen that
+                asks for a card number while nothing is charged collects real
+                card details for nothing. The provider's own hosted checkout
+                will take the details when it's wired. */}
+            <div className="glass-panel rounded-2xl border border-[var(--border)] p-6 text-center">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                <Lock className="h-5 w-5 text-primary" />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1.5">מספר כרטיס</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="0000 0000 0000 0000"
-                    value={cardNumber}
-                    onChange={e => setCardNumber(formatCardNumber(e.target.value))}
-                    dir="ltr"
-                    className="w-full px-4 py-3 pr-10 rounded-xl border border-white/10 bg-slate-900 text-foreground text-sm focus:outline-none focus:border-primary transition-colors placeholder-slate-600 tracking-widest"
-                  />
-                  <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1.5">שם בעל הכרטיס</label>
-                <input
-                  type="text"
-                  placeholder="שם מלא כפי שמופיע על הכרטיס"
-                  value={cardName}
-                  onChange={e => setCardName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-slate-900 text-foreground text-sm focus:outline-none focus:border-primary transition-colors placeholder-slate-600"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">תוקף (MM/YY)</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="MM/YY"
-                    value={cardExpiry}
-                    onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                    dir="ltr"
-                    maxLength={5}
-                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-slate-900 text-foreground text-sm focus:outline-none focus:border-primary transition-colors placeholder-slate-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">CVV</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="•••"
-                    value={cardCvc}
-                    onChange={e => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    dir="ltr"
-                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-slate-900 text-foreground text-sm focus:outline-none focus:border-primary transition-colors placeholder-slate-600"
-                  />
-                </div>
-              </div>
-
-              {payError && (
-                <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  {payError}
-                </div>
-              )}
+              <h2 className="text-sm font-bold text-foreground">{t("ndaPayPendingTitle")}</h2>
+              <p className="mx-auto mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground">
+                {t("ndaPayPendingBody")}
+              </p>
 
               <button
-                onClick={handlePay}
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50 cursor-pointer"
-                style={{ background: "linear-gradient(135deg, #d2642d, #e8753d)", boxShadow: "0 6px 20px -6px rgba(210,100,45,0.5)" }}
+                onClick={handleContinueUnpaid}
+                className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-bold text-foreground transition-all hover:border-primary hover:text-primary cursor-pointer"
               >
-                {loading
-                  ? <><Loader2 className="w-4 h-4 animate-spin" />מעבד תשלום...</>
-                  : <><Lock className="w-4 h-4" />שלם ₪57.33 באבטחה</>
-                }
+                <FileText className="h-4 w-4" />
+                {t("ndaPayPendingContinue")}
               </button>
-
-              {/* Security badges */}
-              <div className="flex items-center justify-center gap-4 pt-1">
-                <div className="flex items-center gap-1 text-[10px] text-slate-500">
-                  <Lock className="w-3 h-3" />
-                  SSL מוצפן
-                </div>
-                <div className="flex items-center gap-1 text-[10px] text-slate-500">
-                  <Shield className="w-3 h-3" />
-                  PCI DSS
-                </div>
-                <div className="text-[10px] text-slate-500">מופעל על ידי Stripe</div>
-              </div>
+              <p className="mt-2 text-[10px] text-muted-foreground">{t("ndaPayPendingNote")}</p>
             </div>
 
             <button

@@ -67,6 +67,8 @@ export function mapUserProfile(u: UserProfileDto): UserProfile {
     role: "", // backend has no free-text professional title
     avatar: u.profilePictureUrl ?? "",
     links: "",
+    profileLinks: [], // no backend concept yet — see BACKEND_GAPS.md
+    preferredPayment: "",
     skills: [], // no backend concept
     canCreateProjects: true,
     canJoinProjects: true,

@@ -95,6 +95,13 @@ export async function logoutUser(): Promise<void> {
     // best-effort — clear local session regardless
   } finally {
     useAuthStore.getState().logout();
+    // Clear the cookies proxy.ts reads too. Without this the store is logged
+    // out but the session cookie survives, so navigating to a public-only route
+    // like "/" bounces the user straight back to /projects.
+    if (typeof document !== "undefined") {
+      document.cookie = "kibbutz-session=; path=/; max-age=0; SameSite=Lax";
+      document.cookie = "kibbutz-role=; path=/; max-age=0; SameSite=Lax";
+    }
   }
 }
 

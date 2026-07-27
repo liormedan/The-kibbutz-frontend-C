@@ -226,7 +226,7 @@ export default function ProjectRequestsView() {
                       : 'text-[var(--foreground)] hover:bg-[var(--primary)]/5'
                   }`}
                 >
-                  <span className="truncate">{p.title}</span>
+                  <span data-qa-zone="content" className="truncate">{p.title}</span>
                   {pPending > 0 && (
                     <span className="text-[10px] bg-[var(--primary)] text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center flex-shrink-0">
                       {pPending}
@@ -319,7 +319,7 @@ export default function ProjectRequestsView() {
 
                   {/* Row 4: Project badge + status + actions */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="bg-[var(--primary)]/8 text-[var(--primary)] text-xs rounded-lg px-2 py-0.5 font-medium">
+                    <span data-qa-zone="content" className="bg-[var(--primary)]/8 text-[var(--primary)] text-xs rounded-lg px-2 py-0.5 font-medium">
                       {app.projectName}
                     </span>
 

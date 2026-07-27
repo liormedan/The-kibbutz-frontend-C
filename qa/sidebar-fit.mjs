@@ -27,9 +27,12 @@ const removed = await page.evaluate(() => {
     ),
   };
 });
-console.log("create button present:", removed.hasCreateBtn);
-console.log("account card present :", removed.hasAccountCard);
+let fails = 0;
+console.log("create button present:", removed.hasCreateBtn, removed.hasCreateBtn ? "✘" : "✔");
+console.log("account card present :", removed.hasAccountCard, removed.hasAccountCard ? "✘" : "✔");
 console.log("nav items            :", removed.items.join(" · "));
+if (removed.hasCreateBtn) fails++;
+if (removed.hasAccountCard) fails++;
 
 for (const h of HEIGHTS) {
   await page.setViewportSize({ width: 1280, height: h });
@@ -46,9 +49,12 @@ for (const h of HEIGHTS) {
     };
   });
   const ok = !m.navScrolls && m.lastBottom <= h;
+  if (!ok) fails++;
   console.log(
     `${h}px → nav scrollbar: ${m.navScrolls ? "YES" : "no"} | content ${m.contentH}px in ${m.railH}px | last item bottom ${m.lastBottom} ${ok ? "✔" : "✘"}`,
   );
 }
 
+console.log(fails === 0 ? "\nALL PASS" : `\n${fails} FAILURES`);
 await browser.close();
+process.exit(fails ? 1 : 0);

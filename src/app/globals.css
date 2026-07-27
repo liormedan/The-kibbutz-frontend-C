@@ -296,6 +296,15 @@ body {
 .text-slate-400      { color: #80664d !important; }
 .text-slate-500      { color: #a08060 !important; }
 
+/* ── iOS zooms the page when a focused field is under 16px ────────────────
+   Several forms set text-sm (14px) on their inputs, which makes Safari zoom
+   in on focus and leaves the user at the wrong scale. Force the minimum on
+   touch-sized viewports only, so the desktop type scale is untouched.
+   See MOBILE_SPEC.md §5. */
+@media (max-width: 767px) {
+  input, textarea, select { font-size: 16px; }
+}
+
 /* ── Inside the app shell, "screen" means the area below the top bar ──────
    AppShell's scroller is 100vh and AppTopBar takes 4rem of it, so a page
    sized with min-h-screen / h-screen would be exactly one bar too tall and

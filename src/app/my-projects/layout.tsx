@@ -4,6 +4,7 @@
 // URL, back-button behaviour and refresh. This layout draws the header and the
 // tab bar once; switching tabs only swaps the child page.
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FolderGit2 } from "lucide-react";
@@ -20,6 +21,13 @@ const TABS = [
 export default function MyProjectsLayout({ children }: { children: React.ReactNode }) {
   const { t, dir } = useI18n();
   const pathname = usePathname();
+  const activeTabRef = useRef<HTMLAnchorElement>(null);
+
+  // `nearest` keeps the page from jumping vertically — we only want the strip
+  // to scroll horizontally to reveal the current tab.
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [pathname]);
 
   return (
     <AppShell>
@@ -34,14 +42,22 @@ export default function MyProjectsLayout({ children }: { children: React.ReactNo
           </div>
         </div>
 
-        <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-[var(--border)]">
+        {/* The four tabs are wider than a phone, so the strip scrolls. The
+            active one is scrolled into view on mount — otherwise landing on a
+            later tab shows a bar that looks like nothing is selected. */}
+        <nav
+          data-testid="hub-tabs"
+          className="mb-6 flex gap-1 overflow-x-auto border-b border-[var(--border)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {TABS.map((tab) => {
             const active = tab.exact ? pathname === tab.href : pathname.startsWith(tab.href);
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                ref={active ? activeTabRef : undefined}
+                aria-current={active ? "page" : undefined}
+                className={`-mb-px flex min-h-11 shrink-0 items-center whitespace-nowrap border-b-2 px-4 text-sm font-medium transition-colors ${
                   active
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"

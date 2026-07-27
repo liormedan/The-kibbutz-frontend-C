@@ -1,7 +1,7 @@
 "use client";
 // הקיבוץ – AppTopBar
 // The fixed action cluster that AppShell renders above every hosted page:
-// "new project" · notifications · avatar.
+// "new project" · notifications · account menu (the avatar).
 //
 // Placement: the bar inherits the document direction and pins the cluster to
 // the flex END, so it lands top-LEFT in Hebrew (sidebar on the right) and
@@ -11,46 +11,35 @@
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import NotificationCenter from "@/components/NotificationCenter";
-import { useAuthStore } from "@/store/useAuthStore";
+import AccountMenu from "@/components/AccountMenu";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 export default function AppTopBar() {
   const router = useRouter();
   const { t, dir } = useI18n();
-  const user = useAuthStore((s) => s.user);
 
   return (
     <header
       dir={dir}
       className="sticky top-0 z-20 flex h-16 items-center justify-end gap-3 border-b border-[var(--border)] bg-background/85 px-4 backdrop-blur-md md:px-6"
     >
+      {/* Below md this collapses to a round icon button — the full label button
+          ate most of the bar width on a phone. See MOBILE_SPEC.md §6 [D3]. */}
       <button
         type="button"
         data-testid="topbar-create"
         onClick={() => router.push("/projects/create")}
-        className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-secondary to-gold px-4 py-2 text-sm font-semibold text-foreground shadow-md transition-transform hover:-translate-y-0.5 cursor-pointer"
+        title={t("createNewProject")}
+        aria-label={t("createNewProject")}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-secondary to-gold text-foreground shadow-md transition-transform hover:-translate-y-0.5 cursor-pointer md:h-auto md:w-auto md:gap-2 md:rounded-xl md:px-4 md:py-2 md:text-sm md:font-semibold"
       >
-        <Plus className="h-4 w-4 shrink-0" />
-        <span className="whitespace-nowrap">{t("createNewProject")}</span>
+        <Plus className="h-5 w-5 shrink-0 md:h-4 md:w-4" />
+        <span className="hidden whitespace-nowrap md:inline">{t("createNewProject")}</span>
       </button>
 
       <NotificationCenter />
 
-      <button
-        type="button"
-        data-testid="topbar-avatar"
-        onClick={() => router.push("/profile")}
-        title={user?.name || t("profile")}
-        aria-label={t("profile")}
-        className="shrink-0 rounded-xl transition-opacity hover:opacity-80 cursor-pointer"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={user?.avatar || "/logo_clean.png"}
-          alt={user?.name || t("profile")}
-          className="h-9 w-9 rounded-xl border border-[var(--border)] object-cover"
-        />
-      </button>
+      <AccountMenu />
     </header>
   );
 }

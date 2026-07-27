@@ -106,7 +106,7 @@ export default function NdaInboxPage() {
           <div key={nda.id} className="glass-card mb-3 rounded-2xl p-5">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-semibold text-foreground">{nda.projectName}</p>
+                <p data-qa-zone="content" className="font-semibold text-foreground">{nda.projectName}</p>
                 <p className="mt-0.5 text-sm text-muted-foreground">{t("ndaSentBy", { name: nda.senderName })}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{t("ndaConfPeriodLabel", { period: nda.confidentialityPeriod })}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{nda.createdAt}</p>

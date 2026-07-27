@@ -15,16 +15,65 @@ import { useAuthStore } from "@/store/useAuthStore";
 import type { UserProfile, OnboardingInput, UserSummary } from "@/types/user.types";
 import type { Project } from "@/types/project.types";
 
+// Build a UserProfile from the already-authenticated auth-store user. Used when
+// /api/auth/me is unreachable (offline dev login, or the backend is down): the
+// user is logged in, so the profile page must still render with what we have
+// instead of hanging on its loading skeleton forever.
+function profileFromAuthStore(): UserProfile | null {
+  const user = useAuthStore.getState().user;
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    bio: "",
+    role: "",
+    avatar: user.avatar ?? "",
+    links: "",
+    profileLinks: [],
+    preferredPayment: "",
+    skills: [],
+    canCreateProjects: user.canCreateProjects,
+    canJoinProjects: user.canJoinProjects,
+    isProfileComplete: user.isProfileComplete,
+    emailVerified: user.emailVerified,
+    successCount: 0,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+// Fields /api/auth/me does NOT serve — they are edited on the client and kept
+// in the persisted store. Re-fetching must not wipe them, or a reload would
+// discard the user's edits. See BACKEND_GAPS.md (profile update).
+function keepLocalEdits(fetched: UserProfile): UserProfile {
+  const prev = useUserStore.getState().profile;
+  if (!prev) return fetched;
+  return {
+    ...fetched,
+    bio: prev.bio || fetched.bio,
+    role: prev.role || fetched.role,
+    links: prev.links || fetched.links,
+    profileLinks: prev.profileLinks?.length ? prev.profileLinks : fetched.profileLinks,
+    preferredPayment: prev.preferredPayment || fetched.preferredPayment,
+    skills: prev.skills?.length ? prev.skills : fetched.skills,
+  };
+}
+
 export async function fetchCurrentUser(): Promise<UserProfile | null> {
   const { setProfile, setLoadingProfile } = useUserStore.getState();
   setLoadingProfile(true);
   try {
     const me = await api.get<MeEntity>("/api/auth/me");
-    const profile = mapUserProfile(meToUserProfileDto(me));
+    const profile = keepLocalEdits(mapUserProfile(meToUserProfileDto(me)));
     setProfile(profile);
     return profile;
   } catch {
-    return null;
+    // Fall back to the auth-store user so /profile renders instead of hanging,
+    // keeping any locally-edited pending fields.
+    const base = profileFromAuthStore();
+    const fallback = base ? keepLocalEdits(base) : null;
+    if (fallback) setProfile(fallback);
+    return fallback;
   } finally {
     setLoadingProfile(false);
   }
@@ -78,6 +127,8 @@ export async function fetchUserById(id: string): Promise<UserProfile> {
     role: "",
     avatar: "",
     links: "",
+    profileLinks: [],
+    preferredPayment: "",
     skills: [],
     canCreateProjects: false,
     canJoinProjects: false,

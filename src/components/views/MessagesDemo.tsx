@@ -4,7 +4,8 @@
 // the structure of the messaging area is visible during development. Purely
 // presentational: nothing here talks to the backend and every control is inert.
 
-import { MessageSquare, Send } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, MessageSquare, Send } from "lucide-react";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
 
 interface DemoConversation {
@@ -31,21 +32,31 @@ const DEMO_THREAD: { id: string; from: "them" | "me"; text: string; time: string
 ];
 
 export default function MessagesDemo() {
-  const { t } = useI18n();
+  const { t, dir } = useI18n();
+  // Mirrors the real page's list↔chat flow below md, so the preview shows how
+  // messaging actually behaves on a phone rather than a permanently open chat.
+  const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <>
-      <aside className="hidden w-[280px] shrink-0 overflow-y-auto border-l border-[var(--border)] p-4 md:block">
+      <aside
+        data-testid="conv-list"
+        className={`w-full shrink-0 overflow-y-auto p-4 md:w-[280px] md:border-l md:border-[var(--border)] md:block ${
+          openId ? "hidden" : "block"
+        }`}
+      >
         <div className="mb-5 flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
           <h1 className="text-lg font-bold">{t("msgConversations")}</h1>
         </div>
 
         {DEMO_CONVERSATIONS.map((c) => (
-          <div
+          <button
             key={c.id}
-            aria-disabled
-            className={`mb-2 flex w-full items-center gap-3 rounded-xl border-r-2 p-3 text-right ${
+            type="button"
+            data-testid={`demo-conv-${c.id}`}
+            onClick={() => setOpenId(c.id)}
+            className={`mb-2 flex min-h-11 w-full items-center gap-3 rounded-xl border-r-2 p-3 text-right transition-colors hover:bg-primary/5 ${
               c.active ? "border-primary bg-primary/10" : "border-transparent"
             }`}
           >
@@ -61,12 +72,25 @@ export default function MessagesDemo() {
                 {c.unread}
               </span>
             ) : null}
-          </div>
+          </button>
         ))}
       </aside>
 
-      <section className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3 md:px-6">
+      <section
+        data-testid="chat-pane"
+        className={`min-w-0 flex-1 flex-col md:flex ${openId ? "flex" : "hidden"}`}
+      >
+        <header className="flex items-center gap-2 border-b border-[var(--border)] px-2 py-3 md:gap-3 md:px-6">
+          <button
+            type="button"
+            data-testid="chat-back"
+            onClick={() => setOpenId(null)}
+            aria-label={t("msgBackToList")}
+            title={t("msgBackToList")}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary md:hidden"
+          >
+            {dir === "rtl" ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </button>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
             ג
           </div>

@@ -6,6 +6,9 @@ export const misc = {
     devModeOn: "נתוני דמו פעילים",
     devModeHint: "הצגת נתוני דוגמה כדי לבחון את העיצוב עד שהשרת יספק תוכן אמיתי",
 
+    cardMenuLabel: "אפשרויות",
+    accountMenuLabel: "תפריט חשבון",
+
     // AppTopBar / NotificationCenter
     notifTitle: "התראות",
     notifMarkAll: "סמן הכל כנקרא",
@@ -107,6 +110,9 @@ export const misc = {
     devModeOff: "Dev mode",
     devModeOn: "Demo data on",
     devModeHint: "Show sample data to review the design until the server serves real content",
+
+    cardMenuLabel: "Options",
+    accountMenuLabel: "Account menu",
 
     // AppTopBar / NotificationCenter
     notifTitle: "Notifications",

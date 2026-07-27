@@ -212,22 +212,73 @@ node qa/qa-e2e.mjs   # real end-to-end: registers a user, posts, likes, chats (n
 ```
 Reports land in `qa/QA_REPORT.md` and `qa/E2E_REPORT.md`.
 
-UI sweeps (run against `next start` on :3001 unless noted):
+### The gate — one command before you merge
 
 ```bash
-node qa/deep-check.mjs      # clicks the nav and top bar, English/LTR, mobile, collapsed rail
-node qa/ui-walkthrough.mjs  # every route in light + dark: console, overflow, i18n, theme mixing
-node qa/viewport-fit.mjs    # no route scrolls with nothing to scroll to
-node qa/topbar.mjs          # the top-bar cluster is present and sticky everywhere
-node qa/sidebar-fit.mjs     # the rail fits without scrolling down to 560px tall
+npm run qa:gate -- --build
 ```
 
-`qa/demo-mode.mjs` covers the מצב פיתוח toggle and needs the **dev** server,
-because the toggle is development-only:
+That builds, starts `next start -p 3001`, runs every UI sweep against that one
+server, prints a pass/fail table, stops the server, and **exits non-zero if any
+suite failed**. Drop `-- --build` to reuse the current `.next`; set `QA_PORT` if
+3001 is taken.
+
+Eight suites run in the gate:
+
+| Suite | What it holds |
+|---|---|
+| `mobile` | 360/390/430px — the `MOBILE_SPEC.md` acceptance bar: no horizontal scroll, bottom nav, list↔chat, ≥44px targets, ≥16px inputs |
+| `deep-check` | nav and top bar clicks, English/LTR, mobile, collapsed rail |
+| `ui-walkthrough` | every route in light + dark: console errors, overflow, i18n leaks, theme mixing |
+| `topbar` | the top-bar cluster is present, sticky, and mirrors in LTR |
+| `viewport-fit` | no route scrolls with nothing to scroll to |
+| `sidebar-fit` | the rail fits without scrolling down to 560px tall |
+| `account-menu` | avatar menu opens, navigates, and logs out (cookies included) |
+| `profile-details` | profile fields, personal links, public profiles, payment tab |
+| `nda-payment` | the `/nda` payment step asks for nothing and claims nothing |
+
+Each suite also runs standalone against a server you started yourself:
+
+```bash
+npx next start -p 3001
+node qa/mobile.mjs          # or any suite name from the table
+```
+
+Three rules if you add or change a suite:
+
+- **The exit code is the contract.** Logging "✘" without exiting 1 makes a real
+  failure invisible to the gate. End every file with `process.exit(fail ? 1 : 0)`.
+- **Never skip a route silently.** A page that fails to render must count as a
+  failure, not a `continue` — otherwise a broken route scores as a pass.
+- **A check that can't fail is worth nothing.** `viewport-fit` ends by injecting
+  the bug it hunts (`min-height:100vh` on a short page) and asserting it is
+  caught. Do the same wherever a check gets narrowed.
+
+Don't pipe the gate through `tail`/`head` — the shell reports the *pipe's* exit
+code, so failures look green. Redirect to a file instead.
+
+Text that is user/backend data, or is deliberately not Hebrew (a language named
+in its own language), carries `data-qa-zone="content"`. `ui-walkthrough` skips it
+when hunting untranslated strings — otherwise every mock project title reads as
+an i18n leak.
+
+### Payments
+
+**No page in this app collects card numbers, CVVs or bank details.** Until a
+provider is chosen, `/nda`'s payment step states that plainly and charges
+nothing; the profile payment tab stores a preferred-method *label* only. When a
+provider is wired, the handoff goes to its hosted checkout and the details are
+entered there — never in our own fields. `qa/nda-payment.mjs` and
+`qa/profile-details.mjs` both assert this, so a card form can't quietly return.
+
+`qa/demo-mode.mjs` and `qa/card-menu.mjs` need the **dev** server — the first
+because the toggle is development-only, the second because it drives the feed
+with demo data:
 
 ```bash
 npx next dev -p 3002
 QA_BASE=http://localhost:3002 node qa/demo-mode.mjs
+QA_BASE=http://localhost:3002 node qa/card-menu.mjs
 ```
 
 ## Common Issues

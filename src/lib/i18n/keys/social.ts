@@ -16,6 +16,15 @@ export const social = {
 
     socialFeedTitle: "פיד הקהילה",
     socialFeedSub: "מה חדש אצל חברי הקיבוץ.",
+    // post card "⋯" menu
+    socialPostMenuLabel: "אפשרויות לפוסט של {name}",
+    socialPostOpen: "פתיחת הפוסט",
+    socialPostCopyLink: "העתקת קישור",
+    socialPostLinkCopied: "הקישור הועתק",
+    socialPostReport: "דיווח על הפוסט",
+    socialPostDelete: "מחיקת הפוסט",
+    socialPostConfirmDelete: "למחוק את הפוסט? הפעולה אינה הפיכה.",
+    socialPostDeleteError: "מחיקת הפוסט נכשלה. נסו שוב.",
     socialFeedLoadError: "טעינת הפיד נכשלה",
     socialPostCreateError: "פרסום הפוסט נכשל",
     socialComposerPlaceholder: "מה חדש בקיבוץ?",
@@ -66,6 +75,15 @@ export const social = {
 
     socialFeedTitle: "Community feed",
     socialFeedSub: "What's new with your fellow members.",
+    // post card "⋯" menu
+    socialPostMenuLabel: "Options for {name}'s post",
+    socialPostOpen: "Open post",
+    socialPostCopyLink: "Copy link",
+    socialPostLinkCopied: "Link copied",
+    socialPostReport: "Report post",
+    socialPostDelete: "Delete post",
+    socialPostConfirmDelete: "Delete this post? This cannot be undone.",
+    socialPostDeleteError: "Could not delete the post. Please try again.",
     socialFeedLoadError: "Failed to load the feed",
     socialPostCreateError: "Failed to publish the post",
     socialComposerPlaceholder: "What's new in the kibbutz?",

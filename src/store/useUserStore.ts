@@ -57,13 +57,23 @@ export interface UserProject {
   createdAt: string;
 }
 
+export interface ProfileLink {
+  url: string;
+  label?: string;
+}
+
+/** Preferred payment method — a label only, never card/account numbers. */
+export type PaymentMethod = "" | "bit" | "paypal" | "card";
+
 export interface UserProfile {
   id: string;
   name: string;
   bio: string;
   role: string;           // תפקיד (טקסט חופשי)
   avatar: string;
-  links: string;
+  links: string;          // legacy single link
+  profileLinks: ProfileLink[];
+  preferredPayment: PaymentMethod;
   skills: Skill[];
   canCreateProjects: boolean;
   successCount: number;

@@ -107,11 +107,15 @@ const AUDIT = () => {
     // Placeholder junk that reached the UI
     if (/\b(undefined|NaN|null|\[object Object\]|\{[a-z]+\})/.test(txt)) out.deadText.push(txt.slice(0, 60));
 
-    // Latin-only text in the Hebrew UI (allow brand/short/technical bits)
+    // Latin-only text in the Hebrew UI (allow brand/short/technical bits).
+    // data-qa-zone="content" marks text that is user/backend data or is
+    // deliberately not Hebrew (a language named in its own language). Those
+    // are not translation misses, so they are not chrome and not checked.
     if (
       /[A-Za-z]/.test(txt) && !/[֐-׿]/.test(txt) &&
       txt.length > 3 && !/^[\d\s\W]+$/.test(txt) &&
-      !/(kibbutz|the kibbutz|NDA|©|@|\.com|v\d|http)/i.test(txt)
+      !/(kibbutz|the kibbutz|NDA|©|@|\.com|v\d|http)/i.test(txt) &&
+      !el.closest('[data-qa-zone="content"]')
     ) out.latin.push(txt.slice(0, 60));
 
     // Content sitting under the sticky bar
@@ -203,3 +207,5 @@ else {
   }
 }
 await browser.close();
+// Any finding fails the run — qa/gate.mjs reads the exit code, not the log.
+process.exit(findings.length ? 1 : 0);

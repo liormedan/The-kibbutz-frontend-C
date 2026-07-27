@@ -92,7 +92,7 @@ section("B · הסרגל העליון — קליקים");
   await page.click('[data-testid="topbar-bell"]');
   await page.waitForTimeout(250);
   const panel = await page.evaluate(() => {
-    const p = document.querySelector("header.sticky .absolute");
+    const p = document.querySelector('[data-testid="notif-panel"]');
     if (!p) return null;
     const r = p.getBoundingClientRect();
     return { left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width),
@@ -105,14 +105,18 @@ section("B · הסרגל העליון — קליקים");
   // clicking outside closes it
   await page.mouse.click(700, 500);
   await page.waitForTimeout(250);
-  const closed = await page.evaluate(() => !document.querySelector("header.sticky .absolute"));
+  const closed = await page.evaluate(() => !document.querySelector('[data-testid="notif-panel"]'));
   ok("קליק בחוץ סוגר את הפאנל", closed);
 
-  // avatar → profile
+  // avatar opens the account menu, and its profile item navigates
   await page.goto(BASE + "/projects", { waitUntil: "networkidle" });
   await page.click('[data-testid="topbar-avatar"]');
+  await page.waitForTimeout(200);
+  ok("האווטאר פותח תפריט חשבון", await page.locator('[data-testid="account-menu-panel"]').count() === 1);
+  ok("התפריט כולל התנתקות", await page.locator('[data-testid="account-logout"]').count() === 1);
+  await page.click('[data-testid="account-profile"]');
   await page.waitForURL("**/profile", { timeout: 5000 }).catch(() => {});
-  ok("האווטאר מוביל לפרופיל", new URL(page.url()).pathname === "/profile", page.url());
+  ok("פריט הפרופיל מנווט לפרופיל", new URL(page.url()).pathname === "/profile", page.url());
 
   // create button → create page
   await page.goto(BASE + "/projects", { waitUntil: "networkidle" });
@@ -149,14 +153,19 @@ section("C · אנגלית (LTR) — כל הנתיבים");
       const LANG_NAMES = new Set(["עברית", "English"]);
       const chrome = [], data = [];
       const seen = new Set();
+      // The conversation list is a list of PEOPLE — names and avatar initials
+      // are sample data, not interface copy, even though each row is a button.
+      const DATA_ZONES = "[data-testid='conv-list']";
       for (const root of document.querySelectorAll(CHROME)) {
+        if (root.closest(DATA_ZONES)) continue;
         const txt = root.innerText?.trim() ?? "";
         if (txt && HEB.test(txt) && txt !== userName && !LANG_NAMES.has(txt) && !seen.has(txt)) {
           seen.add(txt); chrome.push(txt.slice(0, 40));
         }
       }
       for (const el of document.querySelectorAll("p, span, td, li")) {
-        if (el.closest(CHROME) || el.closest("header.sticky")) continue;
+        if (el.closest("header.sticky")) continue;
+        if (el.closest(CHROME) && !el.closest(DATA_ZONES)) continue;
         const txt = el.textContent.trim();
         if (txt && HEB.test(txt) && !seen.has(txt)) { seen.add(txt); data.push(txt.slice(0, 40)); }
       }
