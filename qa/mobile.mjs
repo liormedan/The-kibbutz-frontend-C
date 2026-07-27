@@ -222,6 +222,79 @@ console.log("\nכפתור יצירה");
   await ctx.close();
 }
 
+// ── 5. messages: list ↔ chat (S2) ───────────────────────────────────────────
+console.log("\nהודעות — רשימה ↔ צ׳אט");
+{
+  const { ctx, page } = await ctxAt(390);
+  await page.goto(BASE + "/messages", { waitUntil: "networkidle" });
+  await page.waitForTimeout(500);
+
+  const shown = async (sel) => page.locator(sel).first().isVisible().catch(() => false);
+
+  ok("נוחתים על רשימת השיחות", await shown('[data-testid="conv-list"]'));
+  ok("הצ׳אט לא פתוח כברירת מחדל", !(await shown('[data-testid="chat-pane"]')));
+
+  // open a conversation (demo data is what renders with no backend)
+  const firstConv = page.locator('[data-testid^="demo-conv-"]').first();
+  const hasDemo = await firstConv.count() > 0;
+  if (hasDemo) {
+    await firstConv.click();
+    await page.waitForTimeout(300);
+    ok("לחיצה על שיחה פותחת צ׳אט", await shown('[data-testid="chat-pane"]'));
+    ok("הרשימה מתחלפת (לא שתי עמודות)", !(await shown('[data-testid="conv-list"]')));
+    ok("יש כפתור חזרה", await shown('[data-testid="chat-back"]'));
+
+    await page.click('[data-testid="chat-back"]');
+    await page.waitForTimeout(300);
+    ok("חזרה מחזירה לרשימה", await shown('[data-testid="conv-list"]'));
+    ok("הצ׳אט נסגר", !(await shown('[data-testid="chat-pane"]')));
+  } else {
+    ok("יש שיחות דמו לבדיקה", false, "לא נמצאו [data-testid^=demo-conv-]");
+  }
+
+  // the composer must clear the fixed bottom nav
+  const clear = await page.evaluate(() => {
+    const nav = document.querySelector('[data-testid="mobile-nav"]');
+    const card = document.querySelector("main > div");
+    if (!nav || !card) return null;
+    return { cardBottom: Math.round(card.getBoundingClientRect().bottom),
+             navTop: Math.round(nav.getBoundingClientRect().top) };
+  });
+  ok("הכרטיס לא נחבא מתחת לניווט התחתון",
+     clear && clear.cardBottom <= clear.navTop,
+     clear ? `card ${clear.cardBottom} vs nav ${clear.navTop}` : "לא נמדד");
+  await ctx.close();
+}
+{
+  // desktop keeps both panes side by side
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctx.addCookies([
+    { name: "kibbutz-session", value: "qa", url: BASE },
+    { name: "kibbutz-role", value: "user", url: BASE },
+  ]);
+  await ctx.route("**/api/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  const page = await ctx.newPage();
+  await page.addInitScript((a) => {
+    sessionStorage.setItem("kibbutz-auth", a);
+    localStorage.setItem("new-kibbutz-lang", "he");
+  }, JSON.stringify(AUTH));
+  await page.goto(BASE + "/messages", { waitUntil: "networkidle" });
+  await page.waitForTimeout(400);
+  const both = await page.evaluate(() => ({
+    list: !!document.querySelector('[data-testid="conv-list"]')
+      && getComputedStyle(document.querySelector('[data-testid="conv-list"]')).display !== "none",
+    chat: !!document.querySelector('[data-testid="chat-pane"]')
+      && getComputedStyle(document.querySelector('[data-testid="chat-pane"]')).display !== "none",
+    backHidden: (() => {
+      const b = document.querySelector('[data-testid="chat-back"]');
+      return !b || getComputedStyle(b).display === "none";
+    })(),
+  }));
+  ok("בדסקטופ שתי העמודות מוצגות יחד", both.list && both.chat, JSON.stringify(both));
+  ok("בדסקטופ כפתור החזרה מוסתר", both.backHidden);
+  await ctx.close();
+}
+
 console.log(`\n${"═".repeat(60)}\n  ${pass} עברו · ${fail} נכשלו\n${"═".repeat(60)}`);
 await browser.close();
 process.exit(fail ? 1 : 0);

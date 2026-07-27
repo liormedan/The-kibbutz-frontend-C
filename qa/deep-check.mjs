@@ -153,14 +153,19 @@ section("C · אנגלית (LTR) — כל הנתיבים");
       const LANG_NAMES = new Set(["עברית", "English"]);
       const chrome = [], data = [];
       const seen = new Set();
+      // The conversation list is a list of PEOPLE — names and avatar initials
+      // are sample data, not interface copy, even though each row is a button.
+      const DATA_ZONES = "[data-testid='conv-list']";
       for (const root of document.querySelectorAll(CHROME)) {
+        if (root.closest(DATA_ZONES)) continue;
         const txt = root.innerText?.trim() ?? "";
         if (txt && HEB.test(txt) && txt !== userName && !LANG_NAMES.has(txt) && !seen.has(txt)) {
           seen.add(txt); chrome.push(txt.slice(0, 40));
         }
       }
       for (const el of document.querySelectorAll("p, span, td, li")) {
-        if (el.closest(CHROME) || el.closest("header.sticky")) continue;
+        if (el.closest("header.sticky")) continue;
+        if (el.closest(CHROME) && !el.closest(DATA_ZONES)) continue;
         const txt = el.textContent.trim();
         if (txt && HEB.test(txt) && !seen.has(txt)) { seen.add(txt); data.push(txt.slice(0, 40)); }
       }

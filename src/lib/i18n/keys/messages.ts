@@ -2,6 +2,7 @@
 export const messages = {
   he: {
     msgConversations: "שיחות",
+    msgBackToList: "חזרה לרשימת השיחות",
     msgConversation: "שיחה",
     msgActiveConversation: "שיחה פעילה",
     msgNoConversations: "אין שיחות להצגה.",
@@ -19,6 +20,7 @@ export const messages = {
   } as Record<string, string>,
   en: {
     msgConversations: "Conversations",
+    msgBackToList: "Back to conversations",
     msgConversation: "Conversation",
     msgActiveConversation: "Active conversation",
     msgNoConversations: "No conversations to show.",

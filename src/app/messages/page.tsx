@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { ChevronLeft, MessageSquare, Send } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquare, Send } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EmptyState from "@/components/EmptyState";
 import {
@@ -122,12 +122,26 @@ function MessagesContent() {
   // the messaging layout is visible while the feature has no data.
   const showDemo = !isLoading && conversations.length === 0;
 
+  // Below md this is a list↔chat flow, not two panes: the list fills the width
+  // until a conversation is open, then the chat replaces it and a back button
+  // returns. The open conversation already lives in the URL, so back/forward
+  // and refresh work for free. See MOBILE_SPEC.md §4.
+  const hasActive = !!conversationId;
+  const backToList = () => router.push("/messages");
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6" dir={dir}>
-      {/* 4rem of the viewport belongs to AppTopBar, on top of this page's padding. */}
-      <div className="glass-card mx-auto flex h-[calc(100vh-6rem)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--border)] md:h-[calc(100vh-7rem)]">
+      {/* The card is sized to the space between AppTopBar and the bottom nav:
+          64px bar + 16px padding ×2 + 56px nav = 9.5rem on mobile. Without the
+          nav's share the message input sits underneath it. */}
+      <div className="glass-card mx-auto flex h-[calc(100vh-9.5rem)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--border)] md:h-[calc(100vh-7rem)]">
         {showDemo ? <MessagesDemo /> : <>
-        <aside className="hidden w-[280px] shrink-0 border-l border-[var(--border)] p-4 md:block overflow-y-auto">
+        <aside
+          data-testid="conv-list"
+          className={`w-full shrink-0 overflow-y-auto p-4 md:w-[280px] md:border-l md:border-[var(--border)] ${
+            hasActive ? "hidden md:block" : "block"
+          }`}
+        >
           <div className="mb-5 flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-[#d2642d]" />
             <h1 className="text-lg font-bold">{t("msgConversations")}</h1>
@@ -175,7 +189,10 @@ function MessagesContent() {
           )}
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col">
+        <section
+          data-testid="chat-pane"
+          className={`min-w-0 flex-1 flex-col md:flex ${hasActive ? "flex" : "hidden"}`}
+        >
           {!conversationId ? (
             <div className="flex flex-1 items-center justify-center p-6">
               <EmptyState
@@ -191,8 +208,20 @@ function MessagesContent() {
             </div>
           ) : (
             <>
-              <header className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3 md:px-6">
-                <div className="flex items-center gap-3">
+              <header className="flex items-center justify-between border-b border-[var(--border)] px-2 py-3 md:px-6">
+                <div className="flex min-w-0 items-center gap-2 md:gap-3">
+                  {/* Mobile only — desktop keeps both panes, so there is nothing
+                      to go "back" to there. */}
+                  <button
+                    type="button"
+                    data-testid="chat-back"
+                    onClick={backToList}
+                    aria-label={t("msgBackToList")}
+                    title={t("msgBackToList")}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[var(--muted-foreground)] transition-colors hover:bg-[#d2642d]/10 hover:text-[#d2642d] md:hidden"
+                  >
+                    {dir === "rtl" ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+                  </button>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d2642d]/10 text-sm font-bold text-[#d2642d]">
                     {headerOther?.avatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -201,12 +230,20 @@ function MessagesContent() {
                       convTitle(activeConversation, currentUserId, t("msgConversation"))[0]?.toUpperCase() ?? "?"
                     )}
                   </div>
-                  <div>
-                    <h2 className="font-bold text-sm md:text-base">{convTitle(activeConversation, currentUserId, t("msgConversation"))}</h2>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-sm font-bold md:text-base">{convTitle(activeConversation, currentUserId, t("msgConversation"))}</h2>
                     <p className="text-xs text-[var(--muted-foreground)]">{t("msgDirectChat")}</p>
                   </div>
                 </div>
-                <button type="button" onClick={() => router.push("/matches")} className="rounded-xl p-2 text-[var(--muted-foreground)] hover:bg-[#d2642d]/10 hover:text-[#d2642d]">
+                {/* "Find matches" shortcut — hidden on mobile, where the same
+                    corner already carries the back button. */}
+                <button
+                  type="button"
+                  onClick={() => router.push("/matches")}
+                  aria-label={t("msgStartChat")}
+                  title={t("msgStartChat")}
+                  className="hidden shrink-0 rounded-xl p-2 text-[var(--muted-foreground)] hover:bg-[#d2642d]/10 hover:text-[#d2642d] md:block"
+                >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
               </header>
