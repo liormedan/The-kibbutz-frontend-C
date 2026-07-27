@@ -139,13 +139,13 @@ sprint's share of "mobile is done" — they sum to 100%.
 |---|---|---:|---|---|
 | **S1** ✅ | **שלד המובייל** — the base; without it every screen inherits the bugs | 35% | ~~zero horizontal overflow~~ (finding 1 retracted — see §2) · new bottom nav (גילוי · פיד · הודעות · הפרויקטים · עוד) · the "עוד" sheet (friends / portfolio / settings / logout) · round `+` in the top bar | findings 2, 3 |
 | **S2** ✅ | **הודעות — list ↔ chat** | 20% | conversation list full-width by default · tap through to chat with a back arrow · drop the two-pane below `md` | finding 4 |
-| **S3** | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
+| **S3** ✅ | **טאבים ופריסה** | 20% | scrollable tab bar in the hub · scrollable tab bar in profile · settings stacks to one column | — |
 | **S4** | **Overlays ופוליש** | 15% | `min(92vw)` cap on account + notification panels · tap targets ≥44px · 16px input font (no iOS zoom) | finding 5 |
 | **S5** | **אימות** | 10% | `qa/mobile.mjs` at 360/390/430 · regression across the 5 existing sweeps | — |
 
 Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
 
-**S1 + S2 are done** (`qa/mobile.mjs`, 39/39 — cumulative **55%**).
+**S1 + S2 + S3 are done** (`qa/mobile.mjs`, 52/52 — cumulative **75%**).
 
 - S1: the bottom nav is `src/components/MobileNav.tsx`, split out of
   `DashboardSidebar.tsx`, which despite its name was rendering it; that file is
@@ -155,6 +155,13 @@ Cumulative completion after each sprint: **35 → 55 → 75 → 90 → 100%**.
   flow was applied to `MessagesDemo` — which is what actually renders today,
   and was the screen the audit caught as a dead end. The card height also now
   subtracts the bottom nav (`9.5rem`), otherwise the composer sat underneath it.
+- S3: settings was the real defect here — its `12rem 1fr` grid resolved to
+  `192px 164px` on a 390px phone, leaving the content 164px wide. It now stacks
+  below `md`, with the rail becoming a scrollable strip on top. The hub tab bar
+  already scrolled; what it lacked was scrolling the *active* tab into view, so
+  landing on a later tab looked like nothing was selected. Profile's four tabs
+  fit 390px with nothing to spare, so that strip scrolls too rather than
+  squeezing the labels at 360px.
 
 S1 first is deliberate: the overflow and the stale nav are shell-level, so every
 other screen is measured against a broken baseline until they're fixed. S5 last

@@ -295,6 +295,89 @@ console.log("\nהודעות — רשימה ↔ צ׳אט");
   await ctx.close();
 }
 
+// ── 6. tabs & layout (S3) ───────────────────────────────────────────────────
+console.log("\nטאבים ופריסה");
+for (const width of [360, 390]) {
+  const { ctx, page } = await ctxAt(width);
+
+  // settings must stack — the 12rem rail beside content left ~164px on a phone
+  await page.goto(BASE + "/settings", { waitUntil: "networkidle" });
+  await page.waitForTimeout(400);
+  const s = await page.evaluate(() => {
+    const shell = document.querySelector('[data-testid="settings-shell"]');
+    const nav = document.querySelector('[data-testid="settings-nav"]');
+    const content = shell ? shell.children[1] : null;
+    return {
+      stacked: shell ? getComputedStyle(shell).display === "flex" : false,
+      contentW: content ? Math.round(content.getBoundingClientRect().width) : 0,
+      navScrolls: nav ? getComputedStyle(nav).overflowX === "auto" : false,
+      shellW: shell ? Math.round(shell.getBoundingClientRect().width) : 0,
+    };
+  });
+  ok(`${width}px — הגדרות בעמודה אחת`, s.stacked);
+  ok(`${width}px — לתוכן ההגדרות יש את כל הרוחב`,
+     s.contentW > s.shellW * 0.9, `${s.contentW} מתוך ${s.shellW}`);
+  ok(`${width}px — סרגל ההגדרות נגלל`, s.navScrolls);
+
+  // hub tabs: scrollable, never wrapped, active one visible
+  await page.goto(BASE + "/my-projects/teams", { waitUntil: "networkidle" });
+  await page.waitForTimeout(500);
+  const h = await page.evaluate(() => {
+    const nav = document.querySelector('[data-testid="hub-tabs"]');
+    if (!nav) return null;
+    const active = nav.querySelector('[aria-current="page"]');
+    const nr = nav.getBoundingClientRect(), ar = active?.getBoundingClientRect();
+    return {
+      scrolls: getComputedStyle(nav).overflowX === "auto",
+      wrap: getComputedStyle(nav).flexWrap,
+      activeInView: ar ? ar.left >= nr.left - 1 && ar.right <= nr.right + 1 : false,
+      activeLabel: active?.textContent.trim() ?? "",
+    };
+  });
+  ok(`${width}px — טאבי המרכז נגללים ולא נשברים`, h && h.scrolls && h.wrap === "nowrap");
+  ok(`${width}px — הטאב הפעיל גלול לתצוגה`, h && h.activeInView, h ? h.activeLabel : "");
+
+  // profile tabs: no clipped label
+  await page.goto(BASE + "/profile", { waitUntil: "networkidle" });
+  await page.waitForTimeout(800);
+  const pr = await page.evaluate(() => {
+    const bar = document.querySelector('[data-testid="profile-tabs"]');
+    if (!bar) return null;
+    return {
+      scrolls: getComputedStyle(bar).overflowX === "auto",
+      clipped: [...bar.children].filter((c) => c.scrollWidth > c.clientWidth + 1)
+        .map((c) => c.textContent.trim()),
+    };
+  });
+  ok(`${width}px — אין תווית חתוכה בטאבי הפרופיל`,
+     pr && pr.clipped.length === 0, pr ? pr.clipped.join(", ") : "לא נמצא");
+
+  await ctx.close();
+}
+{
+  // desktop must keep the settings rail beside the content
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctx.addCookies([
+    { name: "kibbutz-session", value: "qa", url: BASE },
+    { name: "kibbutz-role", value: "user", url: BASE },
+  ]);
+  await ctx.route("**/api/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+  const page = await ctx.newPage();
+  await page.addInitScript((a) => {
+    sessionStorage.setItem("kibbutz-auth", a);
+    localStorage.setItem("new-kibbutz-lang", "he");
+  }, JSON.stringify(AUTH));
+  await page.goto(BASE + "/settings", { waitUntil: "networkidle" });
+  await page.waitForTimeout(400);
+  const d = await page.evaluate(() => {
+    const shell = document.querySelector('[data-testid="settings-shell"]');
+    return { grid: getComputedStyle(shell).display === "grid",
+             cols: getComputedStyle(shell).gridTemplateColumns };
+  });
+  ok("בדסקטופ ההגדרות נשארות רייל + תוכן", d.grid, d.cols);
+  await ctx.close();
+}
+
 console.log(`\n${"═".repeat(60)}\n  ${pass} עברו · ${fail} נכשלו\n${"═".repeat(60)}`);
 await browser.close();
 process.exit(fail ? 1 : 0);

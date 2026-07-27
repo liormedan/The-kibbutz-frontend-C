@@ -391,10 +391,17 @@ function ProfileContent({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 rounded-xl mb-5" style={{ background: "var(--muted)" }}>
+        {/* Four Hebrew labels fit a 390px phone with nothing to spare, so the
+            strip scrolls rather than squeezing the text at narrower widths. */}
+        <div
+          data-testid="profile-tabs"
+          className="mb-5 flex gap-1 overflow-x-auto rounded-xl p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ background: "var(--muted)" }}
+        >
           {[["skills", t("profileSkillsTab")], ["projects", t("profileProjectsTab")], ["badges", t("profileBadgesTab")], ["payment", t("profilePaymentTab")]] .map(([id, label]) => (
             <button key={id} onClick={() => setActiveTab(id as ProfileTab)}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              aria-current={activeTab === id ? "page" : undefined}
+              className={`min-h-11 flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold transition-all cursor-pointer ${activeTab === id ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {label}
             </button>
           ))}

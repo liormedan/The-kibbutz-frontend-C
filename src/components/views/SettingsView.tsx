@@ -41,33 +41,35 @@ export default function SettingsView() {
 
   return (
     <div className="h-full p-4 md:p-6" dir={dir}>
+      {/* A 12rem rail beside the content leaves only ~164px for the content
+          itself on a 390px phone, so below md this stacks: the rail becomes a
+          horizontal tab strip on top. See MOBILE_SPEC.md §4. */}
       <div
-        className="w-full h-full rounded-2xl border border-[var(--border)] overflow-hidden"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "12rem 1fr",
-          background: "var(--background-subtle)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-        }}
+        data-testid="settings-shell"
+        className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-subtle)] backdrop-blur-md md:grid md:grid-cols-[12rem_1fr]"
       >
         {/* ── Nav ── */}
-        <nav className="flex flex-col py-4 bg-[var(--background-subtle)]" style={{ borderInlineEnd: "1px solid var(--border)" }}>
+        <nav
+          data-testid="settings-nav"
+          className="flex shrink-0 overflow-x-auto border-b border-[var(--border)] bg-[var(--background-subtle)] md:flex-col md:overflow-x-visible md:border-b-0 md:border-e md:py-4"
+        >
           {nav.map((s) => (
             <button
               key={s.id}
               onClick={() => setSettingsTab(s.id)}
-              className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-all cursor-pointer border-s-2 ${
+              className={`flex min-h-11 shrink-0 items-center gap-2.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm transition-all cursor-pointer md:w-full md:border-b-0 md:border-s-2 ${
                 settingsTab === s.id
-                  ? "text-primary font-semibold bg-primary/8 border-primary"
-                  : "text-muted-foreground hover:text-foreground border-transparent hover:bg-primary/5"
+                  ? "border-primary bg-primary/8 font-semibold text-primary"
+                  : "border-transparent text-muted-foreground hover:bg-primary/5 hover:text-foreground"
               }`}
             >
               {s.icon}
               {t(s.labelKey)}
             </button>
           ))}
-          <div className="mt-auto px-3 pt-4 pb-2">
+          {/* Desktop only — on mobile logout is already in the account menu and
+              the "עוד" sheet, so a third copy would only crowd the strip. */}
+          <div className="mt-auto hidden px-3 pb-2 pt-4 md:block">
             <button
               onClick={() => { logout(); window.location.href = "/"; }}
               className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/8 rounded-xl transition-all cursor-pointer"
@@ -79,7 +81,7 @@ export default function SettingsView() {
         </nav>
 
         {/* ── Content ── */}
-        <div className="overflow-y-auto p-8">
+        <div className="min-w-0 flex-1 overflow-y-auto p-5 md:p-8">
           {settingsTab === "appearance" && (
             <div className="max-w-xl space-y-6">
               <p className="text-xs font-semibold text-muted-foreground tracking-widest uppercase">{t("settingsAppearance")}</p>
