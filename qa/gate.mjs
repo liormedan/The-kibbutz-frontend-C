@@ -20,7 +20,7 @@ const isWin = process.platform === "win32";
 const SUITES = [
   ["endpoint-audit", "endpoints מול חוזה הבקאנד (סטטי)"],
   ["all-routes", "כל 34 המסלולים — מחובר/לא מחובר, דסקטופ/מובייל"],
-  ["mobile", "מובייל — 360/390/430, קבלת MOBILE_SPEC"],
+  ["mobile", "מובייל — 360/390/430, שלד, יעדי מגע וקלט"],
   ["deep-check", "בדיקת עומק — ניווט, שפה, ערכות נושא"],
   ["ui-walkthrough", "סריקת UI — כל המסלולים, בהיר וכהה"],
   ["topbar", "סרגל עליון — הצמדה, סדר, מראה הפוך ב-LTR"],

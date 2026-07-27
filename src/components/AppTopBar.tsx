@@ -24,7 +24,7 @@ export default function AppTopBar() {
       className="sticky top-0 z-20 flex h-16 items-center justify-end gap-3 border-b border-[var(--border)] bg-background/85 px-4 backdrop-blur-md md:px-6"
     >
       {/* Below md this collapses to a round icon button — the full label button
-          ate most of the bar width on a phone. See MOBILE_SPEC.md §6 [D3]. */}
+          ate most of the bar width on a phone. */}
       <button
         type="button"
         data-testid="topbar-create"
